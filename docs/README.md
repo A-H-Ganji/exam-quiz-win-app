@@ -40,7 +40,7 @@ This is a modern, feature-rich exam/quiz application designed for Windows platfo
 - Clone the repository to your local machine:
 
     ```bash
-    git clone https://github.com/your-username/exam-quiz-win-app.git
+    git clone https://github.com/A-H-Ganji/exam-quiz-win-app.git
     ```
 
 - Navigate to the project directory:
@@ -82,7 +82,7 @@ To deploy the Exam/Quiz Windows Application to a production environment, follow 
 3. Clone the repository to your server using the following command:
 
     ```bash
-    git clone https://github.com/your-username/exam-quiz-win-app.git
+    git clone https://github.com/A-H-Ganji/exam-quiz-win-app.git
     ```
 
 4. Configure the application settings according to your production environment. This may include database configuration, environment variables, security settings, and any other relevant configurations.
@@ -110,6 +110,12 @@ For any further assistance or troubleshooting, feel free to reach out to the pro
 Here are some demo GIFs and screenshots showcasing the functionality of the Exam/Quiz Windows Application:
 
 ### User Interface Overview
+
+![Login](../images/login_shot.png)
+
+![Admin Security Tab](../images/admin_security_shot.png)
+
+![Admin Reports Tab](../images/admin_reports_shot.png)
 
 ![User Interface Overview](demo/user_interface_overview.gif)
 
@@ -166,7 +172,7 @@ Thank you for considering contributing to the Exam/Quiz Windows Application! Con
 
 ### Reporting Issues
 
-If you encounter any bugs, issues, or have feature requests, please [open an issue](https://github.com/your-username/exam-quiz-win-app/issues) on GitHub. Be sure to include detailed information about the problem and steps to reproduce it, if applicable. Your feedback helps us identify and resolve issues efficiently.
+If you encounter any bugs, issues, or have feature requests, please [open an issue](https://github.com/A-H-Ganji/exam-quiz-win-app/issues) on GitHub. Be sure to include detailed information about the problem and steps to reproduce it, if applicable. Your feedback helps us identify and resolve issues efficiently.
 
 ### Pull Requests
 
@@ -182,7 +188,7 @@ Once your pull request is submitted, it will be reviewed by the project maintain
 
 ### Feature Requests
 
-If you have ideas for new features or improvements, please open a discussion by [creating a new issue](https://github.com/your-username/exam-quiz-win-app/issues) on GitHub. We value your input and will consider all suggestions to enhance the project's functionality and user experience.
+If you have ideas for new features or improvements, please open a discussion by [creating a new issue](https://github.com/A-H-Ganji/exam-quiz-win-app/issues) on GitHub. We value your input and will consider all suggestions to enhance the project's functionality and user experience.
 
 ### Spread the Word
 
@@ -239,11 +245,11 @@ Thank you for your interest in the Exam/Quiz Windows Application, and we hope yo
 
 Feel free to reach out to me through any of the following channels:
 
-- Email: [your-email@example.com](mailto:your-email@example.com)
-- LinkedIn: [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/yourusername/)
-- GitHub: [![GitHub](https://img.shields.io/badge/GitHub-Follow-blue)](https://github.com/yourusername)
-- Instagram: [![Instagram](https://img.shields.io/badge/Instagram-Follow-blue)](https://www.instagram.com/yourusername/)
-- Telegram: [![Telegram](https://img.shields.io/badge/Telegram-Message-blue)](https://t.me/yourusername)
+- Email: [amirhosseinganjiii@gmail.com](mailto:amirhosseinganjiii@gmail.com)
+- LinkedIn: [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/amir-hossein-ganji-aa0a72146?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3B5oKBboT6QIC5rCO%2BzOx%2BZw%3D%3D)
+- GitHub: [![GitHub](https://img.shields.io/badge/GitHub-Follow-blue)](https://github.com/A-H-Ganji)
+- Instagram: [![Instagram](https://img.shields.io/badge/Instagram-Follow-blue)](https://www.instagram.com/a.h.ganji_/)
+- Telegram: [![Telegram](https://img.shields.io/badge/Telegram-Message-blue)](https://t.me/AmirHo3einGanji)
 
 Let's connect and collaborate!
 ## Support
