@@ -1,6 +1,5 @@
 .vscode/
 outputs/
-.ssh/
 src/__pycache__/
 tests/__pycache__/
 docs/*.docx
