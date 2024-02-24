@@ -1,5 +1,35 @@
-
+<!-- omit in toc -->
 # Exam/Quiz Windows Application
+
+- [Overview](#overview)
+- [Badges](#badges)
+- [Features](#features)
+- [Installation and Configuration](#installation-and-configuration)
+  - [1. Download the Repository](#1-download-the-repository)
+  - [2. Install Dependencies](#2-install-dependencies)
+  - [3. Create Executable File](#3-create-executable-file)
+  - [4. Deployment](#4-deployment)
+- [Demo](#demo)
+  - [User Interface Overview](#user-interface-overview)
+  - [Creating a New Quiz](#creating-a-new-quiz)
+  - [Taking a Quiz](#taking-a-quiz)
+  - [Analyzing Results](#analyzing-results)
+  - [Usage/Examples](#usageexamples)
+- [Running Tests](#running-tests)
+- [Contributing](#contributing)
+  - [Reporting Issues](#reporting-issues)
+  - [Pull Requests](#pull-requests)
+  - [Feature Requests](#feature-requests)
+  - [Spread the Word](#spread-the-word)
+  - [Code of Conduct](#code-of-conduct)
+- [Roadmap](#roadmap)
+  - [Short-Term Goals](#short-term-goals)
+  - [Medium-Term Goals](#medium-term-goals)
+  - [Long-Term Goals](#long-term-goals)
+- [Documentation](#documentation)
+- [Contact](#contact)
+- [Support](#support)
+- [Acknowledgements](#acknowledgements)
 
 ## Overview
 
@@ -8,12 +38,7 @@ This is a modern, feature-rich exam/quiz application designed for Windows platfo
 
 ## Badges
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/)
-
-[![Platform](https://img.shields.io/badge/Platform-Windows-green)](https://www.microsoft.com/en-us/windows)
-
-[![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
-
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Platform](https://img.shields.io/badge/Platform-Windows-green)](https://www.microsoft.com/en-us/windows) [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 
 ## Features
@@ -283,3 +308,6 @@ I would like to express my gratitude to the following individuals and organizati
 
 I am deeply appreciative of everyone who has contributed directly or indirectly to the success of this project.
 
+
+
+[def]: #badges
