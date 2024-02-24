@@ -1,0 +1,4254 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import os
+from tkinter import messagebox
+from db1 import *
+from datetime import datetime
+from csv import writer
+
+class LoginPage(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Login")
+
+        # Set fixed window size
+        self.geometry("800x600")
+        
+        # Disable window resizing
+        self.resizable(False, False)
+
+        # Load the background image
+        # the relative file path
+        path = "..\images\login_background.jpg"
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        image_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+
+        self.background_image = Image.open(image_path)
+        self.background_image = self.background_image.resize((800, 600), Image.BILINEAR)  # Resize the image to fit the window
+        self.background_photo = ImageTk.PhotoImage(self.background_image)
+
+        # Create a label for the background image
+        self.background_label = tk.Label(self, image=self.background_photo)
+        self.background_label.grid(row=0, column=0, sticky="nsew")
+
+        # Set row and column configurations to make the window expand
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Create a frame for login components
+        self.login_frame = tk.Frame(self.background_label, bg='white')
+        self.login_frame.grid(row=0, column=0, sticky="nsew", padx=50, pady=50)
+
+        # Welcome label
+        self.welcome_label = tk.Label(self.login_frame, text="Welcome to Exam/Quiz Application", font=("Helvetica", 20, "bold"), bg='white', fg='black', height=2)
+        self.welcome_label.grid(row=0, column=0, columnspan=2, padx=20, pady=20)
+
+        # Create a frame for username components
+        self.username_frame = tk.Frame(self.login_frame, bg='white', height=2)
+        self.username_frame.grid(row=1, column=0, padx=30, sticky="w")
+
+        # Username label
+        self.username_label = tk.Label(self.username_frame, text="Username:", font=("Helvetica", 16), bg='white', fg='black', height=2)
+        self.username_label.grid(row=1, column=0, padx=(10, 5), sticky="e")
+
+        # Username entry
+        self.username_entry = tk.Entry(self.username_frame, relief="groove", borderwidth=2, font=("Helvetica", 16))
+        self.username_entry.grid(row=1, column=1, padx=(0, 10), sticky="w")
+
+        # Create a frame for password-related components
+        self.password_frame = tk.Frame(self.login_frame, bg='white', height=2)
+        self.password_frame.grid(row=2, column=0, padx=30, sticky="w")
+
+        # Password label
+        self.password_label = tk.Label(self.password_frame, text="Password:", font=("Helvetica", 16), bg='white', fg='black', height=2)
+        self.password_label.grid(row=0, column=0, padx=(10, 5), sticky="e")
+
+        # Password entry
+        self.password_entry = tk.Entry(self.password_frame, relief="groove", borderwidth=2, font=("Helvetica", 16), show="*")
+        self.password_entry.grid(row=0, column=1, pady=5, sticky="w")
+
+        # Forgot Password button
+        path = "..\images\\forgot_password.png"
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        image_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        self.forgot_password_image = Image.open(image_path)
+        self.forgot_password_icon = ImageTk.PhotoImage(self.forgot_password_image)
+        self.forgot_password_button = tk.Button(self.password_frame, image=self.forgot_password_icon, cursor="hand2", command=self.forgot_password, width=26, height=26)
+        self.forgot_password_button.grid(row=0, column=2, padx=(5, 0), pady=5, sticky="w")
+
+        # Buttons frame
+        self.buttons_frame = tk.Frame(self.login_frame, bg='white')
+        self.buttons_frame.grid(row=3, column=0, columnspan=2, pady=10)
+
+        # Login button
+        self.login_button = tk.Button(self.buttons_frame, text="Login", font=("Helvetica", 14), cursor="hand2", command=self.login)
+        self.login_button.grid(row=0, column=0, padx=10, pady=10)
+
+        # Clear button
+        self.clear_button = tk.Button(self.buttons_frame, text="Clear", font=("Helvetica", 14), cursor="hand2", command=self.clear_fields)
+        self.clear_button.grid(row=0, column=1, padx=10, pady=10)
+
+        # Center the frame on the window
+        self.center_frame()
+
+        # Bind the window resizing event to centering the frame
+        self.bind("<Configure>", self.center_frame)
+
+    def center_frame(self, event=None):
+        # Update the grid to ensure that the frame is centered
+        self.login_frame.update_idletasks()
+        window_width = self.winfo_width()
+        window_height = self.winfo_height()
+        frame_width = self.login_frame.winfo_width()
+        frame_height = self.login_frame.winfo_height()
+        x = (window_width - frame_width) // 2
+        y = (window_height - frame_height) // 2
+        self.login_frame.grid_configure(padx=x, pady=y)
+
+    # Login functionality
+    def login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        # Check if both fields are filled
+        if not username or not password:
+            messagebox.showinfo("Incomplete Information", "Please enter both username and password.")
+            return
+
+        login_message = user_login(username, password)
+
+        if login_message == "User logged in successfully.":
+            self.withdraw()  # Hide the login page
+            user_panel = UserPanel(self, username)
+            user_panel.mainloop()
+        else:
+            messagebox.showinfo("Login Result", login_message)
+    
+    # Clear functionality
+    def clear_fields(self):
+        # Clear username and password fields
+        self.username_entry.delete(0, "end")
+        self.password_entry.delete(0, "end")
+    
+    # Forgot Password functionality
+    def forgot_password(self):
+        messagebox.showinfo("Forgot Password", "Contact the admin to reset your password.")
+
+class UserPanel(tk.Toplevel):
+    def __init__(self, parent, username):
+        super().__init__(parent)
+        self.username = username
+        # Store reference to parent (Login page)
+        self.parent = parent
+        self.title("User Panel")
+
+        # Set fixed window size
+        self.geometry("1200x700")
+        # make the background white
+        self.configure(bg='white')
+
+        # Retrieve user information from the database
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor=connection.cursor()
+
+        # Query user first and last name from the database
+        cursor.execute("""
+        SELECT first_name, last_name 
+        FROM User
+        WHERE user_name = ?""", (username, ))
+        self.first_name, self.last_name = cursor.fetchone()
+
+        # Query user roles from the database
+        cursor.execute("""
+        SELECT UR.role_name 
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.user_name = ?""", (username, ))
+        self.roles = [role[0] for role in cursor.fetchall()]
+
+        connection.close()
+
+        # Create the top frame for user information and logout button
+        self.create_top_frame()
+
+        # Create the notebook (tabbed window)
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill='both', expand=True)
+
+        # Add tabs based on user roles(single-role users)
+        if len(self.roles) == 1 and self.roles[0] == 'Administrator':
+            self.add_admin_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Student':
+            self.add_student_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Question_Creator':
+            self.add_question_creator_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Exam_Creator':
+            self.add_exam_creator_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Exam_Supervisor':
+            self.exam_supervisor_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Exam_Handler':
+            self.add_exam_handler_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Exam_Analyst':
+            self.add_exam_analyst_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Exam_Supervisor':
+            self.exam_supervisor_tabs()
+        # ...... Managing multi-role users ......
+        
+    
+        # Bind the event handler to the tab change event
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+
+    def create_top_frame(self):
+        # Top frame to display user name, date/time, and logout button
+        self.top_frame = tk.Frame(self, bg='white', bd=2, relief='solid')
+        self.top_frame.pack(fill='x', side='top')
+
+        # Display user's name
+        self.name_label = tk.Label(self.top_frame, text=f"Name: {self.first_name} {self.last_name}", font=("Helvetica", 12), bg='white')
+        self.name_label.pack(side='left', padx=(10, 50))
+
+        # Logout button
+        self.create_logout_button()
+
+        # Display today's date and time
+        self.date_time_label = tk.Label(self.top_frame, text="", font=("Helvetica", 12), bg='white')
+        self.date_time_label.pack(side='right', padx=(50, 10))
+
+        # Update the time periodically
+        self.update_time()
+
+    def create_logout_button(self):
+        path = "..\images\logout.png"
+        scriptdir = os.path.dirname(__file__)
+        image_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        logout_button_image = Image.open(image_path)
+        self.logout_icon = ImageTk.PhotoImage(logout_button_image)
+        self.logout_button = tk.Button(self.top_frame, image=self.logout_icon, command=self.logout, width=32, height=32, bd=0, bg="orange", borderwidth=2, cursor="hand2")
+        self.logout_button.pack(side='right')  
+
+    def add_admin_tabs(self):
+        # Add tabs for different functionalities
+        self.admin_security_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.admin_security_tab, text='Security')
+        self.create_admin_security_widgets(self.admin_security_tab)
+
+        self.admin_reports_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.admin_reports_tab, text='Reports')
+        self.create_admin_reports_widgets(self.admin_reports_tab)
+
+        self.admin_help_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.admin_help_tab, text='Help')
+        self.create_admin_help_widgets(self.admin_help_tab)
+
+    def update_time(self):
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.date_time_label.config(text=f"Today's Date and Time: {current_time}")
+        self.after(1000, self.update_time) 
+
+    def logout(self):
+        # Call user_logout function from db1.py
+        user_logout(self.username)
+        # Close the user panel window
+        self.destroy()
+        # Show the login window
+        self.parent.deiconify()
+    
+    def create_admin_security_widgets(self, admin_security_tab):
+        # Create a frame for Users labeled frame
+        self.users_frame = tk.LabelFrame(admin_security_tab, text="Users")
+        self.users_frame.pack(padx=10, pady=10)
+
+        # Add radio buttons for Insert, Update, and Delete
+        self.user_opr_var = tk.StringVar()
+        self.user_opr_var.set("insert_user")  # Default selection
+
+        insert_radio = tk.Radiobutton(self.users_frame, text="Insert New User", variable=self.user_opr_var, value="insert_user", command=self.config_fields)
+        insert_radio.grid(row=0, column=0)
+
+        update_radio = tk.Radiobutton(self.users_frame, text="Update Existing User", variable=self.user_opr_var, value="update_user", command=self.config_fields)
+        update_radio.grid(row=0, column=1)
+
+        delete_radio = tk.Radiobutton(self.users_frame, text="Delete Existing User", variable=self.user_opr_var, value="delete_user", command=self.config_fields)
+        delete_radio.grid(row=0, column=2)
+
+        # Add a frame to display user fields
+        self.user_fields_frame1 = tk.Frame(self.users_frame)
+        self.user_fields_frame1.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
+
+        # Labels and entry fields for user information
+        self.username_label1 = tk.Label(self.user_fields_frame1, text="Username:")
+        self.username_label1.grid(row=0, column=0, padx=5)
+        self.username_entry1 = tk.Entry(self.user_fields_frame1)
+        self.username_entry1.grid(row=1, column=0, padx=5)
+
+        self.password_label = tk.Label(self.user_fields_frame1, text="Password:")
+        self.password_label.grid(row=0, column=1, padx=5)
+        self.password_entry = tk.Entry(self.user_fields_frame1, show='*')
+        self.password_entry.grid(row=1, column=1, padx=5)
+
+        self.first_name_label = tk.Label(self.user_fields_frame1, text="First Name:")
+        self.first_name_label.grid(row=0, column=2, padx=5)
+        self.first_name_entry = tk.Entry(self.user_fields_frame1)
+        self.first_name_entry.grid(row=1, column=2, padx=5)
+
+        self.last_name_label = tk.Label(self.user_fields_frame1, text="Last Name:")
+        self.last_name_label.grid(row=0, column=3, padx=5)
+        self.last_name_entry = tk.Entry(self.user_fields_frame1)
+        self.last_name_entry.grid(row=1, column=3, padx=5)
+
+        self.email_label = tk.Label(self.user_fields_frame1, text="Email:")
+        self.email_label.grid(row=0, column=4, padx=5)
+        self.email_entry = tk.Entry(self.user_fields_frame1)
+        self.email_entry.grid(row=1, column=4, padx=5)
+
+        # Add a frame to display user management buttons
+        self.user_buttons_frame = tk.Frame(self.users_frame)
+        self.user_buttons_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
+
+        # Buttons for user operations
+        self.insert_user_button = tk.Button(self.user_buttons_frame, text="Insert User", cursor="hand2", command=self.insert_user)
+        self.insert_user_button.grid(row=0, column=0, padx=5)
+
+        self.update_user_button = tk.Button(self.user_buttons_frame, text="Update User", cursor="hand2", command=self.update_user)
+        self.update_user_button.grid(row=0, column=1, padx=5)
+
+        self.delete_user_button = tk.Button(self.user_buttons_frame, text="Delete User", cursor="hand2", command=self.delete_user)
+        self.delete_user_button.grid(row=0, column=2, padx=5)
+
+        # initial config of buttons based on 'insert'
+        self.delete_user_button.config(state=tk.NORMAL)
+        self.update_user_button.config(state=tk.DISABLED)
+        self.delete_user_button.config(state=tk.DISABLED)
+
+        # Set focus to the username field
+        self.username_entry1.focus_set()
+
+        # Create a frame for Roles labeled frame
+        self.roles_frame = tk.LabelFrame(admin_security_tab, text="Roles")
+        self.roles_frame.pack(padx=10, pady=10)
+
+        # Add a frame for username field
+        self.user_fields_frame2 = tk.Frame(self.roles_frame)
+        self.user_fields_frame2.grid(row=0, column=0, padx=10, pady=10)
+
+        # Labels and entry fields for user role information
+        self.username_label2 = tk.Label(self.user_fields_frame2, text="Username:")
+        self.username_label2.grid(row=0, column=0, padx=5)
+        self.username_entry2 = tk.Entry(self.user_fields_frame2)
+        self.username_entry2.grid(row=0, column=1, padx=5)
+
+        # Add a frame for checkboxes
+        self.role_checkboxes_frame = tk.Frame(self.roles_frame)
+        self.role_checkboxes_frame.grid(row=1, column=0, padx=10, pady=10)
+        
+        # Add checkboxes for roles
+        self.exam_analyst_var = tk.BooleanVar()
+        self.exam_analyst_var.set(False)
+        exam_analyst_checkbox = tk.Checkbutton(self.role_checkboxes_frame, text="Exam_Analyst", variable=self.exam_analyst_var)
+        exam_analyst_checkbox.grid(row=0, column=0)
+
+        self.exam_creator_var = tk.BooleanVar()
+        self.exam_creator_var.set(False)
+        exam_creator_checkbox = tk.Checkbutton(self.role_checkboxes_frame, text="Exam_Creator", variable=self.exam_creator_var)
+        exam_creator_checkbox.grid(row=0, column=1)
+
+        self.exam_handler_var = tk.BooleanVar()
+        self.exam_handler_var.set(False)
+        exam_handler_checkbox = tk.Checkbutton(self.role_checkboxes_frame, text="Exam_Handler", variable=self.exam_handler_var)
+        exam_handler_checkbox.grid(row=0, column=2)
+
+        self.exam_supervisor_var = tk.BooleanVar()
+        self.exam_supervisor_var.set(False)
+        exam_supervisor_checkbox = tk.Checkbutton(self.role_checkboxes_frame, text="Exam_Supervisor", variable=self.exam_supervisor_var)
+        exam_supervisor_checkbox.grid(row=0, column=3)
+
+        self.question_creator_var = tk.BooleanVar()
+        self.question_creator_var.set(False)
+        question_creator_checkbox = tk.Checkbutton(self.role_checkboxes_frame, text="Question_Creator", variable=self.question_creator_var)
+        question_creator_checkbox.grid(row=0, column=4)
+
+        self.student_var = tk.BooleanVar()
+        self.student_var.set(False)
+        student_checkbox = tk.Checkbutton(self.role_checkboxes_frame, text="Student", variable=self.student_var)
+        student_checkbox.grid(row=0, column=5)
+
+        # Add a frame to display role management buttons
+        self.role_buttons_frame = tk.Frame(self.roles_frame)
+        self.role_buttons_frame.grid(row=2, column=0, padx=10, pady=10)
+
+        # Buttons for user role assignment/revoke
+        self.assign_role_button = tk.Button(self.role_buttons_frame, text="Assign User Role", cursor="hand2", command=self.assign_user_role)
+        self.assign_role_button.grid(row=0, column=0, padx=5)
+
+        self.revoke_role_button = tk.Button(self.role_buttons_frame, text="Revoke User Role", cursor="hand2", command=self.revoke_user_role)
+        self.revoke_role_button.grid(row=0, column=1, padx=5)
+
+    def config_fields(self):
+        operation = self.user_opr_var.get()
+
+        # Handle 'insert' operation
+        if operation == 'insert_user':
+            # Enable/disable fields
+            self.username_entry1.config(state=tk.NORMAL)
+            self.password_entry.config(state=tk.NORMAL)
+            self.first_name_entry.config(state=tk.NORMAL)
+            self.last_name_entry.config(state=tk.NORMAL)
+            self.email_entry.config(state=tk.NORMAL)
+
+            # Clear/reset fields
+            self.username_entry1.delete(0, tk.END)
+            self.password_entry.delete(0, tk.END)
+            self.first_name_entry.delete(0, tk.END)
+            self.last_name_entry.delete(0, tk.END)
+            self.email_entry.delete(0, tk.END)
+
+            # Enable/disable buttons
+            self.insert_user_button.config(state=tk.NORMAL)
+            self.update_user_button.config(state=tk.DISABLED)
+            self.delete_user_button.config(state=tk.DISABLED)
+            
+            # Set focus to the username field
+            self.username_entry1.focus_set()
+
+        # Handle 'update' operation
+        elif operation == 'update_user':
+            # Clear/reset fields
+            self.username_entry1.delete(0, tk.END)
+            self.password_entry.delete(0, tk.END)
+            self.first_name_entry.delete(0, tk.END)
+            self.last_name_entry.delete(0, tk.END)
+            self.email_entry.delete(0, tk.END)
+
+            # Enable/disable fields
+            self.username_entry1.config(state=tk.NORMAL)
+            self.password_entry.config(state=tk.NORMAL)
+            self.first_name_entry.config(state=tk.NORMAL)
+            self.last_name_entry.config(state=tk.NORMAL)
+            self.email_entry.config(state=tk.NORMAL)
+
+            # Enable/disable buttons
+            self.insert_user_button.config(state=tk.DISABLED)
+            self.update_user_button.config(state=tk.NORMAL)
+            self.delete_user_button.config(state=tk.DISABLED)
+
+            # Set focus to the username field
+            self.username_entry1.focus_set()
+
+        # Handle 'delete' operation    
+        elif operation == 'delete_user':
+            # Clear/reset fields
+            self.username_entry1.delete(0, tk.END)
+            self.password_entry.delete(0, tk.END)
+            self.first_name_entry.delete(0, tk.END)
+            self.last_name_entry.delete(0, tk.END)
+            self.email_entry.delete(0, tk.END)
+
+            # Enable/disable fields
+            self.username_entry1.config(state=tk.NORMAL)
+            self.password_entry.config(state=tk.DISABLED)
+            self.first_name_entry.config(state=tk.DISABLED)
+            self.last_name_entry.config(state=tk.DISABLED)
+            self.email_entry.config(state=tk.DISABLED)
+
+            # Enable/disable buttons
+            self.insert_user_button.config(state=tk.DISABLED)
+            self.update_user_button.config(state=tk.DISABLED)
+            self.delete_user_button.config(state=tk.NORMAL)
+
+            # Set focus to the username field
+            self.username_entry1.focus_set()
+
+    def insert_user(self):
+        username = self.username_entry1.get()
+        password = self.password_entry.get()
+        first_name = self.first_name_entry.get()
+        last_name = self.last_name_entry.get()
+        email = self.email_entry.get() if len(self.email_entry.get()) > 0 else None
+
+        # Validate fields
+        if not (username and password and first_name and last_name):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+
+        # Call insert_user function from db1.py
+        insert_msg = insert_user(username, password, first_name, last_name, email)
+        messagebox.showinfo("User Insert", insert_msg)
+
+    def update_user(self):
+        username = self.username_entry1.get()
+        password = self.password_entry.get()
+        first_name = self.first_name_entry.get()
+        last_name = self.last_name_entry.get()
+        email = self.email_entry.get() if len(self.email_entry.get()) > 0 else None
+
+        # Validate fields
+        if not (username and password and first_name and last_name):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+
+        # Call update_user function from db1.py
+        update_msg = update_user(username, password, first_name, last_name, email)
+        messagebox.showinfo("User Update", update_msg)
+
+    def delete_user(self):
+        username = self.username_entry1.get()
+
+        # Validate fields
+        if not username:
+            messagebox.showwarning("Incomplete Information", "Please insert a username to delete.")
+            return
+
+        # Call delete_user function from db1.py
+        delete_msg = delete_user(username)
+        messagebox.showinfo("User Delete", delete_msg)
+    
+    def assign_user_role(self):
+        username = self.username_entry2.get()
+
+        # Validate fields
+        if not username or not any([self.exam_analyst_var.get(), self.exam_creator_var.get(), self.exam_handler_var.get(),
+                                   self.exam_supervisor_var.get(), self.question_creator_var.get(), self.student_var.get()]):
+            messagebox.showwarning("Incomplete Information", "Please insert a username and at least select a role.")
+            return
+        
+        # Call insert_user_role function from db1.py for each of the check roles
+        if self.exam_analyst_var.get():
+            assign_user_role_msg = insert_user_role(username, "Exam_Analyst")
+            messagebox.showinfo("Assign User Role", assign_user_role_msg)
+        if self.exam_creator_var.get():
+            assign_user_role_msg = insert_user_role(username, "Exam_Creator")
+            messagebox.showinfo("Assign User Role", assign_user_role_msg)
+        if self.exam_handler_var.get():
+            assign_user_role_msg = insert_user_role(username, "Exam_Handler")
+            messagebox.showinfo("Assign User Role", assign_user_role_msg)
+        if self.exam_supervisor_var.get():
+            assign_user_role_msg = insert_user_role(username, "Exam_Supervisor")
+            messagebox.showinfo("Assign User Role", assign_user_role_msg)
+        if self.question_creator_var.get():
+            assign_user_role_msg = insert_user_role(username, "Question_Creator")
+            messagebox.showinfo("Assign User Role", assign_user_role_msg)
+        if self.student_var.get():
+            assign_user_role_msg = insert_user_role(username, "Student")
+            messagebox.showinfo("Assign User Role", assign_user_role_msg)
+    
+    def revoke_user_role(self):
+        username = self.username_entry2.get()
+
+        # Validate fields
+        if not username or not any([self.exam_analyst_var.get(), self.exam_creator_var.get(), self.exam_handler_var.get(),
+                                   self.exam_supervisor_var.get(), self.question_creator_var.get(), self.student_var.get()]):
+            messagebox.showwarning("Incomplete Information", "Please insert a username and at least select a role.")
+            return
+        
+        # Call delete_user_role function from db1.py for each of the check roles
+        if self.exam_analyst_var.get():
+            revoke_user_role_msg = delete_user_role(username, "Exam_Analyst")
+            messagebox.showinfo("Revoke User Role", revoke_user_role_msg)
+        if self.exam_creator_var.get():
+            revoke_user_role_msg = delete_user_role(username, "Exam_Creator")
+            messagebox.showinfo("Revoke User Role", revoke_user_role_msg)
+        if self.exam_handler_var.get():
+            revoke_user_role_msg = delete_user_role(username, "Exam_Handler")
+            messagebox.showinfo("Revoke User Role", revoke_user_role_msg)
+        if self.exam_supervisor_var.get():
+            revoke_user_role_msg = delete_user_role(username, "Exam_Supervisor")
+            messagebox.showinfo("Revoke User Role", revoke_user_role_msg)
+        if self.question_creator_var.get():
+            revoke_user_role_msg = delete_user_role(username, "Question_Creator")
+            messagebox.showinfo("Revoke User Role", revoke_user_role_msg)
+        if self.student_var.get():
+            revoke_user_role_msg = delete_user_role(username, "Student")
+            messagebox.showinfo("Revoke User Role", revoke_user_role_msg)
+    
+    def create_admin_reports_widgets(self, admin_reports_tab):
+        # Table refresh image 
+        path = "..\images\\refresh.png"
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        image_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        self.refresh_image = Image.open(image_path)
+        self.refresh_icon = ImageTk.PhotoImage(self.refresh_image)
+
+        # Table button image 
+        path = "..\images\\table.png"
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        image_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        self.table_image = Image.open(image_path)
+        self.table_icon = ImageTk.PhotoImage(self.table_image)
+
+        # Table csv file image 
+        path = "..\images\\csvfile.png"
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        image_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        self.csvfile_image = Image.open(image_path)
+        self.csvfile_icon = ImageTk.PhotoImage(self.csvfile_image)
+
+        # Create an upper frame for stats
+        self.stats_frame = tk.Label(admin_reports_tab)
+        self.stats_frame.grid(row=0, column=0, sticky="nsew")
+
+        # Button to refresh stats
+        self.refresh_stats_button = tk.Button(self.stats_frame, text="Refresh Stats  ", image=self.refresh_icon, compound=tk.RIGHT, cursor="hand2", command=self.refresh_stats)
+        self.refresh_stats_button.grid(row=0, column=0, columnspan=3, padx=5, pady=5)
+        
+        # Create a labeled frame for User stats
+        self.user_stats_frame = tk.LabelFrame(self.stats_frame, text="User Stats")
+        self.user_stats_frame.grid(row=1, column=0, padx=10, sticky="nsew")
+        
+        # Labels for different user stats
+        self.total_users_label = tk.Label(self.user_stats_frame, text="Total Users:")
+        self.total_users_label.grid(row=0, column=0, padx=5, sticky="w")
+        self.total_users_var = tk.StringVar()
+        self.total_users_var.set(" ")  # Default value
+        self.total_users_value_label = tk.Label(self.user_stats_frame, textvariable=self.total_users_var)
+        self.total_users_value_label.grid(row=0, column=1, padx=5, sticky="w")
+        self.table_button1 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_users, width=20, height=20)
+        self.table_button1.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button1 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.users_tocsv, width=20, height=20)
+        self.tocsv_button1.grid(row=0, column=3, padx=5, pady=5, sticky="w")
+
+        self.students_label = tk.Label(self.user_stats_frame, text="Students:")
+        self.students_label.grid(row=1, column=0, padx=5, sticky="w")
+        self.students_var = tk.StringVar()
+        self.students_var.set(" ")  # Default value
+        self.students_value_label = tk.Label(self.user_stats_frame, textvariable=self.students_var)
+        self.students_value_label.grid(row=1, column=1, padx=5, sticky="w")
+        self.table_button2 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_students, width=20, height=20)
+        self.table_button2.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button2 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.students_tocsv, width=20, height=20)
+        self.tocsv_button2.grid(row=1, column=3, padx=5, pady=5, sticky="w")
+
+        self.exam_analysts_label = tk.Label(self.user_stats_frame, text="Exam Analysts:")
+        self.exam_analysts_label.grid(row=2, column=0, padx=5, sticky="w")
+        self.exam_analysts_var = tk.StringVar()
+        self.exam_analysts_var.set(" ")  # Default value
+        self.exam_analysts_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_analysts_var)
+        self.exam_analysts_value_label.grid(row=2, column=1, padx=5, sticky="w")
+        self.table_button3 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_analysts, width=20, height=20)
+        self.table_button3.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button3 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.exam_analysts_tocsv, width=20, height=20)
+        self.tocsv_button3.grid(row=2, column=3, padx=5, pady=5, sticky="w")
+
+        self.exam_creators_label = tk.Label(self.user_stats_frame, text="Exam Creators:")
+        self.exam_creators_label.grid(row=3, column=0, padx=5, sticky="w")
+        self.exam_creators_var = tk.StringVar()
+        self.exam_creators_var.set(" ")  # Default value
+        self.exam_creators_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_creators_var)
+        self.exam_creators_value_label.grid(row=3, column=1, padx=5, sticky="w")
+        self.table_button4 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_creators, width=20, height=20)
+        self.table_button4.grid(row=3, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button4 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.exam_creators_tocsv, width=20, height=20)
+        self.tocsv_button4.grid(row=3, column=3, padx=5, pady=5, sticky="w")
+
+        self.exam_handlers_label = tk.Label(self.user_stats_frame, text="Exam Handlers:")
+        self.exam_handlers_label.grid(row=4, column=0, padx=5, sticky="w")
+        self.exam_handlers_var = tk.StringVar()
+        self.exam_handlers_var.set(" ")  # Default value
+        self.exam_handlers_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_handlers_var)
+        self.exam_handlers_value_label.grid(row=4, column=1, padx=5, sticky="w")
+        self.table_button5 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_handlers, width=20, height=20)
+        self.table_button5.grid(row=4, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button5 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.exam_handlers_tocsv, width=20, height=20)
+        self.tocsv_button5.grid(row=4, column=3, padx=5, pady=5, sticky="w")
+
+        self.exam_supervisors_label = tk.Label(self.user_stats_frame, text="Exam Supervisors:")
+        self.exam_supervisors_label.grid(row=5, column=0, padx=5, sticky="w")
+        self.exam_supervisors_var = tk.StringVar()
+        self.exam_supervisors_var.set(" ")  # Default value
+        self.exam_supervisors_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_supervisors_var)
+        self.exam_supervisors_value_label.grid(row=5, column=1, padx=5, sticky="w")
+        self.table_button6 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_supervisors, width=20, height=20)
+        self.table_button6.grid(row=5, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button6 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.exam_supervisors_tocsv, width=20, height=20)
+        self.tocsv_button6.grid(row=5, column=3, padx=5, pady=5, sticky="w")
+
+        self.question_creators_label = tk.Label(self.user_stats_frame, text="Question Creators:")
+        self.question_creators_label.grid(row=6, column=0, padx=5, sticky="w")
+        self.question_creators_var = tk.StringVar()
+        self.question_creators_var.set(" ")  # Default value
+        self.question_creators_value_label = tk.Label(self.user_stats_frame, textvariable=self.question_creators_var)
+        self.question_creators_value_label.grid(row=6, column=1, padx=5, sticky="w")
+        self.table_button7 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_question_creators, width=20, height=20)
+        self.table_button7.grid(row=6, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button7 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.question_creators_tocsv, width=20, height=20)
+        self.tocsv_button7.grid(row=6, column=3, padx=5, pady=5, sticky="w")
+        
+        self.multirole_users_label = tk.Label(self.user_stats_frame, text="Multi-role Users:")
+        self.multirole_users_label.grid(row=7, column=0, padx=5, sticky="w")
+        self.multirole_users_var = tk.StringVar()
+        self.multirole_users_var.set(" ")  # Default value
+        self.multirole_users_value_label = tk.Label(self.user_stats_frame, textvariable=self.multirole_users_var)
+        self.multirole_users_value_label.grid(row=7, column=1, padx=5, sticky="w")
+        self.table_button8 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_multirole_users, width=20, height=20)
+        self.table_button8.grid(row=7, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button8 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.multirole_users_tocsv, width=20, height=20)
+        self.tocsv_button8.grid(row=7, column=3, padx=5, pady=5, sticky="w")
+
+        self.users_loggedin_label = tk.Label(self.user_stats_frame, text="User Logged in:")
+        self.users_loggedin_label.grid(row=8, column=0, padx=5, sticky="w")
+        self.users_loggedin_var = tk.StringVar()
+        self.users_loggedin_var.set(" ")  # Default value
+        self.users_loggedin_value_label = tk.Label(self.user_stats_frame, textvariable=self.users_loggedin_var)
+        self.users_loggedin_value_label.grid(row=8, column=1, padx=5, sticky="w")
+        self.table_button9 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_users_loggedin, width=20, height=20)
+        self.table_button9.grid(row=8, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button9 = tk.Button(self.user_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.users_loggedin_tocsv, width=20, height=20)
+        self.tocsv_button9.grid(row=8, column=3, padx=5, pady=5, sticky="w")
+
+        # Create a labeled frame for Question stats
+        self.question_stats_frame = tk.LabelFrame(self.stats_frame, text="Question Stats")
+        self.question_stats_frame.grid(row=1, column=1, padx=10, sticky="nsew")
+        
+        # Labels for different question stats
+        self.total_questions_label = tk.Label(self.question_stats_frame, text="Total Questions:")
+        self.total_questions_label.grid(row=0, column=0, padx=5, sticky="w")
+        self.total_questions_var = tk.StringVar()
+        self.total_questions_var.set(" ")  # Default value
+        self.total_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.total_questions_var)
+        self.total_questions_value_label.grid(row=0, column=1, padx=5, sticky="w")
+        self.table_button10 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_questions, width=20, height=20)
+        self.table_button10.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button10 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.questions_tocsv, width=20, height=20)
+        self.tocsv_button10.grid(row=0, column=3, padx=5, pady=5, sticky="w")
+
+        self.total_topics_label = tk.Label(self.question_stats_frame, text="Total Topics:")
+        self.total_topics_label.grid(row=1, column=0, padx=5, sticky="w")
+        self.total_topics_var = tk.StringVar()
+        self.total_topics_var.set(" ")  # Default value
+        self.total_topics_value_label = tk.Label(self.question_stats_frame, textvariable=self.total_topics_var)
+        self.total_topics_value_label.grid(row=1, column=1, padx=5, sticky="w")
+        self.table_button11 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2",command=self.load_topics, width=20, height=20)
+        self.table_button11.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button11 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.topics_tocsv, width=20, height=20)
+        self.tocsv_button11.grid(row=1, column=3, padx=5, pady=5, sticky="w")
+    
+        self.total_subtopics_label = tk.Label(self.question_stats_frame, text="Total Subopics:")
+        self.total_subtopics_label.grid(row=2, column=0, padx=5, sticky="w")
+        self.total_subtopics_var = tk.StringVar()
+        self.total_subtopics_var.set(" ")  # Default value
+        self.total_subtopics_value_label = tk.Label(self.question_stats_frame, textvariable=self.total_subtopics_var)
+        self.total_subtopics_value_label.grid(row=2, column=1, padx=5, sticky="w")
+        self.table_button12 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_subtopics, width=20, height=20)
+        self.table_button12.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button12 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.subtopics_tocsv, width=20, height=20)
+        self.tocsv_button12.grid(row=2, column=3, padx=5, pady=5, sticky="w")
+
+        self.multiple_choice_questions_label = tk.Label(self.question_stats_frame, text="Multiple Choice Questions:")
+        self.multiple_choice_questions_label.grid(row=3, column=0, padx=5, sticky="w")
+        self.multiple_choice_questions_var = tk.StringVar()
+        self.multiple_choice_questions_var.set(" ")  # Default value
+        self.multiple_choice_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.multiple_choice_questions_var)
+        self.multiple_choice_questions_value_label.grid(row=3, column=1, padx=5, sticky="w")
+        self.table_button13 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_multiple_choice_questions, width=20, height=20)
+        self.table_button13.grid(row=3, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button13 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.multiple_choice_questions_tocsv, width=20, height=20)
+        self.tocsv_button13.grid(row=3, column=3, padx=5, pady=5, sticky="w")
+
+        self.true_false_questions_label = tk.Label(self.question_stats_frame, text="True/False Questions:")
+        self.true_false_questions_label.grid(row=4, column=0, padx=5, sticky="w")
+        self.true_false_questions_var = tk.StringVar()
+        self.true_false_questions_var.set(" ")  # Default value
+        self.true_false_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.true_false_questions_var)
+        self.true_false_questions_value_label.grid(row=4, column=1, padx=5, sticky="w")
+        self.table_button14 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_true_false_questions, width=20, height=20)
+        self.table_button14.grid(row=4, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button14 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.true_false_questions_tocsv, width=20, height=20)
+        self.tocsv_button14.grid(row=4, column=3, padx=5, pady=5, sticky="w")
+
+        self.descriptive_practical_questions_label = tk.Label(self.question_stats_frame, text="Descriptive/Practical Questions:")
+        self.descriptive_practical_questions_label.grid(row=5, column=0, padx=5, sticky="w")
+        self.descriptive_practical_questions_var = tk.StringVar()
+        self.descriptive_practical_questions_var.set(" ")  # Default value
+        self.descriptive_practical_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.descriptive_practical_questions_var)
+        self.descriptive_practical_questions_value_label.grid(row=5, column=1, padx=5, sticky="w")
+        self.table_button15 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_descriptive_practical_questions, width=20, height=20)
+        self.table_button15.grid(row=5, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button15 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.descriptive_practical_questions_tocsv, width=20, height=20)
+        self.tocsv_button15.grid(row=5, column=3, padx=5, pady=5, sticky="w")
+
+        self.easy_questions_label = tk.Label(self.question_stats_frame, text="Easy Questions:")
+        self.easy_questions_label.grid(row=6, column=0, padx=5, sticky="w")
+        self.easy_questions_var = tk.StringVar()
+        self.easy_questions_var.set(" ")  # Default value
+        self.easy_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.easy_questions_var)
+        self.easy_questions_value_label.grid(row=6, column=1, padx=5, sticky="w")
+        self.table_button16 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_easy_questions, width=20, height=20)
+        self.table_button16.grid(row=6, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button16 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.easy_questions_tocsv, width=20, height=20)
+        self.tocsv_button16.grid(row=6, column=3, padx=5, pady=5, sticky="w")
+
+        self.normal_questions_label = tk.Label(self.question_stats_frame, text="Normal Questions:")
+        self.normal_questions_label.grid(row=7, column=0, padx=5, sticky="w")
+        self.normal_questions_var = tk.StringVar()
+        self.normal_questions_var.set(" ")  # Default value
+        self.normal_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.normal_questions_var)
+        self.normal_questions_value_label.grid(row=7, column=1, padx=5, sticky="w")
+        self.table_button17 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_normal_questions, width=20, height=20)
+        self.table_button17.grid(row=7, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button17 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.normal_questions_tocsv, width=20, height=20)
+        self.tocsv_button17.grid(row=7, column=3, padx=5, pady=5, sticky="w")
+
+        self.hard_questions_label = tk.Label(self.question_stats_frame, text="Hard Questions:")
+        self.hard_questions_label.grid(row=8, column=0, padx=5, sticky="w")
+        self.hard_questions_var = tk.StringVar()
+        self.hard_questions_var.set(" ")  # Default value
+        self.hard_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.hard_questions_var)
+        self.hard_questions_value_label.grid(row=8, column=1, padx=5, sticky="w")
+        self.table_button18 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_hard_questions, width=20, height=20)
+        self.table_button18.grid(row=8, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button18 = tk.Button(self.question_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.hard_questions_tocsv, width=20, height=20)
+        self.tocsv_button18.grid(row=8, column=3, padx=5, pady=5, sticky="w")
+    
+        # Create a labeled frame for Exam stats
+        self.exam_stats_frame = tk.LabelFrame(self.stats_frame, text="Exam Stats")
+        self.exam_stats_frame.grid(row=1, column=2, padx=10, sticky="nsew")
+        
+        # Labels for different exam stats
+        self.total_exams_label = tk.Label(self.exam_stats_frame, text="Total Exams:")
+        self.total_exams_label.grid(row=0, column=0, padx=5, sticky="w")
+        self.total_exams_var = tk.StringVar()
+        self.total_exams_var.set(" ")  # Default value
+        self.total_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.total_exams_var)
+        self.total_exams_value_label.grid(row=0, column=1, padx=5, sticky="w")
+        self.table_button19 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exams, width=20, height=20)
+        self.table_button19.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button19 = tk.Button(self.exam_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.exams_tocsv, width=20, height=20)
+        self.tocsv_button19.grid(row=0, column=3, padx=5, pady=5, sticky="w")
+
+        self.unstarted_exams_label = tk.Label(self.exam_stats_frame, text="Unstarted Exams:")
+        self.unstarted_exams_label.grid(row=1, column=0, padx=5, sticky="w")
+        self.unstarted_exams_var = tk.StringVar()
+        self.unstarted_exams_var.set(" ")  # Default value
+        self.unstarted_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.unstarted_exams_var)
+        self.unstarted_exams_value_label.grid(row=1, column=1, padx=5, sticky="w")
+        self.table_button20 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_unstarted_exams, width=20, height=20)
+        self.table_button20.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button20 = tk.Button(self.exam_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.unstarted_exams_tocsv, width=20, height=20)
+        self.tocsv_button20.grid(row=1, column=3, padx=5, pady=5, sticky="w")
+
+        self.started_exams_label = tk.Label(self.exam_stats_frame, text="Started Exams:")
+        self.started_exams_label.grid(row=2, column=0, padx=5, sticky="w")
+        self.started_exams_var = tk.StringVar()
+        self.started_exams_var.set(" ")  # Default value
+        self.started_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.started_exams_var)
+        self.started_exams_value_label.grid(row=2, column=1, padx=5, sticky="w")
+        self.table_button21 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_started_exams, width=20, height=20)
+        self.table_button21.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button21 = tk.Button(self.exam_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.started_exams_tocsv, width=20, height=20)
+        self.tocsv_button21.grid(row=2, column=3, padx=5, pady=5, sticky="w")
+
+        self.finished_exams_label = tk.Label(self.exam_stats_frame, text="Finished Exams:")
+        self.finished_exams_label.grid(row=3, column=0, padx=5, sticky="w")
+        self.finished_exams_var = tk.StringVar()
+        self.finished_exams_var.set(" ")  # Default value
+        self.finished_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.finished_exams_var)
+        self.finished_exams_value_label.grid(row=3, column=1, padx=5, sticky="w")
+        self.table_button22 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_finished_exams, width=20, height=20)
+        self.table_button22.grid(row=3, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button22 = tk.Button(self.exam_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.finished_exams_tocsv, width=20, height=20)
+        self.tocsv_button22.grid(row=3, column=3, padx=5, pady=5, sticky="w")
+
+        self.students_taking_exam_label = tk.Label(self.exam_stats_frame, text="Students Taking Exam:")
+        self.students_taking_exam_label.grid(row=4, column=0, padx=5, sticky="w")
+        self.students_taking_exam_var = tk.StringVar()
+        self.students_taking_exam_var.set(" ")  # Default value
+        self.students_taking_exam_value_label = tk.Label(self.exam_stats_frame, textvariable=self.students_taking_exam_var)
+        self.students_taking_exam_value_label.grid(row=4, column=1, padx=5, sticky="w")
+        self.table_button23 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_students_taking_exam, width=20, height=20)
+        self.table_button23.grid(row=4, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button23 = tk.Button(self.exam_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.students_taking_exam_tocsv, width=20, height=20)
+        self.tocsv_button23.grid(row=4, column=3, padx=5, pady=5, sticky="w")
+
+        self.students_took_exam_label = tk.Label(self.exam_stats_frame, text="Students Took Exam:")
+        self.students_took_exam_label.grid(row=5, column=0, padx=5, sticky="w")
+        self.students_took_exam_var = tk.StringVar()
+        self.students_took_exam_var.set(" ")  # Default value
+        self.students_took_exam_value_label = tk.Label(self.exam_stats_frame, textvariable=self.students_took_exam_var)
+        self.students_took_exam_value_label.grid(row=5, column=1, padx=5, sticky="w")
+        self.table_button24 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_students_took_exam, width=20, height=20)
+        self.table_button24.grid(row=5, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button24 = tk.Button(self.exam_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.students_took_exam_tocsv, width=20, height=20)
+        self.tocsv_button24.grid(row=5, column=3, padx=5, pady=5, sticky="w")
+
+        # Create a labeled frame for feedback
+        self.feedback_stats_frame = tk.LabelFrame(self.stats_frame, text="Feedback Stats")
+        self.feedback_stats_frame.grid(row=1, column=3, padx=10, sticky="nsew")
+
+        # Labels for different feedback stats
+        self.total_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Total Feedbacks:")
+        self.total_feedbacks_label.grid(row=0, column=0, padx=5, sticky="w")
+        self.total_feedbacks_var = tk.StringVar()
+        self.total_feedbacks_var.set(" ")  # Default value
+        self.total_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.total_feedbacks_var)
+        self.total_feedbacks_value_label.grid(row=0, column=1, padx=5, sticky="w")
+        self.table_button25 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_feedbacks, width=20, height=20)
+        self.table_button25.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button25 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.feedbacks_tocsv, width=20, height=20)
+        self.tocsv_button25.grid(row=0, column=3, padx=5, pady=5, sticky="w")
+
+        self.suggestions_for_improvement_label = tk.Label(self.feedback_stats_frame, text="Suggestions for improvement:")
+        self.suggestions_for_improvement_label.grid(row=1, column=0, padx=5, sticky="w")
+        self.suggestions_for_improvement_var = tk.StringVar()
+        self.suggestions_for_improvement_var.set(" ")  # Default value
+        self.suggestions_for_improvement_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.suggestions_for_improvement_var)
+        self.suggestions_for_improvement_value_label.grid(row=1, column=1, padx=5, sticky="w")
+        self.table_button26 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_suggestions_for_improvement, width=20, height=20)
+        self.table_button26.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button26 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.suggestions_for_improvement_tocsv, width=20, height=20)
+        self.tocsv_button26.grid(row=1, column=3, padx=5, pady=5, sticky="w")
+
+        self.comments_on_clarity_difficulty_label = tk.Label(self.feedback_stats_frame, text="Comments on clarity, and difficulty levels:")
+        self.comments_on_clarity_difficulty_label.grid(row=2, column=0, padx=5, sticky="w")
+        self.comments_on_clarity_difficulty_var = tk.StringVar()
+        self.comments_on_clarity_difficulty_var.set(" ")  # Default value
+        self.comments_on_clarity_difficulty_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.comments_on_clarity_difficulty_var)
+        self.comments_on_clarity_difficulty_value_label.grid(row=2, column=1, padx=5, sticky="w")
+        self.table_button27 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_comments_on_clarity_difficulty, width=20, height=20)
+        self.table_button27.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button27 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.comments_on_clarity_difficulty_tocsv, width=20, height=20)
+        self.tocsv_button27.grid(row=2, column=3, padx=5, pady=5, sticky="w")
+
+        self.low_ratings_label = tk.Label(self.feedback_stats_frame, text="Low Ratings(1-3):")
+        self.low_ratings_label.grid(row=3, column=0, padx=5, sticky="w")
+        self.low_ratings_var = tk.StringVar()
+        self.low_ratings_var.set(" ")  # Default value
+        self.low_ratings_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.low_ratings_var)
+        self.low_ratings_value_label.grid(row=3, column=1, padx=5, sticky="w")
+        self.table_button28 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_low_ratings, width=20, height=20)
+        self.table_button28.grid(row=3, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button28 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.low_ratings_tocsv, width=20, height=20)
+        self.tocsv_button28.grid(row=3, column=3, padx=5, pady=5, sticky="w")
+
+        self.medium_ratings_label = tk.Label(self.feedback_stats_frame, text="Medium Ratings(4-6):")
+        self.medium_ratings_label.grid(row=4, column=0, padx=5, sticky="w")
+        self.medium_ratings_var = tk.StringVar()
+        self.medium_ratings_var.set(" ")  # Default value
+        self.medium_ratings_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.medium_ratings_var)
+        self.medium_ratings_value_label.grid(row=4, column=1, padx=5, sticky="w")
+        self.table_button29 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_medium_ratings, width=20, height=20)
+        self.table_button29.grid(row=4, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button29 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.medium_ratings_tocsv, width=20, height=20)
+        self.tocsv_button29.grid(row=4, column=3, padx=5, pady=5, sticky="w")
+
+        self.high_ratings_label = tk.Label(self.feedback_stats_frame, text="High Ratings(7-10):")
+        self.high_ratings_label.grid(row=5, column=0, padx=5, sticky="w")
+        self.high_ratings_var = tk.StringVar()
+        self.high_ratings_var.set(" ")  # Default value
+        self.high_ratings_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.high_ratings_var)
+        self.high_ratings_value_label.grid(row=5, column=1, padx=5, sticky="w")
+        self.table_button30 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_high_ratings, width=20, height=20)
+        self.table_button30.grid(row=5, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button30 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.high_ratings_tocsv, width=20, height=20)
+        self.tocsv_button30.grid(row=5, column=3, padx=5, pady=5, sticky="w")
+
+        self.pending_unread_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Pending/Unread Feedbacks:")
+        self.pending_unread_feedbacks_label.grid(row=6, column=0, padx=5, sticky="w")
+        self.pending_unread_feedbacks_var = tk.StringVar()
+        self.pending_unread_feedbacks_var.set(" ")  # Default value
+        self.pending_unread_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.pending_unread_feedbacks_var)
+        self.pending_unread_feedbacks_value_label.grid(row=6, column=1, padx=5, sticky="w")
+        self.table_button31 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_pending_unread_feedbacks, width=20, height=20)
+        self.table_button31.grid(row=6, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button31 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.pending_unread_feedbacks_tocsv, width=20, height=20)
+        self.tocsv_button31.grid(row=6, column=3, padx=5, pady=5, sticky="w")
+
+        self.analyzed_read_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Analyzed/Read Feedbacks:")
+        self.analyzed_read_feedbacks_label.grid(row=7, column=0, padx=5, sticky="w")
+        self.analyzed_read_feedbacks_var = tk.StringVar()
+        self.analyzed_read_feedbacks_var.set(" ")  # Default value
+        self.analyzed_read_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.analyzed_read_feedbacks_var)
+        self.analyzed_read_feedbacks_value_label.grid(row=7, column=1, padx=5, sticky="w")
+        self.table_button32 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_analyzed_read_feedbacks, width=20, height=20)
+        self.table_button32.grid(row=7, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button32 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.analyzed_read_feedbacks_tocsv, width=20, height=20)
+        self.tocsv_button32.grid(row=7, column=3, padx=5, pady=5, sticky="w")
+
+        self.visible_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Visible Feedbacks:")
+        self.visible_feedbacks_label.grid(row=8, column=0, padx=5, sticky="w")
+        self.visible_feedbacks_var = tk.StringVar()
+        self.visible_feedbacks_var.set(" ")  # Default value
+        self.visible_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.visible_feedbacks_var)
+        self.visible_feedbacks_value_label.grid(row=8, column=1, padx=5, sticky="w")
+        self.table_button33 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_visible_feedbacks, width=20, height=20)
+        self.table_button33.grid(row=8, column=2, padx=5, pady=5, sticky="w")
+        self.tocsv_button33 = tk.Button(self.feedback_stats_frame, image=self.csvfile_icon, cursor="hand2", command=self.visible_feedbacks_tocsv, width=20, height=20)
+        self.tocsv_button33.grid(row=8, column=3, padx=5, pady=5, sticky="w")
+
+        # Create a frame for table containing data
+        self.table_frame = tk.Frame(admin_reports_tab)
+        self.table_frame.grid(row=2, column=0, sticky="nsew")
+            
+    def refresh_stats(self, event=None):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT COUNT(*) AS user_count FROM User") 
+        total_users = cursor.fetchone()
+        self.total_users_var.set(total_users)
+
+        cursor.execute("""SELECT COUNT(*) AS students_count
+                       FROM User_Role
+                       WHERE role_name = 'Student'""") 
+        students = cursor.fetchone()
+        self.students_var.set(students)
+
+        cursor.execute("""SELECT COUNT(*) AS students_count
+                       FROM User_Role
+                       WHERE role_name = 'Exam_Analyst'""")
+        exam_analysts = cursor.fetchone()
+        self.exam_analysts_var.set(exam_analysts)
+        
+        cursor.execute("""SELECT COUNT(*) AS students_count
+                       FROM User_Role
+                       WHERE role_name = 'Exam_Creator'""")
+        exam_creators = cursor.fetchone()
+        self.exam_creators_var.set(exam_creators)
+
+        cursor.execute("""SELECT COUNT(*) AS students_count
+                       FROM User_Role
+                       WHERE role_name = 'Exam_Handler'""")
+        exam_handlers = cursor.fetchone()
+        self.exam_handlers_var.set(exam_handlers)
+        
+        cursor.execute("""SELECT COUNT(*) AS students_count
+                       FROM User_Role
+                       WHERE role_name = 'Exam_Supervisor'""")
+        exam_supervisors = cursor.fetchone()
+        self.exam_supervisors_var.set(exam_supervisors)
+
+        cursor.execute("""SELECT COUNT(*) AS students_count
+                       FROM User_Role
+                       WHERE role_name = 'Question_Creator'""")
+        question_creators = cursor.fetchone()
+        self.question_creators_var.set(question_creators)
+
+        cursor.execute("""SELECT COUNT(*) AS multi_role_user_count 
+                        FROM (
+                            SELECT user_name 
+                            FROM User_Role 
+                            GROUP BY user_name 
+                            HAVING COUNT(*) > 1
+                        ) AS multi_role_users""")
+        multirole_users = cursor.fetchone()
+        self.multirole_users_var.set(multirole_users)
+        
+        cursor.execute("""SELECT COUNT(*) AS users_loggedin 
+                       FROM Login
+                       WHERE logout_date IS NULL""")
+        users_loggedin = cursor.fetchone()
+        self.users_loggedin_var.set(users_loggedin)
+        
+        cursor.execute("SELECT COUNT(*) AS total_questions FROM Question") 
+        total_questions = cursor.fetchone()
+        self.total_questions_var.set(total_questions)
+        
+        cursor.execute("SELECT COUNT(DISTINCT topic) AS distinct_topic_count FROM Question")
+        total_topics = cursor.fetchone()
+        self.total_topics_var.set(total_topics)
+
+        cursor.execute("SELECT COUNT(DISTINCT subtopic) AS distinct_subtopic_count FROM Question")
+        total_subtopics = cursor.fetchone()
+        self.total_subtopics_var.set(total_subtopics)
+        
+        cursor.execute("""SELECT COUNT(*) AS multiple_choice_questions 
+                       FROM Question
+                       WHERE type = 'Multiple choice'""")
+        multiple_choice_questions = cursor.fetchone()
+        self.multiple_choice_questions_var.set(multiple_choice_questions)
+        
+        cursor.execute("""SELECT COUNT(*) AS true_false_questions 
+                       FROM Question
+                       WHERE type = 'True/False'""")
+        true_false_questions = cursor.fetchone()
+        self.true_false_questions_var.set(true_false_questions)
+        
+        cursor.execute("""SELECT COUNT(*) AS descriptive_practical_questions 
+                       FROM Question
+                       WHERE type = 'Descriptive/Practical'""")
+        descriptive_practical_questions = cursor.fetchone()
+        self.descriptive_practical_questions_var.set(descriptive_practical_questions)
+
+        cursor.execute("""SELECT COUNT(*) AS easy_questions 
+                       FROM Question
+                       WHERE difficulty = 'Easy'""")
+        easy_questions = cursor.fetchone()
+        self.easy_questions_var.set(easy_questions)
+        
+        cursor.execute("""SELECT COUNT(*) AS normal_questions 
+                       FROM Question
+                       WHERE difficulty = 'Normal'""")
+        normal_questions = cursor.fetchone()
+        self.normal_questions_var.set(normal_questions)
+
+        cursor.execute("""SELECT COUNT(*) AS hard_questions 
+                       FROM Question
+                       WHERE difficulty = 'Hard'""")
+        hard_questions = cursor.fetchone()
+        self.hard_questions_var.set(hard_questions)
+        
+        cursor.execute("SELECT COUNT(*) AS total_exams FROM Exam") 
+        total_exams = cursor.fetchone()
+        self.total_exams_var.set(total_exams)
+
+        cursor.execute("""SELECT COUNT(*) AS unstarted_exams
+                        FROM Exam
+                        WHERE DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
+        unstarted_exams = cursor.fetchone()
+        self.unstarted_exams_var.set(unstarted_exams)
+        
+        cursor.execute("""SELECT COUNT(*) AS started_exams
+                        FROM Exam
+                        WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                        AND DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+        started_exams = cursor.fetchone()
+        self.started_exams_var.set(started_exams)
+
+        cursor.execute("""SELECT COUNT(*) AS finished_exams
+                        FROM Exam
+                        WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+        finished_exams = cursor.fetchone()
+        self.finished_exams_var.set(finished_exams)
+
+        cursor.execute("""SELECT COUNT(*) AS students_taking_exam
+                        FROM User_Exam
+                        WHERE exam_id IN (
+                            SELECT exam_id
+                            FROM Exam
+                            WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                                AND DATETIME('now') <= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes'))""")
+        students_taking_exam = cursor.fetchone()
+        self.students_taking_exam_var.set(students_taking_exam)
+        
+        cursor.execute("""SELECT COUNT(DISTINCT user_name) AS students_took_exam
+                        FROM User_Exam
+                        WHERE exam_id IN (
+                            SELECT exam_id
+                            FROM Exam
+                            WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes'))""")
+        students_took_exam = cursor.fetchone()
+        self.students_took_exam_var.set(students_took_exam)
+
+        cursor.execute("""SELECT COUNT(*) AS total_feedbacks FROM Feedback""")
+        total_feedbacks = cursor.fetchone()
+        self.total_feedbacks_var.set(total_feedbacks)
+
+        cursor.execute("""SELECT COUNT(*) AS suggestions_for_improvement
+                       FROM Feedback
+                       WHERE feedback_type = 'Suggestion for improvement'""")
+        suggestions_for_improvement = cursor.fetchone()
+        self.suggestions_for_improvement_var.set(suggestions_for_improvement)
+
+        cursor.execute("""SELECT COUNT(*) AS comments_on_clarity_difficulty
+                       FROM Feedback
+                       WHERE feedback_type = 'Comment on clarity, and difficulty levels'""")
+        comments_on_clarity_difficulty = cursor.fetchone()
+        self.comments_on_clarity_difficulty_var.set(comments_on_clarity_difficulty)
+
+        cursor.execute("""SELECT COUNT(*) AS low_ratings
+                       FROM Feedback
+                       WHERE rating BETWEEN 1 AND 3""")
+        low_ratings = cursor.fetchone()
+        self.low_ratings_var.set(low_ratings)
+
+        cursor.execute("""SELECT COUNT(*) AS medium_ratings
+                       FROM Feedback
+                       WHERE rating BETWEEN 4 AND 6""")
+        medium_ratings = cursor.fetchone()
+        self.medium_ratings_var.set(medium_ratings)
+
+        cursor.execute("""SELECT COUNT(*) AS high_ratings
+                       FROM Feedback
+                       WHERE rating BETWEEN 7 AND 10""")
+        high_ratings = cursor.fetchone()
+        self.high_ratings_var.set(high_ratings)
+
+        cursor.execute("""SELECT COUNT(*) AS pending_unread_feedbacks
+                       FROM Feedback
+                       WHERE status = 'Pending/Unread'""")
+        pending_unread_feedbacks = cursor.fetchone()
+        self.pending_unread_feedbacks_var.set(pending_unread_feedbacks)
+
+        cursor.execute("""SELECT COUNT(*) AS pending_unread_feedbacks
+                       FROM Feedback
+                       WHERE status = 'Analyzed/Read'""")
+        analyzed_read_feedbacks = cursor.fetchone()
+        self.analyzed_read_feedbacks_var.set(analyzed_read_feedbacks)
+
+        cursor.execute("""SELECT COUNT(*) AS visible_feedbacks
+                       FROM Feedback
+                       WHERE is_visible = 1""")
+        visible_feedbacks = cursor.fetchone()
+        self.visible_feedbacks_var.set(visible_feedbacks)
+
+        connection.close()
+
+    def on_tab_changed(self, event):
+        # Get the currently selected tab
+        current_tab = self.notebook.tab(self.notebook.select(), "text")
+
+        # Check if the current tab is "Reports"
+        if current_tab == "Reports":
+            # Call the refresh_stats function
+            self.refresh_stats()
+    
+    def load_users(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT user_name, first_name, last_name, email, registration_date, registration_time
+        FROM User""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="email", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 160, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="registration_date", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="registration_time", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_students(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Student'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="email", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 160, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="registration_date", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="registration_time", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_exam_analysts(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Analyst'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="email", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 160, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="registration_date", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="registration_time", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_exam_creators(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Creator'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="email", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 160, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="registration_date", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="registration_time", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_exam_handlers(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Handler'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="email", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 160, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="registration_date", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="registration_time", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_exam_supervisors(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Supervisor'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="email", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 160, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="registration_date", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="registration_time", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_question_creators(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Question_Creator'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="email", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 160, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="registration_date", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="registration_time", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_multirole_users(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, GROUP_CONCAT(UR.role_name, ', ') AS user_roles
+        FROM User U 
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        GROUP BY UR.user_name
+        HAVING COUNT(*) > 1""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "user_roles")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="user_roles", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 300, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_users_loggedin(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, L.login_date, L.login_time
+        FROM User U 
+        JOIN Login L
+        ON U.user_name = L.user_name
+        WHERE L.logout_date IS NULL""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "login_date", "login_time")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="login_date", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="login_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 115, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_questions(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, text,difficulty, type, points, creation_date, creation_time, creator_user_name
+                       FROM Question""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty", "type", \
+                        "points", "creation_date", "creation_time", "creator")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="question_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="topic", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="subtopic", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="difficulty", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="type", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="points",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="creation_date", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 90, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="creation_time", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 90, minwidth=50, anchor=tk.W)
+        self.table.heading("#10", text="creator", anchor=tk.W)
+        self.table.column("#10", stretch=tk.NO, width = 90, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_topics(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT DISTINCT topic FROM Question")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("topic")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="topic", anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_subtopics(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT DISTINCT subtopic FROM Question")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("subtopic")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="subtopic", anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_multiple_choice_questions(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, text,difficulty, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE type = 'Multiple choice'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty", \
+                        "points", "creation_date", "creation_time", "creator_user_name")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="question_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="topic", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="subtopic", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="difficulty", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="points",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_date", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="creation_time", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="creator_user_name", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_true_false_questions(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+        
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, text,difficulty, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE type = 'True/False'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty", \
+                        "points", "creation_date", "creation_time", "creator_user_name")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="question_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="topic", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="subtopic", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="difficulty", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="points",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_date", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="creation_time", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="creator_user_name", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_descriptive_practical_questions(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+        
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, text, difficulty, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE type = 'Descriptive/Practical'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty", \
+                        "points", "creation_date", "creation_time", "creator_user_name")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="question_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="topic", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="subtopic", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="difficulty", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="points",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_date", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="creation_time", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="creator_user_name", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+    
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_easy_questions(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+        
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, text, type, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE difficulty = 'Easy'""")
+        data = cursor.fetchall()
+        connection.close()
+        
+        columns = ("question_id", "topic", "subtopic", "text", "type", \
+                            "points", "creation_date", "creation_time", "creator_user_name")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="question_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="topic", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="subtopic", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="type", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="points",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_date", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="creation_time", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="creator_user_name", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_normal_questions(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+        
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, text, type, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE difficulty = 'Normal'""")
+        data = cursor.fetchall()
+        connection.close()
+        
+        columns = ("question_id", "topic", "subtopic", "text", "type", \
+                            "points", "creation_date", "creation_time", "creator_user_name")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="question_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="topic", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="subtopic", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="type", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="points",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_date", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="creation_time", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="creator_user_name", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_hard_questions(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+        
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, text, type, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE difficulty = 'Hard'""")
+        data = cursor.fetchall()
+        connection.close()
+        
+        columns = ("question_id", "topic", "subtopic", "text", "type", \
+                            "points", "creation_date", "creation_time", "creator_user_name")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="question_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="topic", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="subtopic", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="type", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="points",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_date", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="creation_time", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 110, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="creator_user_name", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_exams(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="exam_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 130, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="exam_date", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="start_time",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="duration", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="creation_date", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_time",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="neg_score", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="pass_score", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#10", text="handler", anchor=tk.W)
+        self.table.column("#10", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#11", text="supervisor", anchor=tk.W)
+        self.table.column("#11", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#12", text="creator", anchor=tk.W)
+        self.table.column("#12", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_unstarted_exams(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam
+                       WHERE DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="exam_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 130, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="exam_date", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="start_time",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="duration", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="creation_date", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_time",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="neg_score", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="pass_score", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#10", text="handler", anchor=tk.W)
+        self.table.column("#10", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#11", text="supervisor", anchor=tk.W)
+        self.table.column("#11", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#12", text="creator", anchor=tk.W)
+        self.table.column("#12", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_started_exams(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam
+                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                        AND DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="exam_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 130, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="exam_date", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="start_time",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="duration", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="creation_date", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_time",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="neg_score", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="pass_score", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#10", text="handler", anchor=tk.W)
+        self.table.column("#10", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#11", text="supervisor", anchor=tk.W)
+        self.table.column("#11", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#12", text="creator", anchor=tk.W)
+        self.table.column("#12", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_finished_exams(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam
+                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="exam_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 130, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="exam_date", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="start_time",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="duration", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="creation_date", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="creation_time",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="neg_score", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="pass_score", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#10", text="handler", anchor=tk.W)
+        self.table.column("#10", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#11", text="supervisor", anchor=tk.W)
+        self.table.column("#11", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#12", text="creator", anchor=tk.W)
+        self.table.column("#12", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_students_taking_exam(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT U.user_name, U.first_name, U.last_name, UE.exam_id, E.exam_name
+                        FROM User_Exam UE
+                        JOIN User U ON UE.user_name = U.user_name
+                        JOIN Exam E ON UE.exam_id = E.exam_id
+                        WHERE UE.exam_id IN (
+                            SELECT E.exam_id
+                            FROM Exam E
+                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                                AND DATETIME('now') <= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes'))""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "exam_id", "exam_name")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="exam_id", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="exam_name", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 130, minwidth=50, anchor=tk.W)
+        
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_students_took_exam(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT UE.user_name, U.first_name, U.last_name, GROUP_CONCAT(UE.exam_id, ', ') AS exam_ids
+                        FROM User_Exam UE
+                        JOIN User U ON UE.user_name = U.user_name
+                        WHERE UE.exam_id IN (
+                            SELECT E.exam_id
+                            FROM Exam E
+                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                        )
+                        GROUP BY UE.user_name""")
+                       
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "exam_ids")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="user_name",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="first_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="last_name", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="exam_ids", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+    
+    def load_feedbacks(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Feedback")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="text", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="question_id", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="rating",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="status", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="is_visible", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_suggestions_for_improvement(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, text, question_id, rating, status, is_visible
+                       FROM Feedback
+                       WHERE feedback_type = 'Suggestion for improvement'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "text", "question_id", "rating", "status", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="question_id", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="rating",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="status", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="is_visible", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_comments_on_clarity_difficulty(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, text, question_id, rating, status, is_visible
+                       FROM Feedback
+                       WHERE feedback_type = 'Comment on clarity, and difficulty levels'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "text", "question_id", "rating", "status", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="text", anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="question_id", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="rating",anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="status", anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="is_visible", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_low_ratings(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT *
+                       FROM Feedback
+                       WHERE rating BETWEEN 1 AND 3""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="text", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="question_id", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="rating",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="status", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="is_visible", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_medium_ratings(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT *
+                       FROM Feedback
+                       WHERE rating BETWEEN 4 AND 6""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="text", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="question_id", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="rating",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="status", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="is_visible", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_high_ratings(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT *
+                       FROM Feedback
+                       WHERE rating BETWEEN 7 AND 10""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="text", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="question_id", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="rating",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="status", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#9", text="is_visible", anchor=tk.W)
+        self.table.column("#9", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_pending_unread_feedbacks(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, feedback_type, text, question_id, rating, is_visible
+                       FROM Feedback
+                       WHERE status = 'Pending/Unread'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="text", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="question_id", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="rating",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="is_visible", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_analyzed_read_feedbacks(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, feedback_type, text, question_id, rating, is_visible
+                       FROM Feedback
+                       WHERE status = 'Analyzed/Read'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "is_visible")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="text", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="question_id", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="rating",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="is_visible", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+
+    def load_visible_feedbacks(self):
+        # Remove the entire old table if exists
+        if hasattr(self, 'table'):
+            self.table.grid_forget()  # Remove the grid layout manager from the table widget
+            self.y_scrollbar.grid_forget()  # Remove the vertical scrollbar
+            self.table.destroy()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, feedback_type, text, question_id, rating, status
+                       FROM Feedback
+                       WHERE is_visible = 1""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status")
+        self.table = ttk.Treeview(self.table_frame, column=columns, show='headings', selectmode="browse")
+        self.table.heading("#1", text="exam_id",anchor=tk.W)
+        self.table.column("#1", stretch=tk.NO, width = 70, minwidth=50, anchor=tk.W)
+        self.table.heading("#2", text="user_name", anchor=tk.W)
+        self.table.column("#2", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#3", text="feedback_time", anchor=tk.W)
+        self.table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.table.column("#4", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#5", text="text", anchor=tk.W)
+        self.table.column("#5", stretch=tk.NO, width = 200, minwidth=50, anchor=tk.W)
+        self.table.heading("#6", text="question_id", anchor=tk.W)
+        self.table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.table.heading("#7", text="rating",anchor=tk.W)
+        self.table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.table.heading("#8", text="status", anchor=tk.W)
+        self.table.column("#8", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+
+        self.table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", command=self.table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.table.insert("", "end", values=row)
+    
+    def users_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT user_name, first_name, last_name, email, registration_date, registration_time
+        FROM User""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\users.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'users.csv' was successfully created in outputs folder.")
+
+    def students_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Student'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\students.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'students.csv' was successfully created in outputs folder.")
+
+    def exam_analysts_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Analyst'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\exam_analysts.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'exam_analysts.csv' was successfully created in outputs folder.")
+
+    def exam_creators_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Creator'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\exam_creators.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'exam_creators.csv' was successfully created in outputs folder.")
+
+    def exam_handlers_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Handler'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\exam_handlers.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'exam_handlers.csv' was successfully created in outputs folder.")
+
+    def exam_supervisors_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Exam_Supervisor'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\exam_supervisors.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'exam_supervisors.csv' was successfully created in outputs folder.")
+
+    def question_creators_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, U.email, U.registration_date, U.registration_time
+        FROM User U
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        WHERE UR.role_name = 'Question_Creator'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "email", "registration_date", "registration_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\question_creators.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'question_creators.csv' was successfully created in outputs folder.")
+
+    def multirole_users_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, U.first_name, U.last_name, GROUP_CONCAT(UR.role_name, '- ') AS user_roles
+        FROM User U 
+        JOIN User_Role UR
+        ON U.user_name = UR.user_name
+        GROUP BY UR.user_name
+        HAVING COUNT(*) > 1""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "user_roles")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\multirole_users.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'multirole_users.csv' was successfully created in outputs folder.")
+
+    def users_loggedin_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""
+        SELECT U.user_name, L.login_date, L.login_time
+        FROM User U 
+        JOIN Login L
+        ON U.user_name = L.user_name
+        WHERE L.logout_date IS NULL""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "login_date", "login_time")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\users_loggedin.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'users_loggedin.csv' was successfully created in outputs folder.")
+
+    def questions_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, substr(text, 1, instr(text, '\n') - 1) as first_line,
+                        difficulty, type, points, creation_date, creation_time, creator_user_name
+                       FROM Question""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty", "type",
+                        "points", "creation_date", "creation_time", "creator")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\questions.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'questions.csv' was successfully created in outputs folder.")
+
+    def topics_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT DISTINCT topic FROM Question")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("topic")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\topics.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'topics.csv' was successfully created in outputs folder.")
+
+    def subtopics_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT DISTINCT subtopic FROM Question")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("subtopic")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\subtopics.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'subtopics.csv' was successfully created in outputs folder.")
+
+    def multiple_choice_questions_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, substr(text, 1, instr(text, '\n') - 1) as first_line,
+                       difficulty, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE type = 'Multiple choice'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty",
+                        "points", "creation_date", "creation_time", "creator_user_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\multiple_choice_questions.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'multiple_choice_questions.csv' was successfully created in outputs folder.")
+
+    def true_false_questions_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, substr(text, 1, instr(text, '\n') - 1) as first_line,
+                       difficulty, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE type = 'True/False'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty",
+                        "points", "creation_date", "creation_time", "creator_user_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\true_false_questions.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'true_false_questions.csv' was successfully created in outputs folder.")
+
+    def descriptive_practical_questions_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, substr(text, 1, instr(text, '\n') - 1) as first_line,
+                       difficulty, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE type = 'Descriptive/Practical'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("question_id", "topic", "subtopic", "text", "difficulty",
+                        "points", "creation_date", "creation_time", "creator_user_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\descriptive_practical_questions.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'descriptive_practical_questions.csv' was successfully created in outputs folder.")
+
+    def easy_questions_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, substr(text, 1, instr(text, '\n') - 1) as first_line,
+                        type, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE difficulty = 'Easy'""")
+        data = cursor.fetchall()
+        connection.close()
+        
+        columns = ("question_id", "topic", "subtopic", "text", "type",
+                            "points", "creation_date", "creation_time", "creator_user_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\easy_questions.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'easy_questions.csv' was successfully created in outputs folder.")
+
+    def normal_questions_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, substr(text, 1, instr(text, '\n') - 1) as first_line,
+                        type, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE difficulty = 'Normal'""")
+        data = cursor.fetchall()
+        connection.close()
+        
+        columns = ("question_id", "topic", "subtopic", "text", "type",
+                            "points", "creation_date", "creation_time", "creator_user_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\normal_questions.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'normal_questions.csv' was successfully created in outputs folder.")
+
+    def hard_questions_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id, topic, subtopic, substr(text, 1, instr(text, '\n') - 1) as first_line,
+                        type, points, creation_date, creation_time, creator_user_name
+                       FROM Question
+                       WHERE difficulty = 'Hard'""")
+        data = cursor.fetchall()
+        connection.close()
+        
+        columns = ("question_id", "topic", "subtopic", "text", "type",
+                            "points", "creation_date", "creation_time", "creator_user_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\hard_questions.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'hard_questions.csv' was successfully created in outputs folder.")
+
+    def exams_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\exams.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'exams.csv' was successfully created in outputs folder.")
+
+    def unstarted_exams_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam
+                       WHERE DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\unstarted_exams.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'unstarted_exams.csv' was successfully created in outputs folder.")
+
+    def started_exams_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam
+                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                        AND DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\started_exams.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'started_exams.csv' was successfully created in outputs folder.")
+
+    def finished_exams_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
+                       FROM Exam
+                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time",
+                                "neg_score", "pass_score", 'handler', "supervisor", "creator")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\finished_exams.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'finished_exams.csv' was successfully created in outputs folder.")
+
+    def students_taking_exam_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT U.user_name, U.first_name, U.last_name, UE.exam_id, E.exam_name
+                        FROM User_Exam UE
+                        JOIN User U ON UE.user_name = U.user_name
+                        JOIN Exam E ON UE.exam_id = E.exam_id
+                        WHERE UE.exam_id IN (
+                            SELECT E.exam_id
+                            FROM Exam E
+                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                                AND DATETIME('now') <= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes'))""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "exam_id", "exam_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\students_taking_exam.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)     # Write data
+        
+        messagebox.showinfo("File Created", "The file 'students_taking_exam.csv' was successfully created in outputs folder.")
+
+    def students_took_exam_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT UE.user_name, U.first_name, U.last_name, GROUP_CONCAT(UE.exam_id, ', ') AS exam_ids
+                        FROM User_Exam UE
+                        JOIN User U ON UE.user_name = U.user_name
+                        WHERE UE.exam_id IN (
+                            SELECT E.exam_id
+                            FROM Exam E
+                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                        )
+                        GROUP BY UE.user_name""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("user_name", "first_name", "last_name", "exam_id", "exam_name")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\students_took_exam.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'students_took_exam.csv' was successfully created in outputs folder.")
+
+    def feedbacks_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Feedback")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\feedbacks.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'feedbacks.csv' was successfully created in outputs folder.")
+
+    def suggestions_for_improvement_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, text, question_id, rating, status, is_visible
+                       FROM Feedback
+                       WHERE feedback_type = 'Suggestion for improvement'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "text", "question_id", "rating", "status", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\suggestions_for_improvement.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'suggestions_for_improvement.csv' was successfully created in outputs folder.")
+
+    def comments_on_clarity_difficulty_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, text, question_id, rating, status, is_visible
+                       FROM Feedback
+                       WHERE feedback_type = 'Comment on clarity, and difficulty levels'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "text", "question_id", "rating", "status", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\comments_on_clarity_difficulty.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'comments_on_clarity_difficulty.csv' was successfully created in outputs folder.")
+    
+    def low_ratings_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT *
+                       FROM Feedback
+                       WHERE rating BETWEEN 1 AND 3""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\low_ratings.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'low_ratings.csv' was successfully created in outputs folder.")
+
+    def medium_ratings_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT *
+                       FROM Feedback
+                       WHERE rating BETWEEN 4 AND 6""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\medium_ratings.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'medium_ratings.csv' was successfully created in outputs folder.")
+
+    def high_ratings_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT *
+                       FROM Feedback
+                       WHERE rating BETWEEN 7 AND 10""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\high_ratings.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'high_ratings.csv' was successfully created in outputs folder.")
+
+    def pending_unread_feedbacks_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, feedback_type, text, question_id, rating, is_visible
+                       FROM Feedback
+                       WHERE status = 'Pending/Unread'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\pending_unread_feedbacks.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'pending_unread_feedbacks.csv' was successfully created in outputs folder.")
+
+    def analyzed_read_feedbacks_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, feedback_type, text, question_id, rating, is_visible
+                       FROM Feedback
+                       WHERE status = 'Analyzed/Read'""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "is_visible")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\analyzed_read_feedbacks.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'analyzed_read_feedbacks.csv' was successfully created in outputs folder.")
+
+    def visible_feedbacks_tocsv(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT exam_id, user_name, feedback_time, feedback_type, text, question_id, rating, status
+                       FROM Feedback
+                       WHERE is_visible = 1""")
+        data = cursor.fetchall()
+        connection.close()
+
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status")
+        
+        #open the csv file to which we want to write data
+        path = '..\\outputs\\visible_feedbacks.csv'
+        scriptdir = os.path.dirname(__file__)
+        file_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", newline="") as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(columns)  # Write column names
+            csv_writer.writerows(data)    # Write data
+        
+        messagebox.showinfo("File Created", "The file 'visible_feedbacks.csv' was successfully created in outputs folder.")
+    
+    def create_admin_help_widgets(self, admin_help_tab):
+        # Add User Manuals and Documentation
+        user_manual_label = tk.Label(admin_help_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
+        user_manual_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+
+        user_manual_info = tk.Label(admin_help_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
+        user_manual_info.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Frequently Asked Questions (FAQs)
+        faq_label = tk.Label(admin_help_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
+        faq_label.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+
+        faq_info = tk.Label(admin_help_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
+        faq_info.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Contact Information and Support Channels
+        contact_info_label = tk.Label(admin_help_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
+        contact_info_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+        contact_info = tk.Label(admin_help_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
+        contact_info.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Video Tutorials and Demos
+        video_tutorials_label = tk.Label(admin_help_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
+        video_tutorials_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+        video_tutorials_info = tk.Label(admin_help_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
+        video_tutorials_info.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Release Notes and Updates
+        release_notes_label = tk.Label(admin_help_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
+        release_notes_label.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+
+        release_notes_info = tk.Label(admin_help_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
+        release_notes_info.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Security Guidelines and Best Practices
+        security_guidelines_label = tk.Label(admin_help_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
+        security_guidelines_label.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
+        security_info = tk.Label(admin_help_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
+        security_info.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Glossary of Terms
+        glossary_label = tk.Label(admin_help_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
+        glossary_label.grid(row=12, column=0, sticky="w", padx=10, pady=5)
+
+        glossary_info = tk.Label(admin_help_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
+        glossary_info.grid(row=13, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Community Forums and User Groups
+        community_forums_label = tk.Label(admin_help_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
+        community_forums_label.grid(row=14, column=0, sticky="w", padx=10, pady=5)
+
+        community_info = tk.Label(admin_help_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
+        community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
+    
+    def add_student_tabs(self):
+        # Add tabs for different functionalities
+        self.students_exam_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.students_exam_tab, text='Exam')
+        self.create_students_exam_widgets(self.students_exam_tab)
+
+        self.students_feedback_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.students_feedback_tab, text='Feedback')
+        self.create_students_feedback_widgets(self.students_feedback_tab)
+
+        self.students_help_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.students_help_tab, text='Help')
+        self.create_students_help_widgets(self.students_help_tab)
+    
+    def create_students_exam_widgets(self):
+        pass
+
+    def create_students_feedback_widgets(self):
+        pass
+
+    def create_students_help_widgets(self):
+        pass
+
+# Main loop
+if __name__ == "__main__":
+    admin_session = LoginPage()
+    admin_session.mainloop()
+
+    # student_session = LoginPage()
+    # student_session.mainloop()
