@@ -170,17 +170,17 @@ class TestDatabaseOperations(unittest.TestCase):
             self.assertEqual(column[1], expected_column)
 
     def test_insert_user(self):
-        # Insert a user (valid username, password, firstname, lastname, email --> successfful)
+        # Insert a user (valid username, password, firstname, lastname, email --> successful)
         self.assertEqual(insert_user('TestUser1', 'Test*1234', 'Test', 'User', 'test1@example.com'), "User info inserted successfully.")
-        # Insert a user (invalid username--> unsuccessfful)
+        # Insert a user (invalid username--> unsuccessful)
         self.assertEqual(insert_user('Test_User2', 'Test*1234', 'Test', 'User', 'test2@example.com'), "Invalid username format.")
-        # Insert a user (invalid password--> unsuccessfful)
+        # Insert a user (invalid password--> unsuccessful)
         self.assertEqual(insert_user('TestUser3', 'test1234', 'Test', 'User', 'test3@example.com'), "Invalid password format.")
-        # Insert a user (invalid name--> unsuccessfful)
+        # Insert a user (invalid name--> unsuccessful)
         self.assertEqual(insert_user('TestUser4', 'Test*1234', 'Test4', 'User4', 'test4@example.com'), "Invalid name format.")
-        # Insert a user (invalid email--> unsuccessfful)
+        # Insert a user (invalid email--> unsuccessful)
         self.assertEqual(insert_user('TestUser5', 'Test*1234', 'Test', 'User', 'test5@@example.com'), "Invalid email format.")
-        # Insert a user (duplicate username--> unsuccessfful)
+        # Insert a user (duplicate username--> unsuccessful)
         self.assertEqual(insert_user('TestUser1', 'Test*1234', 'Test', 'User', 'test5@@example.com'), "Username already exists.")
 
         # Check if the users has been inserted
@@ -225,17 +225,17 @@ class TestDatabaseOperations(unittest.TestCase):
         # Insert a user
         self.assertEqual(update_user('TestUser1', 'Test*1234', 'Test', 'User', 'test1@example.com'), "User info inserted successfully.")
         
-        # update a user (valid inputs--> successfful)
+        # update a user (valid inputs--> successful)
         self.assertEqual(update_user('TestUser1', 'Test*1234*5', 'Testt', 'Userr', 'test1@example.com'), "User info updated successfully.")
-        # update a user (invalid username--> unsuccessfful)
+        # update a user (invalid username--> unsuccessful)
         self.assertEqual(update_user('Test_User1', 'Test*1234', 'Test', 'User', 'test2@example.com'), "Invalid username format.")
-        # update a user (invalid password--> unsuccessfful)
+        # update a user (invalid password--> unsuccessful)
         self.assertEqual(update_user('TestUser1', 'test1234', 'Test', 'User', 'test3@example.com'), "Invalid password format.")
-        # update a user (invalid name--> unsuccessfful)
+        # update a user (invalid name--> unsuccessful)
         self.assertEqual(update_user('TestUser1', 'Test*1234', 'Test4', 'User4', 'test4@example.com'), "Invalid name format.")
-        # update a user (invalid email--> unsuccessfful)
+        # update a user (invalid email--> unsuccessful)
         self.assertEqual(update_user('TestUser1', 'Test*1234', 'Test', 'User', 'test5@@example.com'), "Invalid email format.")
-        # update a user (valid but not registered username--> unsuccessfful)
+        # update a user (valid but not registered username--> unsuccessful)
         self.assertEqual(update_user('TestUser1000', 'Test*1234', 'Test', 'User', 'test5@@example.com'), "User not registered.")
 
         # Check if the users has been inserted
@@ -266,11 +266,11 @@ class TestDatabaseOperations(unittest.TestCase):
         # Insert a user
         self.assertEqual(update_user('TestUser1', 'Test*1234', 'Test', 'User', 'test1@example.com'), "User info inserted successfully.")
         
-        # delete a user (valid inputs--> successfful)
+        # delete a user (valid inputs--> successful)
         self.assertEqual(delete_user('TestUser1'), "User deleted successfully.")
-        # delete a user (invalid username--> unsuccessfful)
+        # delete a user (invalid username--> unsuccessful)
         self.assertEqual(delete_user('Test_User1'), "Invalid username format.")
-        # delete a user (valid but not registered username--> unsuccessfful)
+        # delete a user (valid but not registered username--> unsuccessful)
         self.assertEqual(delete_user('TestUser1000'), "User not registered.")
 
         # Check if the users has been inserted
@@ -320,19 +320,19 @@ class TestDatabaseOperations(unittest.TestCase):
             self.assertEqual(column[1], expected_column)
     
     def test_insert_role(self):
-        # Insert a role (valid rolename--> successfful)
+        # Insert a role (valid rolename--> successful)
         self.assertEqual(insert_role('Test_Role'), "Role info inserted successfully.")
-        # Insert a role (valid rolename--> successfful)
+        # Insert a role (valid rolename--> successful)
         self.assertEqual(insert_role('TestRole'), "Role info inserted successfully.")
-        # Insert a role (invalid rolename--> unsuccessfful)
+        # Insert a role (invalid rolename--> unsuccessful)
         self.assertEqual(insert_role('Test Role'), "Invalid role format.")
-        # Insert a role (invalid rolename--> unsuccessfful)
+        # Insert a role (invalid rolename--> unsuccessful)
         self.assertEqual(insert_role('Test-Role'), "Invalid role format.")
-        # Insert a role (invalid rolename--> unsuccessfful)
+        # Insert a role (invalid rolename--> unsuccessful)
         self.assertEqual(insert_role('Test.Role'), "Invalid role format.")
-        # Insert a role (invalid rolename--> unsuccessfful)
+        # Insert a role (invalid rolename--> unsuccessful)
         self.assertEqual(insert_role('TestRole1'), "Invalid role format.")
-        # Insert a role (valid but duplicate rolename--> unsuccessfful)
+        # Insert a role (valid but duplicate rolename--> unsuccessful)
         self.assertEqual(insert_role('TestRole'), "Role name already exists.")
 
         # Check if the users has been inserted
@@ -406,19 +406,19 @@ class TestDatabaseOperations(unittest.TestCase):
             self.assertEqual(column[1], expected_column)
     
     def test_insert_permission(self):
-        # Insert a permission (valid permission name--> successfful)
+        # Insert a permission (valid permission name--> successful)
         self.assertEqual(insert_permission('Test_Permission'), "Permission info inserted successfully.")
-        # Insert a permission (valid permission name--> successfful)
+        # Insert a permission (valid permission name--> successful)
         self.assertEqual(insert_permission('TestPermission'), "Invalid permission format.")
-        # Insert a permission (invalid permission name--> unsuccessfful)
+        # Insert a permission (invalid permission name--> unsuccessful)
         self.assertEqual(insert_permission('Test Permission'), "Invalid permission format.")
-        # Insert a permission (invalid permission name--> unsuccessfful)
+        # Insert a permission (invalid permission name--> unsuccessful)
         self.assertEqual(insert_permission('Test-Permission'), "Invalid permission format.")
-        # Insert a permission (invalid permission name--> unsuccessfful)
+        # Insert a permission (invalid permission name--> unsuccessful)
         self.assertEqual(insert_permission('Test.Permission'), "Invalid permission format.")
-        # Insert a permission (invalid permission name--> unsuccessfful)
+        # Insert a permission (invalid permission name--> unsuccessful)
         self.assertEqual(insert_permission('TestPermission1'), "Invalid permission format.")
-        # Insert a permission (valid but duplicate permission name--> unsuccessfful)
+        # Insert a permission (valid but duplicate permission name--> unsuccessful)
         self.assertEqual(insert_permission('Test_Permission'), "Permission name already exists.")
 
         # Check if the users has been inserted
@@ -500,23 +500,23 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
         self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
         
-        # Insert a user role (valid username, role name--> successfful)
+        # Insert a user role (valid username, role name--> successful)
         self.assertEqual(insert_user_role('TestUser1', 'Test_Role'), "User role assigned successfully.")
-        # Insert a user role (invalid username--> unsuccessfful)
+        # Insert a user role (invalid username--> unsuccessful)
         self.assertEqual(insert_user_role('Test User', 'Test_Role'), "Invalid username format.")
-        # Insert a user role (invalid role name--> unsuccessfful)
+        # Insert a user role (invalid role name--> unsuccessful)
         self.assertEqual(insert_user_role('TestUser1', 'Test Role'), "Invalid role format.")
-        # Insert a user role (valid but not registered user--> unsuccessfful)
+        # Insert a user role (valid but not registered user--> unsuccessful)
         self.assertEqual(insert_user_role('TestUser1000', 'Test_Role'), "User not registered.")
-        # Insert a user role (valid but not created role--> unsuccessfful)
+        # Insert a user role (valid but not created role--> unsuccessful)
         self.assertEqual(insert_user_role('TestUser1', 'Test_Role_New'), "Role not created.")
-        # Insert a user role (duplicate user role--> unsuccessfful)
+        # Insert a user role (duplicate user role--> unsuccessful)
         self.assertEqual(insert_user_role('TestUser1', 'Test_Role'), "User already assigned this role.")
-        # Insert a user role (assigning another admin--> unsuccessfful)
+        # Insert a user role (assigning another admin--> unsuccessful)
         self.assertEqual(insert_user_role('TestUser1', 'Administrator'), "No more admins are allowed.")
-        # Insert a user role (assigning a student another role--> unsuccessfful)
+        # Insert a user role (assigning a student another role--> unsuccessful)
         self.assertEqual(insert_user_role('TestStudent1', 'Question_Creator'), "A student can't have any other roles.")
-        # Insert a user role (assigning a non-student, student role--> unsuccessfful)
+        # Insert a user role (assigning a non-student, student role--> unsuccessful)
         self.assertEqual(insert_user_role('TestQCreator1', 'Student'), "A non-student can't have the student role.")
 
         # Check if the user role has been inserted
@@ -581,11 +581,11 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertEqual(insert_role('Test_Role'), "Role info inserted successfully.")
         self.assertEqual(insert_permission('Test_Permission'), "Permission info inserted successfully.")
 
-        # Insert a role permission (valid role name, permission name--> successfful)
+        # Insert a role permission (valid role name, permission name--> successful)
         self.assertEqual(insert_role_permission('Test_Role', 'Test_Permission'), "Role Permission assigned successfully.")
-        # Insert a role permission (invalid role name--> unsuccessfful)
+        # Insert a role permission (invalid role name--> unsuccessful)
         self.assertEqual(insert_role_permission('Test Role', 'Test_Permission'), "Invalid role format.")
-        # Insert a role permission (invalid permission name--> unsuccessfful)
+        # Insert a role permission (invalid permission name--> unsuccessful)
         self.assertEqual(insert_role_permission('Test_Role', 'Test Permission'), "Invalid permission format.")
 
         # Check if the user role has been inserted
@@ -649,17 +649,17 @@ class TestDatabaseOperations(unittest.TestCase):
         # Insert a user
         self.assertEqual(insert_user('TestUser1', 'Test*1234', 'Test', 'User', 'test1@example.com'), "User info inserted successfully.")
 
-        # Attempt to login with incorrect credentials-->unsuccessfful
+        # Attempt to login with incorrect credentials-->unsuccessful
         self.assertEqual(user_login('TestUser1', 'Test@1234'), "Incorrect password!")
-        # Attempt to login with correct credentials-->successfful
+        # Attempt to login with correct credentials-->successful
         self.assertEqual(user_login('TestUser1', 'Test*1234'), "User logged in successfully.")
-        # Attempt to login for valid but unregistered username-->unsuccessfful
+        # Attempt to login for valid but unregistered username-->unsuccessful
         self.assertEqual(user_login('TestUser100', 'Test*1234'), "Username not registered.")
-        # Attempt to login for invalid username-->unsuccessfful
+        # Attempt to login for invalid username-->unsuccessful
         self.assertEqual(user_login('Test User', 'Test*1234'), "Invalid username format.")
-        # Attempt to login for invalid password-->unsuccessfful
+        # Attempt to login for invalid password-->unsuccessful
         self.assertEqual(user_login('TestUser1', 'Test 1234'), "Invalid password format.")
-        # Attempt to login with correct credentials again-->unsuccessfful
+        # Attempt to login with correct credentials again-->unsuccessful
         self.assertEqual(user_login('TestUser1', 'Test*1234'), "User has already logged in!")
 
         # Check if the user login has been inserted
@@ -697,11 +697,11 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertEqual(insert_user('TestUser1', 'Test*1234', 'Test', 'User', 'test1@example.com'), "User info inserted successfully.")
         self.assertEqual(user_login('TestUser1', 'Test*1234'), "User logged in successfully.")
         
-        # Logout the user (valid registered username that already logged in--> successfful)
+        # Logout the user (valid registered username that already logged in--> successful)
         self.assertEqual(user_logout('TestUser1'), "User logged out successfully.")
-        # Logout the user (valid unregistered username--> unsuccessfful)
+        # Logout the user (valid unregistered username--> unsuccessful)
         self.assertEqual(user_logout('TestUser100'), "Username not registered.")
-        # Logout the user (invalid username--> unsuccessfful)
+        # Logout the user (invalid username--> unsuccessful)
         self.assertEqual(user_logout('Test User'), "Invalid username format.")
 
         # Check if the user logout has been updated
@@ -764,29 +764,31 @@ class TestDatabaseOperations(unittest.TestCase):
 
     def test_insert_question(self):
         # Create a question creator user
-        insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com")
-        insert_user_role("TestQCreator1","Question_Creator")
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
 
-        # Insert a question (valid question_id,difficulty,type,points,creator_username with no image --> successfful)
-        insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
-        # Insert a question (valid question_id,difficulty,type,points,creator_username with a image --> successfful)
-        insert_question('Q1001', 'Math', 'Calculus', 'What is dy/dx for y=f(x) as in the image attached?', '..\images\Q1001.png', 'Hard', 'Descriptive/Practical', 5, 'TestQCreator1')
-        # Insert a question (invalid question_id--> unsuccessfful)
-        insert_question('1002', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
-        # Insert a question (invalid difficulty--> unsuccessfful)
-        insert_question('Q1003', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Very Very Easy', 'Multiple choice', 5, 'TestQCreator1')
-        # Insert a question (invalid type--> unsuccessfful)
-        insert_question('Q1004', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Piece of cake', 5, 'TestQCreator1')
-        # Insert a question (invalid points--> unsuccessfful)
-        insert_question('Q1005', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', -2.45, 'TestQCreator1')
-        # Insert a question (invalid username--> unsuccessfful)
-        insert_question('Q1006', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'Test User')
-        # Insert a question (valid unregistered username--> unsuccessfful)
-        insert_question('Q1007', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestUser100')
-        # Insert a question (valid registered non-question creator username--> unsuccessfful)
-        insert_question('Q1008', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestUser1')
-        # Insert a question (invalid image path--> unsuccessfful)
-        insert_question('Q1009', 'Math', 'Algebra', 'What is 2 + 2?', '\data\mypic.jpg', 'Normal', 'Multiple choice', 5, 'TestQCreator1')
+        # Insert a question (valid question_id,difficulty,type,points,creator_username with no image --> successful)
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        # Insert a question (valid question_id,difficulty,type,points,creator_username with a image --> successful)
+        self.assertEqual(insert_question('Q1001', 'Math', 'Calculus', 'What is dy/dx for y=f(x) as in the image attached?', '..\images\Q1001.png', 'Hard', 'Descriptive/Practical', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        # Insert a question (invalid question_id--> unsuccessful)
+        self.assertEqual(insert_question('1002', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Invalid question ID format.")
+        # Insert a question (invalid difficulty--> unsuccessful)
+        self.assertEqual(insert_question('Q1003', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Very Very Easy', 'Multiple choice', 5, 'TestQCreator1'), "Invalid difficulty level.")
+        # Insert a question (invalid type--> unsuccessful)
+        self.assertEqual(insert_question('Q1004', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Piece of cake', 5, 'TestQCreator1'), "Invalid question type.")
+        # Insert a question (invalid points--> unsuccessful)
+        self.assertEqual(insert_question('Q1005', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', -2.45, 'TestQCreator1'), "Invalid points value.")
+        # Insert a question (invalid username--> unsuccessful)
+        self.assertEqual(insert_question('Q1006', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'Test User'), "Invalid username format.")
+        # Insert a question (valid unregistered username--> unsuccessful)
+        self.assertEqual(insert_question('Q1007', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestUser100'), "User not registered.")
+        # Insert a question (valid registered non-question creator username--> unsuccessful)
+        self.assertEqual(insert_question('Q1008', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestUser1'), "User is not question creator.")
+        # Insert a question (invalid image path--> unsuccessful)
+        self.assertEqual(insert_question('Q1009', 'Math', 'Algebra', 'What is 2 + 2?', '\data\mypic.jpg', 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Invalid image path.")
+        # Insert a question (no image and no text--> unsuccessful)
+        self.assertEqual(insert_question('Q1010', 'Math', 'Algebra', None, None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "A Question must have at least a text or an image.")
 
         # Check if the question has been inserted
         # the relative file path
@@ -831,6 +833,9 @@ class TestDatabaseOperations(unittest.TestCase):
         cursor.execute("SELECT * FROM Question WHERE question_id='Q1009'")
         res10 = cursor.fetchone()
 
+        cursor.execute("SELECT * FROM Question WHERE question_id='Q1010'")
+        res11 = cursor.fetchone()
+
         connection.close()
 
         self.assertIsNotNone(res1)
@@ -847,6 +852,91 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertIsNone(res8)
         self.assertIsNone(res9)
         self.assertIsNone(res10)
+        self.assertIsNone(res11)
+    
+    def test_update_question(self):
+        # Create a question creator user and insert a question
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        
+        # update a question (valid inputs--> successful)
+        self.assertEqual(update_question('Q1000', 'Math', 'Algebra', 'What is 5 - 2?', None, 'Easy', 'Multiple choice', 1), "Question info updated successfully.")
+        # update a question (invalid question_id--> unsuccessful)
+        self.assertEqual(update_question('Q1000-s1', 'Math', 'Algebra', 'What is 5 - 2?', None, 'Easy', 'Multiple choice', 1), "Invalid question ID format.")
+        # update a question (invalid question_id--> unsuccessful)
+        self.assertEqual(update_question('Q1000', 'Math', 'Algebra', 'What is 5 - 2?', "C:\Users", 'Easy', 'Multiple choice', 1), "Invalid image path.")
+        # update a question (invalid difficulty level--> unsuccessful)
+        self.assertEqual(update_question('Q1000', 'Math', 'Algebra', 'What is 5 - 2?', None, 'Too Easy', 'Multiple choice', 1), "Invalid difficulty level.")
+        # update a question (invalid question type--> unsuccessful)
+        self.assertEqual(update_question('Q1000', 'Math', 'Algebra', 'What is 5 - 2?', None, 'Easy', 'Randomly-chosed', 1), "Invalid question type.")
+        # update a question (invalid points--> unsuccessful)
+        self.assertEqual(update_question('Q1000', 'Math', 'Algebra', 'What is 5 - 2?', None, 'Easy', 'Multiple choice', -3.75), "Invalid points value.")
+        # update a question (no image and no text--> unsuccessful)
+        self.assertEqual(update_question('Q1000', 'Math', 'Algebra', None, None, 'Easy', 'Multiple choice', 1), "A Question must have at least a text or an image.")
+        # update a question (question not exists--> unsuccessful)
+        self.assertEqual(update_question('Q10000', 'Math', 'Algebra', 'What is 5 - 2?', None, 'Easy', 'Multiple choice', 1), "Question not exists.")
+
+        # Check if the users has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Question WHERE question_id='Q1000'")
+        res1 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNotNone(res1)
+        self.assertEqual(res1[0], 'Q1000')
+        self.assertEqual(res1[1], 'Math')
+        self.assertEqual(res1[2], 'Algebra')
+        self.assertEqual(res1[3], 'What is 5 - 2?')
+        self.assertIsNotNone(res1[4])
+        self.assertEqual(res1[5], 'Easy')
+        self.assertEqual(res1[6], 'Multiple choice')
+        self.assertEqual(res1[7], 1)
+
+    def test_delete_question(self):
+        # Create a question creator user and insert a question
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        
+        # delete a question (valid inputs--> successful)
+        self.assertEqual(delete_question('Q1000'), "Question deleted successfully.")
+        # delete a question (invalid question_id--> unsuccessful)
+        self.assertEqual(delete_question('Q1000/a-1'), "Invalid question ID format.")
+        # delete a question (question not exists--> unsuccessful)
+        self.assertEqual(delete_question('Q10000'), "Question not exists.")
+        
+        # Check if the users has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Question WHERE question_id='Q1000'")
+        res1 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNone(res1)
     
     def test_create_option_table(self):
         # the relative file path
@@ -874,27 +964,32 @@ class TestDatabaseOperations(unittest.TestCase):
         for column, expected_column in zip(columns, expected_columns):
             self.assertEqual(column[1], expected_column)
     
-    def test_insert_option(self):
-        # Create a question creator user
-        insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com")
-        insert_user_role("TestQCreator1","Question_Creator")
-        # Insert 2 questions
-        insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
-        insert_question('Q1001', 'Math', 'Calculus', 'What is dy/dx for y=f(x) as in the image attached?', '..\images\Q1001.png', 'Hard', 'Descriptive/Practical', 5, 'TestQCreator1')
+    def test_insert_question_option(self):
+        # Create a question creator user and 2 questions
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1001', 'Math', 'Calculus', 'What is dy/dx for y=f(x) as in the image attached?', '..\images\Q1001.png', 'Hard', 'Descriptive/Practical', 5, 'TestQCreator1'), "Question info inserted successfully.")
 
-        # Insert 4 options (valid option_id,question_id, is_correct_answer with no image --> successfful)
-        insert_question_option("Q1000O1", "Q1000", "4", None, 1)
-        insert_question_option("Q1000O2", "Q1000", "5", None, 0)
-        insert_question_option("Q1000O3", "Q1000", "6", None, 0)
-        insert_question_option("Q1000O4", "Q1000", "3", None, 0)
-        # Insert an option (invalid option_id--> unsuccessfful)
-        insert_question_option('O1001', 'Q1001', '1+x', None, 1)
-        # Insert an option (invalid question_id--> unsuccessfful)
-        insert_question_option("Q1002O1", '1002', '56', None, 0)
-        # Insert an option (valid option_id,question_id but no such question_id--> unsuccessfful)
-        insert_question_option("Q1002O2", 'Q1002', '56', None, 0)
-        # Insert an option (invalid is_correct_answer--> unsuccessfful)
-        insert_question_option("Q1000O5", 'Q1000', '56', None, 5)
+        # Insert 4 options (valid option_id,question_id, is_correct_answer with no image --> successful)
+        self.assertEqual(insert_question_option("Q1000O1", "Q1000", "4", None, 1), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O2", "Q1000", "5", None, 0), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O3", "Q1000", "6", None, 0), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O4", "Q1000", "3", None, 0), "Question option info inserted successfully.")
+        # Insert an option (invalid option_id--> unsuccessful)
+        self.assertEqual(insert_question_option('O1001', 'Q1001', '1+x', None, 1), "Invalid option ID format.")
+        # Insert an option (invalid question_id--> unsuccessful)
+        self.assertEqual(insert_question_option("Q1002O1", '1002', '56', None, 0), "Invalid question ID format.")
+        # Insert an option (valid option_id,question_id but no such question_id--> unsuccessful)
+        self.assertEqual(insert_question_option("Q1002O2", 'Q1002', 'x=1', None, 0), "Question not exists.")
+        # Insert an option (invalid is_correct_answer--> unsuccessful)
+        self.assertEqual(insert_question_option("Q1000O5", 'Q1000', 'x=1', None, 5), "Invalid is_correct_answer.")
+        # Insert an option (invalid image path--> unsuccessful)
+        self.assertEqual(insert_question_option("Q1002O1", 'Q1000', 'x=1', "G:\Options", 1), "Invalid image path.")
+        # Insert an option (no text no image--> unsuccessful)
+        self.assertEqual(insert_question_option("Q1002O1", 'Q1000', None, None, 1), "An Option must have at least a text or an image.")
+        # Insert an option (option duplication--> unsuccessful)
+        self.assertEqual(insert_question_option("Q1000O1", "Q1000", "4", None, 1), "Option already exists.")
         
         # Check if the question has been inserted
         # the relative file path
@@ -938,24 +1033,28 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertIsNotNone(res1)
         self.assertEqual(res1[0], 'Q1000O1')
         self.assertEqual(res1[1], 'Q1000')  # Check if the question_id is correct
+        self.assertEqual(res1[2], '4')  # Check if the text is correct
         self.assertIsNone(res1[3])  # No image provided
         self.assertEqual(res1[4], 1)  # is_correct_answer should be 1
 
         self.assertIsNotNone(res2)
         self.assertEqual(res2[0], 'Q1000O2')
         self.assertEqual(res2[1], 'Q1000')  # Check if the question_id is correct
+        self.assertEqual(res2[2], '5')  # Check if the text is correct
         self.assertIsNone(res2[3])  # No image provided
         self.assertEqual(res2[4], 0)  # is_correct_answer should be 0
 
         self.assertIsNotNone(res3)
         self.assertEqual(res3[0], 'Q1000O3')
         self.assertEqual(res3[1], 'Q1000')  # Check if the question_id is correct
+        self.assertEqual(res3[2], '6')  # Check if the text is correct
         self.assertIsNone(res3[3])  # No image provided
         self.assertEqual(res3[4], 0)  # is_correct_answer should be 0
 
         self.assertIsNotNone(res4)
         self.assertEqual(res4[0], 'Q1000O4')
         self.assertEqual(res4[1], 'Q1000')  # Check if the question_id is correct
+        self.assertEqual(res4[2], '3')  # Check if the text is correct
         self.assertIsNone(res4[3])  # No image provided
         self.assertEqual(res4[4], 0)  # is_correct_answer should be 0
 
@@ -963,6 +1062,103 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertIsNone(res6)
         self.assertIsNone(res7)
         self.assertIsNone(res8)
+    
+    def test_update_question_option(self):
+        # Create a question creator user and 1 question with 4 options
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O1", "Q1000", "4", None, 1), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O2", "Q1000", "5", None, 0), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O3", "Q1000", "6", None, 0), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O4", "Q1000", "3", None, 0), "Question option info inserted successfully.")
+
+        # update an option (valid inputs--->successful)
+        self.assertEqual(update_question_option("Q1000O1", "Q1000", "x=4", None, 1), "Question option info updated successfully.")
+        # update an option (invalid option-id--->unsuccessful)
+        self.assertEqual(update_question_option("Q1000/Op2", "Q1000", "x=5", None, 1), "Invalid option ID format.")
+        # update an option (invalid question-id--->unsuccessful)
+        self.assertEqual(update_question_option("Q1000O2", "Q-1000", "x=5", None, 1), "Invalid question ID format.")
+        # update an option (invalid image path--->unsuccessful)
+        self.assertEqual(update_question_option("Q1000O2", "Q1000", "x=5", "C:\NewOp", 1), "Invalid image path.")
+        # update an option (invalid is_correct_answer--->unsuccessful)
+        self.assertEqual(update_question_option("Q1000O2", "Q1000", "x=5", None, 5), "Invalid is_correct_answer.")
+        # update an option (question not exists--->unsuccessful)
+        self.assertEqual(update_question_option("Q1000O2", "Q10000", "x=5", None, 0), "Question not exists.")
+        # update an option (option not exists--->unsuccessful)
+        self.assertEqual(update_question_option("Q1000O5", "Q1000", "x=5", None, 0), "Option not exists.")
+
+        # Check if the users has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Option WHERE option_id='Q1000O1'")
+        res1 = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM Option WHERE option_id='Q1000O2'")
+        res2 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNotNone(res1)
+        self.assertEqual(res1[0], 'Q1000O1')
+        self.assertEqual(res1[1], 'Q1000')
+        self.assertEqual(res1[2], 'x=4')
+        self.assertIsNotNone(res1[3])
+        self.assertEqual(res1[4], 1)
+
+        self.assertIsNotNone(res2)
+        self.assertEqual(res2[0], 'Q1000O2')
+        self.assertEqual(res2[1], 'Q1000')
+        self.assertEqual(res2[2], '5')
+        self.assertIsNotNone(res2[3])
+        self.assertEqual(res2[4], 0)
+
+    def test_delete_question_option(self):
+        # Create a question creator user and 1 question with 4 options
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O1", "Q1000", "4", None, 1), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O2", "Q1000", "5", None, 0), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O3", "Q1000", "6", None, 0), "Question option info inserted successfully.")
+        self.assertEqual(insert_question_option("Q1000O4", "Q1000", "3", None, 0), "Question option info inserted successfully.")
+
+        # delete an option (valid inputs--->successful)
+        self.assertEqual(delete_question_option("Q1000O1"), "Question option info deleted successfully.")
+        # delete an option (invalid option_id--->unsuccessful)
+        self.assertEqual(delete_question_option("Q1000/O1"), "Invalid option ID format.")
+        # delete an option (valid inputs--->unsuccessful)
+        self.assertEqual(delete_question_option("Q1000O8"), "Option not exists.")
+
+        # Check if the users has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Option WHERE option_id='Q1000O1'")
+        res1 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNone(res1)
 
     def test_create_exam_table(self):
         # the relative file path
@@ -1003,33 +1199,33 @@ class TestDatabaseOperations(unittest.TestCase):
         insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com")
         insert_user_role("TestESupervisor1","Exam_Supervisor")
         
-        # Insert a exam (valid inputs --> successfful)
+        # Insert a exam (valid inputs --> successful)
         exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
         insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid exam_id --> unsuccessfful)
+        # Insert a exam (invalid exam_id --> unsuccessful)
         insert_exam("E 101", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid exam_date --> unsuccessfful)
+        # Insert a exam (invalid exam_date --> unsuccessful)
         exam_date2 = (dt.now() - timedelta(days=2)).strftime('%Y/%m/%d')
         insert_exam("Ex102", "Test exam name", exam_date2, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid exam_time --> unsuccessfful)
+        # Insert a exam (invalid exam_time --> unsuccessful)
         insert_exam("Ex103", "Test exam name", exam_date1, "68:74:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid duration --> unsuccessfful)
+        # Insert a exam (invalid duration --> unsuccessful)
         insert_exam("Ex104", "Test exam name", exam_date1, "08:30:00", -45, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid has_negative_score --> unsuccessfful)
+        # Insert a exam (invalid has_negative_score --> unsuccessful)
         insert_exam("Ex105", "Test exam name", exam_date1, "08:30:00", 30, 10, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid passing_score --> unsuccessfful)
+        # Insert a exam (invalid passing_score --> unsuccessful)
         insert_exam("Ex106", "Test exam name", exam_date1, "08:30:00", 30, 0, 200, "TestEHandler1", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid handler_user_name --> unsuccessfful)
+        # Insert a exam (invalid handler_user_name --> unsuccessful)
         insert_exam("Ex107", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "Test#E*Handler", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (valid but not registered handler_user_name --> unsuccessfful)
+        # Insert a exam (valid but not registered handler_user_name --> unsuccessful)
         insert_exam("Ex108", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler100", "TestESupervisor1", "TestECreator1")
-        # Insert a exam (invalid supervisor_user_name --> unsuccessfful)
+        # Insert a exam (invalid supervisor_user_name --> unsuccessful)
         insert_exam("Ex109", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "Test@E=Supervisor1", "TestECreator1")
-        # Insert a exam (valid but not registered supervisor_user_name --> unsuccessfful)
+        # Insert a exam (valid but not registered supervisor_user_name --> unsuccessful)
         insert_exam("Ex110", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor100", "TestECreator1")
-        # Insert a exam (invalid handler_user_name --> unsuccessfful)
+        # Insert a exam (invalid handler_user_name --> unsuccessful)
         insert_exam("Ex111", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "Test$$ECreator1")
-        # Insert a exam (valid but not registered handler_user_name --> unsuccessfful)
+        # Insert a exam (valid but not registered handler_user_name --> unsuccessful)
         insert_exam("Ex112", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator100")
 
         # Check if the question has been inserted
@@ -1158,19 +1354,19 @@ class TestDatabaseOperations(unittest.TestCase):
         exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
         insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
 
-        # Insert 5 exam question (valid inputs --> successfful)
+        # Insert 5 exam question (valid inputs --> successful)
         insert_exam_question("Ex100", "Q1000")
         insert_exam_question("Ex100", "Q1001")
         insert_exam_question("Ex100", "Q1002")
         insert_exam_question("Ex100", "Q1003")
         insert_exam_question("Ex100", "Q1004")
-        # Insert an exam question (invalid exam_id --> unsuccessfful)
+        # Insert an exam question (invalid exam_id --> unsuccessful)
         insert_exam_question("E 100", "Q1000")
-        # Insert an exam question (valid but not registered exam_id --> unsuccessfful)
+        # Insert an exam question (valid but not registered exam_id --> unsuccessful)
         insert_exam_question("Ex200", "Q1000")
-        # Insert an exam question (invalid question_id --> unsuccessfful)
+        # Insert an exam question (invalid question_id --> unsuccessful)
         insert_exam_question("Ex100", "1000")
-        # Insert an exam question (valid but not registered question_id --> unsuccessfful)
+        # Insert an exam question (valid but not registered question_id --> unsuccessful)
         insert_exam_question("Ex100", "Q2000")
 
         # Check if the question has been inserted
@@ -1258,16 +1454,16 @@ class TestDatabaseOperations(unittest.TestCase):
         exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
         insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
 
-        # insert 2 user exams (valid inputs --> successfful)
+        # insert 2 user exams (valid inputs --> successful)
         insert_user_exam("Ex100", "TestStudent1", 0, 5, 0, 0, 5, 0)
         insert_user_exam("Ex100", "TestStudent2", 0, 5, 0, 0, 5, 0)
-        # insert an user exam (invalid exam_id --> unsuccessfful)
+        # insert an user exam (invalid exam_id --> unsuccessful)
         insert_user_exam("Ex 101", "TestStudent1", 0, 5, 0, 0, 5, 0)
-        # insert an user exam (valid but not registered exam_id --> unsuccessfful)
+        # insert an user exam (valid but not registered exam_id --> unsuccessful)
         insert_user_exam("Ex101", "TestStudent1", 0, 5, 0, 0, 5, 0)
-        # insert an user exam (invalid user_name --> unsuccessfful)
+        # insert an user exam (invalid user_name --> unsuccessful)
         insert_user_exam("Ex100", "Test Student", 0, 5, 0, 0, 5, 0)
-        # insert an user exam (valid but not registered user_name --> unsuccessfful)
+        # insert an user exam (valid but not registered user_name --> unsuccessful)
         insert_user_exam("Ex100", "TestStudent100", 0, 5, 0, 0, 5, 0)
 
         # Check if the question has been inserted
@@ -1398,7 +1594,7 @@ class TestDatabaseOperations(unittest.TestCase):
         insert_question_option("Q1004O3", "Q1004", "6", None, 0)
         insert_question_option("Q1004O4", "Q1004", "3", None, 0)
         
-        # insert some answers (valid inputs --> successfful)
+        # insert some answers (valid inputs --> successful)
         insert_answer("Ex100", "TestStudent1", "Q1000", "Q1000O1", None, None)
         insert_answer("Ex100", "TestStudent1", "Q1001", "Q1001O2", None, None)
         insert_answer("Ex100", "TestStudent1", "Q1002", "Q1002O2", None, None)
@@ -1410,21 +1606,21 @@ class TestDatabaseOperations(unittest.TestCase):
         insert_answer("Ex100", "TestStudent2", "Q1002", "Q1002O3", None, None)
         insert_answer("Ex100", "TestStudent2", "Q1003", "Q1003O1", None, None)
         insert_answer("Ex100", "TestStudent2", "Q1004", "Q1004O2", None, None)
-        # insert an answer (invalid exam_id --> unsuccessfful)
+        # insert an answer (invalid exam_id --> unsuccessful)
         insert_answer("Ex 101", "TestStudent1", "Q1000", "Q1000O1", None, None)
-        # insert an answer (valid but not registered exam_id --> unsuccessfful)
+        # insert an answer (valid but not registered exam_id --> unsuccessful)
         insert_answer("Ex101", "TestStudent1", "Q1001", "Q1001O1", None, None)
-        # insert an answer (invalid user_name --> unsuccessfful)
+        # insert an answer (invalid user_name --> unsuccessful)
         insert_answer("Ex100", "Test Student", "Q1000", "Q1000O1", None, None)
-        # insert an answer (valid but not registered user_name --> unsuccessfful)
+        # insert an answer (valid but not registered user_name --> unsuccessful)
         insert_answer("Ex100", "TestStudent100", "Q1000", "Q1000O1", None, None)
-        # insert an answer (invalid question_id --> unsuccessfful)
+        # insert an answer (invalid question_id --> unsuccessful)
         insert_answer("Ex100", "TestStudent1", "1000", "Q1000O1", None, None)
-        # insert an answer (valid but not registered question_id --> unsuccessfful)
+        # insert an answer (valid but not registered question_id --> unsuccessful)
         insert_answer("Ex100", "TestStudent1", "Q2000", "Q1000O1", None, None)
-        # insert an answer (invalid option_id --> unsuccessfful)
+        # insert an answer (invalid option_id --> unsuccessful)
         insert_answer("Ex100", "TestStudent1", "Q1000", "O1", None, None)
-        # insert an answer (valid but not registered option_id --> unsuccessfful)
+        # insert an answer (valid but not registered option_id --> unsuccessful)
         insert_answer("Ex100", "TestStudent1", "Q1000", "Q1000O8", None, None)
 
         # update user_exams by calculate scores, correct_answers,...
@@ -1647,7 +1843,7 @@ class TestDatabaseOperations(unittest.TestCase):
         exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
         insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 15, "TestEHandler1", "TestESupervisor1", "TestECreator1")
         
-        # insert some feedbcks (valid inputs --> successfful)
+        # insert some feedbcks (valid inputs --> successful)
         insert_feedback("Ex100", "TestStudent1", "Suggestion for improvement", \
                         """Thank you for providing such a thorough assessment of the course material. The exam questions were engaging and thought-provoking, making the learning experience enjoyable.
                         Your exam application is good but could be better and here is my suggestion:
@@ -1658,21 +1854,21 @@ class TestDatabaseOperations(unittest.TestCase):
                         Your exam application is not good enough and i have some comments on exam:
                         Overly Difficult: A few questions were overly difficult and seemed beyond the scope of what we learned in class. It would be beneficial to adjust the difficulty level to better match the course content.""" \
                             , None, 2, "Pending/Unread", 0)
-        # insert a feedbck (invalid exam_id --> unsuccessfful)
+        # insert a feedbck (invalid exam_id --> unsuccessful)
         insert_feedback("Ex 101", "TestStudent1", "Suggestion for improvement", "....feedback text...", None, 8, "Pending/Unread", 1)
-        # insert a feedbck (valid but not registered exam_id --> unsuccessfful)
+        # insert a feedbck (valid but not registered exam_id --> unsuccessful)
         insert_feedback("Ex101", "TestStudent1", "Suggestion for improvement", "....feedback text...", None, 8, "Pending/Unread", 1)
-        # insert a feedbck (invalid user_name --> unsuccessfful)
+        # insert a feedbck (invalid user_name --> unsuccessful)
         insert_feedback("Ex100", "Test Student", "Suggestion for improvement", "....feedback text...", None, 8, "Pending/Unread", 1)
-        # insert a feedbck (valid but not registered user_name --> unsuccessfful)
+        # insert a feedbck (valid but not registered user_name --> unsuccessful)
         insert_feedback("Ex100", "TestStudent100", "Suggestion for improvement", "....feedback text...", None, 8, "Pending/Unread", 1)
-        # insert a feedbck (invalid feedback type --> unsuccessfful)
+        # insert a feedbck (invalid feedback type --> unsuccessful)
         insert_feedback("Ex100", "TestStudent1", "Diss", "....feedback text...", None, 8, "Pending/Unread", 1)
-        # insert a feedbck (invalid rating --> unsuccessfful)
+        # insert a feedbck (invalid rating --> unsuccessful)
         insert_feedback("Ex100", "TestStudent1", "Suggestion for improvement", "....feedback text...", None, -6, "Pending/Unread", 1)
-        # insert a feedbck (invalid status --> unsuccessfful)
+        # insert a feedbck (invalid status --> unsuccessful)
         insert_feedback("Ex100", "TestStudent1", "Suggestion for improvement", "....feedback text...", None, 8, "Sending", 1)
-        # insert a feedbck (invalid is_visible --> unsuccessfful)
+        # insert a feedbck (invalid is_visible --> unsuccessful)
         insert_feedback("Ex100", "TestStudent1", "Suggestion for improvement", "....feedback text...", None, 8, "Pending/Unread", 10)
         
         # Exam supervisor now reads the feedbacks and update their status....

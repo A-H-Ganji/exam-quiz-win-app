@@ -93,6 +93,10 @@ import os
 # insert_user("Amir1374", "021#Gang*GTA$", "Amir Hossein", "Ganji", "efefg911@gmail.com")
 # insert_user_role("Amir1374","Administrator")
 # user_logout("Amir1374")
+
+# Insert a question creator user
+# insert_user("Alij1995", "Tir@#1456spX", "Ali", "Jamali", "alig32@gmail.com")
+# insert_user_role("Alij1995","Question_Creator")
 #------------------------------------II-4-Inserting role permissions-------------------------------------#
 # insert_role_permission("Administrator","Administrate")
 # insert_role_permission("Question_Creator","Create_Question")

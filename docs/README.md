@@ -1,8 +1,8 @@
 <!-- omit in toc -->
 # Exam/Quiz Windows Application
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Platform](https://img.shields.io/badge/Platform-Windows-green)](https://www.microsoft.com/en-us/windows) [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 - [Overview](#overview)
-- [Badges](#badges)
 - [Features](#features)
 - [Installation and Configuration](#installation-and-configuration)
   - [1. Download the Repository](#1-download-the-repository)
@@ -10,11 +10,10 @@
   - [3. Create Executable File](#3-create-executable-file)
   - [4. Deployment](#4-deployment)
 - [Demo](#demo)
-  - [User Interface Overview](#user-interface-overview)
-  - [Creating a New Quiz](#creating-a-new-quiz)
-  - [Taking a Quiz](#taking-a-quiz)
-  - [Analyzing Results](#analyzing-results)
-  - [Usage/Examples](#usageexamples)
+  - [Login Window](#login-window)
+  - [Admin's Panel Security Tab](#admins-panel-security-tab)
+  - [Admin's Panel Reports Tab](#admins-panel-reports-tab)
+  - [Question-Creator's Panel Questions \& Options Tab](#question-creators-panel-questions--options-tab)
 - [Running Tests](#running-tests)
 - [Contributing](#contributing)
   - [Reporting Issues](#reporting-issues)
@@ -34,12 +33,6 @@
 ## Overview
 
 This is a modern, feature-rich exam/quiz application designed for Windows platforms, developed entirely in Python. The application provides a user-friendly interface for creating, managing, and conducting exams or quizzes for educational or assessment purposes.
-
-
-## Badges
-
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Platform](https://img.shields.io/badge/Platform-Windows-green)](https://www.microsoft.com/en-us/windows) [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
-
 
 ## Features
 
@@ -134,43 +127,24 @@ For any further assistance or troubleshooting, feel free to reach out to the pro
 
 Here are some demo GIFs and screenshots showcasing the functionality of the Exam/Quiz Windows Application:
 
-### User Interface Overview
+### Login Window
 
 ![Login](../images/login_shot.png)
 
+### Admin's Panel Security Tab
+
 ![Admin Security Tab](../images/admin_security_shot.png)
+
+### Admin's Panel Reports Tab
 
 ![Admin Reports Tab](../images/admin_reports_shot.png)
 
-![User Interface Overview](demo/user_interface_overview.gif)
+### Question-Creator's Panel Questions & Options Tab
 
-### Creating a New Quiz
+![Question-Creator's Questions & Options Tab](../images/question_creator_questions_options_shot.png)
 
-![Creating a New Quiz](demo/creating_new_quiz.gif)
-
-### Taking a Quiz
-
-![Taking a Quiz](demo/taking_quiz.gif)
-
-### Analyzing Results
-
-![Analyzing Results](demo/analyzing_results.png)
-
-### Usage/Examples
-
-To use the Exam/Quiz Windows Application, follow these steps:
-
-1. Launch the application by running the executable file on your Windows machine.
-2. Navigate through the user-friendly interface to create a new quiz by following the on-screen instructions.
-3. Once the quiz is created, users can take the quiz by selecting it from the available options.
-4. After completing the quiz, users can analyze their results and performance using the built-in analytics tools.
 
 Feel free to explore more features and functionalities of the application by downloading and running it on your local machine!
-
----
-
-*Note: Replace the placeholder URLs above with actual links to your demo GIFs and screenshots once they are ready. Ensure that the images and GIFs you provide are clear and effectively showcase the functionality of your application.*
-
 
 ## Running Tests
 

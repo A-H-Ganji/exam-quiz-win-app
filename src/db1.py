@@ -807,20 +807,33 @@ def insert_question(question_id, topic, subtopic, text, image, difficulty, type,
 
     # Perform data validation
     if not is_question_id(question_id):
-        print("Invalid question ID format.")
-        return
+        return "Invalid question ID format."
+        
     if image and not is_image_path(image):
-        print("Invalid image path.")
-        return
+        return "Invalid image path."
+        
     if difficulty not in ['Easy', 'Normal', 'Hard']:
-        print("Invalid difficulty level.")
-        return
+        return "Invalid difficulty level."
+        
     if type not in ['Multiple choice', 'True/False', 'Descriptive/Practical']:
-        print("Invalid question type.")
-        return
+        return "Invalid question type."
+        
     if not (isinstance(points, int) and points > 0):
-        print("Invalid points value.")
-        return
+        return "Invalid points value."
+    
+    if not (text or image):
+        return "A Question must have at least a text or an image."
+    
+    if not is_username(creator_user_name):
+        return "Invalid username format."
+    
+    # Validate user existence
+    users = [u[0] for u in cursor.execute("SELECT user_name FROM User").fetchall()]
+    if creator_user_name not in users:
+        cursor.close()
+        connection.close()
+        return "User not registered."
+        
     # check if the username is registered in the user table
     cursor.execute("""
     SELECT UR.user_name
@@ -831,9 +844,15 @@ def insert_question(question_id, topic, subtopic, text, image, difficulty, type,
 
     question_creator_users = [user[0] for user in cursor.fetchall()]
     if creator_user_name not in question_creator_users:
-        print(f"Invalid question creator user.")
-        return
+        return "User is not question creator."
 
+    # Validate question duplication
+    questions = [q[0] for q in cursor.execute("SELECT question_id FROM Question").fetchall()]
+    if question_id in questions:
+        cursor.close()
+        connection.close()
+        return "Question already exists."
+        
     # get creation date and time in ISO format
     creation_date, creation_time = dt.now().isoformat().split("T")
 
@@ -846,7 +865,88 @@ def insert_question(question_id, topic, subtopic, text, image, difficulty, type,
     connection.commit()
     cursor.close()
     connection.close()
-    print("Question info inserted in the Question table successfully.")
+    return "Question info inserted successfully."
+
+def update_question(question_id, topic, subtopic, text, image, difficulty, type, points):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Perform data validation
+    if not is_question_id(question_id):
+        return "Invalid question ID format."
+        
+    if image and not is_image_path(image):
+        return "Invalid image path."
+        
+    if difficulty not in ['Easy', 'Normal', 'Hard']:
+        return "Invalid difficulty level."
+        
+    if type not in ['Multiple choice', 'True/False', 'Descriptive/Practical']:
+        return "Invalid question type."
+        
+    if not (isinstance(points, int) and points > 0):
+        return "Invalid points value."
+    
+    if not (text or image):
+        return "A Question must have at least a text or an image."
+    
+    # Validate question existence
+    questions = [q[0] for q in cursor.execute("SELECT question_id FROM Question").fetchall()]
+    if question_id not in questions:
+        cursor.close()
+        connection.close()
+        return "Question not exists."
+
+    sql = """ UPDATE Question
+              SET topic = ?, subtopic = ?, text = ?, image = ?, difficulty = ?, type = ?, points = ?
+              WHERE question_id = ?"""
+    cursor.execute(sql, (topic, subtopic, text, image, difficulty, type, points, question_id))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "Question info updated successfully."
+
+def delete_question(question_id):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Validate user inputs
+    if not is_question_id(question_id):
+        return "Invalid question ID format."
+    
+    # Validate question existence
+    questions = [q[0] for q in cursor.execute("SELECT question_id FROM Question").fetchall()]
+    if question_id not in questions:
+        cursor.close()
+        connection.close()
+        return "Question not exists."
+
+    sql = "DELETE FROM Question WHERE question_id = ?"
+    cursor.execute(sql, (question_id, ))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "Question deleted successfully."
 #------------------------------------------- I-8- Option table ---------------------------------------------#
 # 8-1- option_id must be like Q + positive integer + O + positive integer
 # 8-2- question_id must meet is_question_id rules and already exists in Question table
@@ -904,26 +1004,32 @@ def insert_question_option(option_id, question_id, text, image, is_correct_answe
 
     # Perform data validation
     if not is_option_id(option_id):
-        print("Invalid option ID format.")
-        return
+        return "Invalid option ID format."
+        
     if not is_question_id(question_id):
-        print("Invalid question ID format.")
-        return
+        return "Invalid question ID format."
+        
     if image and not is_image_path(image):
-        print("Invalid image path.")
-        return
+        return "Invalid image path."
+        
     if is_correct_answer not in [0, 1]:
-        print("Invalid is_correct_answer.")
-        return
+        return "Invalid is_correct_answer."
     
-    # check if the question_id is registered in the question table
+    if not (text or image):
+        return "An Option must have at least a text or an image."
+        
+    # check if the question_id exists in the question table
     cursor.execute("""SELECT question_id FROM Question""")
-
     questions = [question[0] for question in cursor.fetchall()]
     if question_id not in questions:
-        print(f"Invalid question_id.")
-        return
-
+        return "Question not exists."
+    
+    # check if the option_id duplication
+    cursor.execute("""SELECT option_id FROM Option""")
+    options = [o[0] for o in cursor.fetchall()]
+    if option_id in options:
+        return "Option already exists."
+        
     sql = """ INSERT INTO Option (option_id, question_id, text, image, is_correct_answer) VALUES 
                         (?, ?, ?, ?, ?)"""
     cursor.execute(sql, (option_id, question_id, text, image, is_correct_answer))
@@ -931,7 +1037,90 @@ def insert_question_option(option_id, question_id, text, image, is_correct_answe
     connection.commit()
     cursor.close()
     connection.close()
-    print("Question option info inserted in the Option table successfully.")
+    return "Question option info inserted successfully."
+
+def update_question_option(option_id, question_id, text, image, is_correct_answer):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Perform data validation
+    if not is_option_id(option_id):
+        return "Invalid option ID format."
+        
+    if not is_question_id(question_id):
+        return "Invalid question ID format."
+        
+    if image and not is_image_path(image):
+        return "Invalid image path."
+        
+    if is_correct_answer not in [0, 1]:
+        return "Invalid is_correct_answer."
+    
+    if not (text or image):
+        return "An Option must have at least a text or an image."
+        
+    # check if the question_id exists in the question table
+    cursor.execute("""SELECT question_id FROM Question""")
+    questions = [question[0] for question in cursor.fetchall()]
+    if question_id not in questions:
+        return "Question not exists."
+    
+    # check option_id existence
+    cursor.execute("""SELECT option_id FROM Option""")
+    options = [o[0] for o in cursor.fetchall()]
+    if option_id not in options:
+        return "Option not exists."
+        
+    sql = """ UPDATE Option
+              SET text = ?, image = ?, is_correct_answer = ?
+              WHERE option_id = ?"""
+    cursor.execute(sql, (text, image, is_correct_answer, option_id))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "Question option info updated successfully."
+
+def delete_question_option(option_id):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Perform data validation
+    if not is_option_id(option_id):
+        return "Invalid option ID format."
+        
+    # check option_id existence
+    cursor.execute("""SELECT option_id FROM Option""")
+    options = [o[0] for o in cursor.fetchall()]
+    if option_id not in options:
+        return "Option not exists."
+        
+    sql = """ DELETE FROM Option
+              WHERE option_id = ?"""
+    cursor.execute(sql, (option_id, ))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "Question option info deleted successfully."
 #------------------------------------------- I-9- Exam table ---------------------------------------------#
 # 9-1- exam_id must be like Ex + positive integer
 # 9-2- exam_date must be in format yyyy/mm/dd and be after today

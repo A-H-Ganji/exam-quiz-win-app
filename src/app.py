@@ -2,10 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import os
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from db1 import *
 from datetime import datetime
 from csv import writer
+import shutil
 
 class LoginPage(tk.Tk):
     def __init__(self):
@@ -23,7 +24,7 @@ class LoginPage(tk.Tk):
         path = "..\images\login_background.jpg"
         # get the path to the directory this script is in
         scriptdir = os.path.dirname(__file__)
-        # add the relative path to the database file from there
+        # add the relative path to the file from there
         image_path = os.path.join(scriptdir, path)
         # make sure the path exists and if not create it
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
@@ -76,7 +77,7 @@ class LoginPage(tk.Tk):
         path = "..\images\\forgot_password.png"
         # get the path to the directory this script is in
         scriptdir = os.path.dirname(__file__)
-        # add the relative path to the database file from there
+        # add the relative path to the file from there
         image_path = os.path.join(scriptdir, path)
         # make sure the path exists and if not create it
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
@@ -161,7 +162,7 @@ class UserPanel(tk.Toplevel):
         path = '..\data\Exam_App.db'
         # get the path to the directory this script is in
         scriptdir = os.path.dirname(__file__)
-        # add the relative path to the database file from there
+        # add the relative path to the file from there
         db_path = os.path.join(scriptdir, path)
         # make sure the path exists and if not create it
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
@@ -173,7 +174,7 @@ class UserPanel(tk.Toplevel):
         cursor.execute("""
         SELECT first_name, last_name 
         FROM User
-        WHERE user_name = ?""", (username, ))
+        WHERE user_name = ?""", (self.username, ))
         self.first_name, self.last_name = cursor.fetchone()
 
         # Query user roles from the database
@@ -182,7 +183,7 @@ class UserPanel(tk.Toplevel):
         FROM User U
         JOIN User_Role UR
         ON U.user_name = UR.user_name
-        WHERE UR.user_name = ?""", (username, ))
+        WHERE UR.user_name = ?""", (self.username, ))
         self.roles = [role[0] for role in cursor.fetchall()]
 
         connection.close()
@@ -326,13 +327,13 @@ class UserPanel(tk.Toplevel):
         self.user_buttons_frame.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
 
         # Buttons for user operations
-        self.insert_user_button = tk.Button(self.user_buttons_frame, text="Insert User", cursor="hand2", command=self.insert_user)
+        self.insert_user_button = tk.Button(self.user_buttons_frame, text="Insert User", cursor="hand2", command=self.gui_insert_user)
         self.insert_user_button.grid(row=0, column=0, padx=5)
 
-        self.update_user_button = tk.Button(self.user_buttons_frame, text="Update User", cursor="hand2", command=self.update_user)
+        self.update_user_button = tk.Button(self.user_buttons_frame, text="Update User", cursor="hand2", command=self.gui_update_user)
         self.update_user_button.grid(row=0, column=1, padx=5)
 
-        self.delete_user_button = tk.Button(self.user_buttons_frame, text="Delete User", cursor="hand2", command=self.delete_user)
+        self.delete_user_button = tk.Button(self.user_buttons_frame, text="Delete User", cursor="hand2", command=self.gui_delete_user)
         self.delete_user_button.grid(row=0, column=2, padx=5)
 
         # initial config of buttons based on 'insert'
@@ -478,7 +479,7 @@ class UserPanel(tk.Toplevel):
             # Set focus to the username field
             self.username_entry1.focus_set()
 
-    def insert_user(self):
+    def gui_insert_user(self):
         username = self.username_entry1.get()
         password = self.password_entry.get()
         first_name = self.first_name_entry.get()
@@ -494,7 +495,7 @@ class UserPanel(tk.Toplevel):
         insert_msg = insert_user(username, password, first_name, last_name, email)
         messagebox.showinfo("User Insert", insert_msg)
 
-    def update_user(self):
+    def gui_update_user(self):
         username = self.username_entry1.get()
         password = self.password_entry.get()
         first_name = self.first_name_entry.get()
@@ -510,7 +511,7 @@ class UserPanel(tk.Toplevel):
         update_msg = update_user(username, password, first_name, last_name, email)
         messagebox.showinfo("User Update", update_msg)
 
-    def delete_user(self):
+    def gui_delete_user(self):
         username = self.username_entry1.get()
 
         # Validate fields
@@ -585,7 +586,7 @@ class UserPanel(tk.Toplevel):
         path = "..\images\\refresh.png"
         # get the path to the directory this script is in
         scriptdir = os.path.dirname(__file__)
-        # add the relative path to the database file from there
+        # add the relative path to the file from there
         image_path = os.path.join(scriptdir, path)
         # make sure the path exists and if not create it
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
@@ -596,7 +597,7 @@ class UserPanel(tk.Toplevel):
         path = "..\images\\table.png"
         # get the path to the directory this script is in
         scriptdir = os.path.dirname(__file__)
-        # add the relative path to the database file from there
+        # add the relative path to the file from there
         image_path = os.path.join(scriptdir, path)
         # make sure the path exists and if not create it
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
@@ -607,7 +608,7 @@ class UserPanel(tk.Toplevel):
         path = "..\images\\csvfile.png"
         # get the path to the directory this script is in
         scriptdir = os.path.dirname(__file__)
-        # add the relative path to the database file from there
+        # add the relative path to the file from there
         image_path = os.path.join(scriptdir, path)
         # make sure the path exists and if not create it
         os.makedirs(os.path.dirname(image_path), exist_ok=True)
@@ -630,7 +631,7 @@ class UserPanel(tk.Toplevel):
         self.total_users_label = tk.Label(self.user_stats_frame, text="Total Users:")
         self.total_users_label.grid(row=0, column=0, padx=5, sticky="w")
         self.total_users_var = tk.StringVar()
-        self.total_users_var.set(" ")  # Default value
+        self.total_users_var.set("")  # Default value
         self.total_users_value_label = tk.Label(self.user_stats_frame, textvariable=self.total_users_var)
         self.total_users_value_label.grid(row=0, column=1, padx=5, sticky="w")
         self.table_button1 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_users, width=20, height=20)
@@ -641,7 +642,7 @@ class UserPanel(tk.Toplevel):
         self.students_label = tk.Label(self.user_stats_frame, text="Students:")
         self.students_label.grid(row=1, column=0, padx=5, sticky="w")
         self.students_var = tk.StringVar()
-        self.students_var.set(" ")  # Default value
+        self.students_var.set("")  # Default value
         self.students_value_label = tk.Label(self.user_stats_frame, textvariable=self.students_var)
         self.students_value_label.grid(row=1, column=1, padx=5, sticky="w")
         self.table_button2 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_students, width=20, height=20)
@@ -652,7 +653,7 @@ class UserPanel(tk.Toplevel):
         self.exam_analysts_label = tk.Label(self.user_stats_frame, text="Exam Analysts:")
         self.exam_analysts_label.grid(row=2, column=0, padx=5, sticky="w")
         self.exam_analysts_var = tk.StringVar()
-        self.exam_analysts_var.set(" ")  # Default value
+        self.exam_analysts_var.set("")  # Default value
         self.exam_analysts_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_analysts_var)
         self.exam_analysts_value_label.grid(row=2, column=1, padx=5, sticky="w")
         self.table_button3 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_analysts, width=20, height=20)
@@ -663,7 +664,7 @@ class UserPanel(tk.Toplevel):
         self.exam_creators_label = tk.Label(self.user_stats_frame, text="Exam Creators:")
         self.exam_creators_label.grid(row=3, column=0, padx=5, sticky="w")
         self.exam_creators_var = tk.StringVar()
-        self.exam_creators_var.set(" ")  # Default value
+        self.exam_creators_var.set("")  # Default value
         self.exam_creators_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_creators_var)
         self.exam_creators_value_label.grid(row=3, column=1, padx=5, sticky="w")
         self.table_button4 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_creators, width=20, height=20)
@@ -674,7 +675,7 @@ class UserPanel(tk.Toplevel):
         self.exam_handlers_label = tk.Label(self.user_stats_frame, text="Exam Handlers:")
         self.exam_handlers_label.grid(row=4, column=0, padx=5, sticky="w")
         self.exam_handlers_var = tk.StringVar()
-        self.exam_handlers_var.set(" ")  # Default value
+        self.exam_handlers_var.set("")  # Default value
         self.exam_handlers_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_handlers_var)
         self.exam_handlers_value_label.grid(row=4, column=1, padx=5, sticky="w")
         self.table_button5 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_handlers, width=20, height=20)
@@ -685,7 +686,7 @@ class UserPanel(tk.Toplevel):
         self.exam_supervisors_label = tk.Label(self.user_stats_frame, text="Exam Supervisors:")
         self.exam_supervisors_label.grid(row=5, column=0, padx=5, sticky="w")
         self.exam_supervisors_var = tk.StringVar()
-        self.exam_supervisors_var.set(" ")  # Default value
+        self.exam_supervisors_var.set("")  # Default value
         self.exam_supervisors_value_label = tk.Label(self.user_stats_frame, textvariable=self.exam_supervisors_var)
         self.exam_supervisors_value_label.grid(row=5, column=1, padx=5, sticky="w")
         self.table_button6 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exam_supervisors, width=20, height=20)
@@ -696,7 +697,7 @@ class UserPanel(tk.Toplevel):
         self.question_creators_label = tk.Label(self.user_stats_frame, text="Question Creators:")
         self.question_creators_label.grid(row=6, column=0, padx=5, sticky="w")
         self.question_creators_var = tk.StringVar()
-        self.question_creators_var.set(" ")  # Default value
+        self.question_creators_var.set("")  # Default value
         self.question_creators_value_label = tk.Label(self.user_stats_frame, textvariable=self.question_creators_var)
         self.question_creators_value_label.grid(row=6, column=1, padx=5, sticky="w")
         self.table_button7 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_question_creators, width=20, height=20)
@@ -707,7 +708,7 @@ class UserPanel(tk.Toplevel):
         self.multirole_users_label = tk.Label(self.user_stats_frame, text="Multi-role Users:")
         self.multirole_users_label.grid(row=7, column=0, padx=5, sticky="w")
         self.multirole_users_var = tk.StringVar()
-        self.multirole_users_var.set(" ")  # Default value
+        self.multirole_users_var.set("")  # Default value
         self.multirole_users_value_label = tk.Label(self.user_stats_frame, textvariable=self.multirole_users_var)
         self.multirole_users_value_label.grid(row=7, column=1, padx=5, sticky="w")
         self.table_button8 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_multirole_users, width=20, height=20)
@@ -718,7 +719,7 @@ class UserPanel(tk.Toplevel):
         self.users_loggedin_label = tk.Label(self.user_stats_frame, text="User Logged in:")
         self.users_loggedin_label.grid(row=8, column=0, padx=5, sticky="w")
         self.users_loggedin_var = tk.StringVar()
-        self.users_loggedin_var.set(" ")  # Default value
+        self.users_loggedin_var.set("")  # Default value
         self.users_loggedin_value_label = tk.Label(self.user_stats_frame, textvariable=self.users_loggedin_var)
         self.users_loggedin_value_label.grid(row=8, column=1, padx=5, sticky="w")
         self.table_button9 = tk.Button(self.user_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_users_loggedin, width=20, height=20)
@@ -734,7 +735,7 @@ class UserPanel(tk.Toplevel):
         self.total_questions_label = tk.Label(self.question_stats_frame, text="Total Questions:")
         self.total_questions_label.grid(row=0, column=0, padx=5, sticky="w")
         self.total_questions_var = tk.StringVar()
-        self.total_questions_var.set(" ")  # Default value
+        self.total_questions_var.set("")  # Default value
         self.total_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.total_questions_var)
         self.total_questions_value_label.grid(row=0, column=1, padx=5, sticky="w")
         self.table_button10 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_questions, width=20, height=20)
@@ -745,7 +746,7 @@ class UserPanel(tk.Toplevel):
         self.total_topics_label = tk.Label(self.question_stats_frame, text="Total Topics:")
         self.total_topics_label.grid(row=1, column=0, padx=5, sticky="w")
         self.total_topics_var = tk.StringVar()
-        self.total_topics_var.set(" ")  # Default value
+        self.total_topics_var.set("")  # Default value
         self.total_topics_value_label = tk.Label(self.question_stats_frame, textvariable=self.total_topics_var)
         self.total_topics_value_label.grid(row=1, column=1, padx=5, sticky="w")
         self.table_button11 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2",command=self.load_topics, width=20, height=20)
@@ -756,7 +757,7 @@ class UserPanel(tk.Toplevel):
         self.total_subtopics_label = tk.Label(self.question_stats_frame, text="Total Subopics:")
         self.total_subtopics_label.grid(row=2, column=0, padx=5, sticky="w")
         self.total_subtopics_var = tk.StringVar()
-        self.total_subtopics_var.set(" ")  # Default value
+        self.total_subtopics_var.set("")  # Default value
         self.total_subtopics_value_label = tk.Label(self.question_stats_frame, textvariable=self.total_subtopics_var)
         self.total_subtopics_value_label.grid(row=2, column=1, padx=5, sticky="w")
         self.table_button12 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_subtopics, width=20, height=20)
@@ -767,7 +768,7 @@ class UserPanel(tk.Toplevel):
         self.multiple_choice_questions_label = tk.Label(self.question_stats_frame, text="Multiple Choice Questions:")
         self.multiple_choice_questions_label.grid(row=3, column=0, padx=5, sticky="w")
         self.multiple_choice_questions_var = tk.StringVar()
-        self.multiple_choice_questions_var.set(" ")  # Default value
+        self.multiple_choice_questions_var.set("")  # Default value
         self.multiple_choice_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.multiple_choice_questions_var)
         self.multiple_choice_questions_value_label.grid(row=3, column=1, padx=5, sticky="w")
         self.table_button13 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_multiple_choice_questions, width=20, height=20)
@@ -778,7 +779,7 @@ class UserPanel(tk.Toplevel):
         self.true_false_questions_label = tk.Label(self.question_stats_frame, text="True/False Questions:")
         self.true_false_questions_label.grid(row=4, column=0, padx=5, sticky="w")
         self.true_false_questions_var = tk.StringVar()
-        self.true_false_questions_var.set(" ")  # Default value
+        self.true_false_questions_var.set("")  # Default value
         self.true_false_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.true_false_questions_var)
         self.true_false_questions_value_label.grid(row=4, column=1, padx=5, sticky="w")
         self.table_button14 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_true_false_questions, width=20, height=20)
@@ -789,7 +790,7 @@ class UserPanel(tk.Toplevel):
         self.descriptive_practical_questions_label = tk.Label(self.question_stats_frame, text="Descriptive/Practical Questions:")
         self.descriptive_practical_questions_label.grid(row=5, column=0, padx=5, sticky="w")
         self.descriptive_practical_questions_var = tk.StringVar()
-        self.descriptive_practical_questions_var.set(" ")  # Default value
+        self.descriptive_practical_questions_var.set("")  # Default value
         self.descriptive_practical_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.descriptive_practical_questions_var)
         self.descriptive_practical_questions_value_label.grid(row=5, column=1, padx=5, sticky="w")
         self.table_button15 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_descriptive_practical_questions, width=20, height=20)
@@ -800,7 +801,7 @@ class UserPanel(tk.Toplevel):
         self.easy_questions_label = tk.Label(self.question_stats_frame, text="Easy Questions:")
         self.easy_questions_label.grid(row=6, column=0, padx=5, sticky="w")
         self.easy_questions_var = tk.StringVar()
-        self.easy_questions_var.set(" ")  # Default value
+        self.easy_questions_var.set("")  # Default value
         self.easy_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.easy_questions_var)
         self.easy_questions_value_label.grid(row=6, column=1, padx=5, sticky="w")
         self.table_button16 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_easy_questions, width=20, height=20)
@@ -811,7 +812,7 @@ class UserPanel(tk.Toplevel):
         self.normal_questions_label = tk.Label(self.question_stats_frame, text="Normal Questions:")
         self.normal_questions_label.grid(row=7, column=0, padx=5, sticky="w")
         self.normal_questions_var = tk.StringVar()
-        self.normal_questions_var.set(" ")  # Default value
+        self.normal_questions_var.set("")  # Default value
         self.normal_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.normal_questions_var)
         self.normal_questions_value_label.grid(row=7, column=1, padx=5, sticky="w")
         self.table_button17 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_normal_questions, width=20, height=20)
@@ -822,7 +823,7 @@ class UserPanel(tk.Toplevel):
         self.hard_questions_label = tk.Label(self.question_stats_frame, text="Hard Questions:")
         self.hard_questions_label.grid(row=8, column=0, padx=5, sticky="w")
         self.hard_questions_var = tk.StringVar()
-        self.hard_questions_var.set(" ")  # Default value
+        self.hard_questions_var.set("")  # Default value
         self.hard_questions_value_label = tk.Label(self.question_stats_frame, textvariable=self.hard_questions_var)
         self.hard_questions_value_label.grid(row=8, column=1, padx=5, sticky="w")
         self.table_button18 = tk.Button(self.question_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_hard_questions, width=20, height=20)
@@ -838,7 +839,7 @@ class UserPanel(tk.Toplevel):
         self.total_exams_label = tk.Label(self.exam_stats_frame, text="Total Exams:")
         self.total_exams_label.grid(row=0, column=0, padx=5, sticky="w")
         self.total_exams_var = tk.StringVar()
-        self.total_exams_var.set(" ")  # Default value
+        self.total_exams_var.set("")  # Default value
         self.total_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.total_exams_var)
         self.total_exams_value_label.grid(row=0, column=1, padx=5, sticky="w")
         self.table_button19 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_exams, width=20, height=20)
@@ -849,7 +850,7 @@ class UserPanel(tk.Toplevel):
         self.unstarted_exams_label = tk.Label(self.exam_stats_frame, text="Unstarted Exams:")
         self.unstarted_exams_label.grid(row=1, column=0, padx=5, sticky="w")
         self.unstarted_exams_var = tk.StringVar()
-        self.unstarted_exams_var.set(" ")  # Default value
+        self.unstarted_exams_var.set("")  # Default value
         self.unstarted_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.unstarted_exams_var)
         self.unstarted_exams_value_label.grid(row=1, column=1, padx=5, sticky="w")
         self.table_button20 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_unstarted_exams, width=20, height=20)
@@ -860,7 +861,7 @@ class UserPanel(tk.Toplevel):
         self.started_exams_label = tk.Label(self.exam_stats_frame, text="Started Exams:")
         self.started_exams_label.grid(row=2, column=0, padx=5, sticky="w")
         self.started_exams_var = tk.StringVar()
-        self.started_exams_var.set(" ")  # Default value
+        self.started_exams_var.set("")  # Default value
         self.started_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.started_exams_var)
         self.started_exams_value_label.grid(row=2, column=1, padx=5, sticky="w")
         self.table_button21 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_started_exams, width=20, height=20)
@@ -871,7 +872,7 @@ class UserPanel(tk.Toplevel):
         self.finished_exams_label = tk.Label(self.exam_stats_frame, text="Finished Exams:")
         self.finished_exams_label.grid(row=3, column=0, padx=5, sticky="w")
         self.finished_exams_var = tk.StringVar()
-        self.finished_exams_var.set(" ")  # Default value
+        self.finished_exams_var.set("")  # Default value
         self.finished_exams_value_label = tk.Label(self.exam_stats_frame, textvariable=self.finished_exams_var)
         self.finished_exams_value_label.grid(row=3, column=1, padx=5, sticky="w")
         self.table_button22 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_finished_exams, width=20, height=20)
@@ -882,7 +883,7 @@ class UserPanel(tk.Toplevel):
         self.students_taking_exam_label = tk.Label(self.exam_stats_frame, text="Students Taking Exam:")
         self.students_taking_exam_label.grid(row=4, column=0, padx=5, sticky="w")
         self.students_taking_exam_var = tk.StringVar()
-        self.students_taking_exam_var.set(" ")  # Default value
+        self.students_taking_exam_var.set("")  # Default value
         self.students_taking_exam_value_label = tk.Label(self.exam_stats_frame, textvariable=self.students_taking_exam_var)
         self.students_taking_exam_value_label.grid(row=4, column=1, padx=5, sticky="w")
         self.table_button23 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_students_taking_exam, width=20, height=20)
@@ -893,7 +894,7 @@ class UserPanel(tk.Toplevel):
         self.students_took_exam_label = tk.Label(self.exam_stats_frame, text="Students Took Exam:")
         self.students_took_exam_label.grid(row=5, column=0, padx=5, sticky="w")
         self.students_took_exam_var = tk.StringVar()
-        self.students_took_exam_var.set(" ")  # Default value
+        self.students_took_exam_var.set("")  # Default value
         self.students_took_exam_value_label = tk.Label(self.exam_stats_frame, textvariable=self.students_took_exam_var)
         self.students_took_exam_value_label.grid(row=5, column=1, padx=5, sticky="w")
         self.table_button24 = tk.Button(self.exam_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_students_took_exam, width=20, height=20)
@@ -909,7 +910,7 @@ class UserPanel(tk.Toplevel):
         self.total_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Total Feedbacks:")
         self.total_feedbacks_label.grid(row=0, column=0, padx=5, sticky="w")
         self.total_feedbacks_var = tk.StringVar()
-        self.total_feedbacks_var.set(" ")  # Default value
+        self.total_feedbacks_var.set("")  # Default value
         self.total_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.total_feedbacks_var)
         self.total_feedbacks_value_label.grid(row=0, column=1, padx=5, sticky="w")
         self.table_button25 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_feedbacks, width=20, height=20)
@@ -920,7 +921,7 @@ class UserPanel(tk.Toplevel):
         self.suggestions_for_improvement_label = tk.Label(self.feedback_stats_frame, text="Suggestions for improvement:")
         self.suggestions_for_improvement_label.grid(row=1, column=0, padx=5, sticky="w")
         self.suggestions_for_improvement_var = tk.StringVar()
-        self.suggestions_for_improvement_var.set(" ")  # Default value
+        self.suggestions_for_improvement_var.set("")  # Default value
         self.suggestions_for_improvement_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.suggestions_for_improvement_var)
         self.suggestions_for_improvement_value_label.grid(row=1, column=1, padx=5, sticky="w")
         self.table_button26 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_suggestions_for_improvement, width=20, height=20)
@@ -931,7 +932,7 @@ class UserPanel(tk.Toplevel):
         self.comments_on_clarity_difficulty_label = tk.Label(self.feedback_stats_frame, text="Comments on clarity, and difficulty levels:")
         self.comments_on_clarity_difficulty_label.grid(row=2, column=0, padx=5, sticky="w")
         self.comments_on_clarity_difficulty_var = tk.StringVar()
-        self.comments_on_clarity_difficulty_var.set(" ")  # Default value
+        self.comments_on_clarity_difficulty_var.set("")  # Default value
         self.comments_on_clarity_difficulty_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.comments_on_clarity_difficulty_var)
         self.comments_on_clarity_difficulty_value_label.grid(row=2, column=1, padx=5, sticky="w")
         self.table_button27 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_comments_on_clarity_difficulty, width=20, height=20)
@@ -942,7 +943,7 @@ class UserPanel(tk.Toplevel):
         self.low_ratings_label = tk.Label(self.feedback_stats_frame, text="Low Ratings(1-3):")
         self.low_ratings_label.grid(row=3, column=0, padx=5, sticky="w")
         self.low_ratings_var = tk.StringVar()
-        self.low_ratings_var.set(" ")  # Default value
+        self.low_ratings_var.set("")  # Default value
         self.low_ratings_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.low_ratings_var)
         self.low_ratings_value_label.grid(row=3, column=1, padx=5, sticky="w")
         self.table_button28 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_low_ratings, width=20, height=20)
@@ -953,7 +954,7 @@ class UserPanel(tk.Toplevel):
         self.medium_ratings_label = tk.Label(self.feedback_stats_frame, text="Medium Ratings(4-6):")
         self.medium_ratings_label.grid(row=4, column=0, padx=5, sticky="w")
         self.medium_ratings_var = tk.StringVar()
-        self.medium_ratings_var.set(" ")  # Default value
+        self.medium_ratings_var.set("")  # Default value
         self.medium_ratings_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.medium_ratings_var)
         self.medium_ratings_value_label.grid(row=4, column=1, padx=5, sticky="w")
         self.table_button29 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_medium_ratings, width=20, height=20)
@@ -964,7 +965,7 @@ class UserPanel(tk.Toplevel):
         self.high_ratings_label = tk.Label(self.feedback_stats_frame, text="High Ratings(7-10):")
         self.high_ratings_label.grid(row=5, column=0, padx=5, sticky="w")
         self.high_ratings_var = tk.StringVar()
-        self.high_ratings_var.set(" ")  # Default value
+        self.high_ratings_var.set("")  # Default value
         self.high_ratings_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.high_ratings_var)
         self.high_ratings_value_label.grid(row=5, column=1, padx=5, sticky="w")
         self.table_button30 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_high_ratings, width=20, height=20)
@@ -975,7 +976,7 @@ class UserPanel(tk.Toplevel):
         self.pending_unread_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Pending/Unread Feedbacks:")
         self.pending_unread_feedbacks_label.grid(row=6, column=0, padx=5, sticky="w")
         self.pending_unread_feedbacks_var = tk.StringVar()
-        self.pending_unread_feedbacks_var.set(" ")  # Default value
+        self.pending_unread_feedbacks_var.set("")  # Default value
         self.pending_unread_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.pending_unread_feedbacks_var)
         self.pending_unread_feedbacks_value_label.grid(row=6, column=1, padx=5, sticky="w")
         self.table_button31 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_pending_unread_feedbacks, width=20, height=20)
@@ -986,7 +987,7 @@ class UserPanel(tk.Toplevel):
         self.analyzed_read_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Analyzed/Read Feedbacks:")
         self.analyzed_read_feedbacks_label.grid(row=7, column=0, padx=5, sticky="w")
         self.analyzed_read_feedbacks_var = tk.StringVar()
-        self.analyzed_read_feedbacks_var.set(" ")  # Default value
+        self.analyzed_read_feedbacks_var.set("")  # Default value
         self.analyzed_read_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.analyzed_read_feedbacks_var)
         self.analyzed_read_feedbacks_value_label.grid(row=7, column=1, padx=5, sticky="w")
         self.table_button32 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_analyzed_read_feedbacks, width=20, height=20)
@@ -997,7 +998,7 @@ class UserPanel(tk.Toplevel):
         self.visible_feedbacks_label = tk.Label(self.feedback_stats_frame, text="Visible Feedbacks:")
         self.visible_feedbacks_label.grid(row=8, column=0, padx=5, sticky="w")
         self.visible_feedbacks_var = tk.StringVar()
-        self.visible_feedbacks_var.set(" ")  # Default value
+        self.visible_feedbacks_var.set("")  # Default value
         self.visible_feedbacks_value_label = tk.Label(self.feedback_stats_frame, textvariable=self.visible_feedbacks_var)
         self.visible_feedbacks_value_label.grid(row=8, column=1, padx=5, sticky="w")
         self.table_button33 = tk.Button(self.feedback_stats_frame, image=self.table_icon, cursor="hand2", command=self.load_visible_feedbacks, width=20, height=20)
@@ -4222,6 +4223,1027 @@ class UserPanel(tk.Toplevel):
         community_info = tk.Label(admin_help_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
         community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
     
+    def add_question_creator_tabs(self):
+        # Add tabs for different functionalities
+        self.question_creators_question_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.question_creators_question_tab, text='Questions & Options')
+        self.create_question_creators_question_widgets(self.question_creators_question_tab)
+        # Bind the load_creator_questions method to the event of opening the tab
+        self.question_creators_question_tab.bind("<Visibility>", self.on_tab_opened)
+
+        self.question_creators_help_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.question_creators_help_tab, text='Help')
+        self.create_question_creators_help_widgets(self.question_creators_help_tab)
+    
+    def create_question_creators_question_widgets(self, question_creators_question_tab):
+        # question_id, topic, subtopic, text, image, difficulty, type, points, creator_user_name
+        # option_id, question_id, text, image, is_correct_answer
+
+        # Create a frame for Qustion info
+        self.question_info_frame = tk.Frame(question_creators_question_tab)
+        self.question_info_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.W)
+
+        # Create fields and labels for question
+        # Question ID
+
+        # id generate image 
+        path = "..\images\idgen.png"
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the file from there
+        image_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        self.idgen_image = Image.open(image_path)
+        self.idgen_icon = ImageTk.PhotoImage(self.idgen_image)
+
+        self.question_id_label = tk.Label(self.question_info_frame, text="Question ID:")
+        self.question_id_label.grid(row=0, column=0, padx=(2,0), pady=2, sticky=tk.W)
+        self.question_id_var = tk.StringVar()
+        self.question_id_var.set("")
+        self.question_id_value_label = tk.Label(self.question_info_frame, textvariable=self.question_id_var, text="", width=10)
+        self.question_id_value_label.grid(row=0, column=1, padx=2, pady=2)
+        self.generate_id_button = tk.Button(self.question_info_frame, image=self.idgen_icon, cursor="hand2", command=self.generate_question_id, width=20, height=20)
+        self.generate_id_button.grid(row=0, column=2, padx=2, pady=2)
+
+        # Type
+        self.type_label = tk.Label(self.question_info_frame, text="Type:")
+        self.type_label.grid(row=0, column=3, padx=(20,0), pady=2, sticky=tk.W)
+        self.question_type_var = tk.StringVar()
+        self.type_combo = ttk.Combobox(self.question_info_frame, values=('Multiple choice', 'True/False', 'Descriptive/Practical'), textvariable=self.question_type_var, width=20)
+        self.type_combo.grid(row=0, column=4, padx=2, pady=2)
+        # Bind the type selection to the options being enabled ore disabled
+        self.type_combo.bind("<<ComboboxSelected>>", self.reset_options_based_on_type)
+
+        # Difficulty
+        self.difficulty_label = tk.Label(self.question_info_frame, text="Difficulty:")
+        self.difficulty_label.grid(row=0, column=5, padx=(20,0), pady=2, sticky=tk.W)
+        self.question_difficulty_var = tk.StringVar()
+        self.difficulty_combo = ttk.Combobox(self.question_info_frame, values=('Easy', 'Normal', 'Hard'), textvariable=self.question_difficulty_var, width=10)
+        self.difficulty_combo.grid(row=0, column=6, padx=2, pady=2)
+
+        # Topic
+        self.topic_label = tk.Label(self.question_info_frame, text="Topic:")
+        self.topic_label.grid(row=0, column=7, padx=(20,0), pady=2, sticky=tk.W)
+        self.topic_entry = tk.Entry(self.question_info_frame, width=30)
+        self.topic_entry.grid(row=0, column=8, padx=2, pady=2)
+
+        # Subtopic
+        self.subtopic_label = tk.Label(self.question_info_frame, text="Subtopic:")
+        self.subtopic_label.grid(row=0, column=9, padx=(20,0), pady=2, sticky=tk.W)
+        self.subtopic_entry = tk.Entry(self.question_info_frame, width=30)
+        self.subtopic_entry.grid(row=0, column=10, padx=2, pady=2)
+
+        # Points
+        self.points_label = tk.Label(self.question_info_frame, text="Points:")
+        self.points_label.grid(row=0, column=11, padx=(20,0), pady=2, sticky=tk.W)
+        self.points_entry = tk.Entry(self.question_info_frame, width=5)
+        self.points_entry.grid(row=0, column=12, padx=2, pady=2)
+
+        # Create a frame for auestion and options
+        self.question_option_frame = tk.Frame(question_creators_question_tab)
+        self.question_option_frame.grid(row=1, column=0, padx=2, pady=2, sticky=tk.NSEW)
+        
+        # Create a frame for Question
+        self.question_frame = tk.LabelFrame(self.question_option_frame, text="Question", width=20)
+        self.question_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        # Widgets for attachment image
+        self.question_attachment_frame = tk.Frame(self.question_frame)
+        self.question_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.question_image_browse_button = tk.Button(self.question_attachment_frame, text="Question Image", command=self.browse_question_attachment_image)
+        self.question_image_browse_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.question_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+        self.question_has_attachment = tk.Checkbutton(self.question_attachment_frame, text="Has Attachment?", variable=self.question_has_attachment_var)
+        self.question_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+        self.question_attachment_image_path_var = tk.StringVar()
+        self.question_attachment_image_path_var.set("")  # Default value
+        self.question_image_path_label = tk.Label(self.question_attachment_frame, width=12, textvariable=self.question_attachment_image_path_var)
+        self.question_image_path_label.grid(row=0, column=2, padx=2, pady=2, sticky=tk.W)
+        
+        # Question text area
+        self.question_text_area = tk.Text(self.question_frame, width=40, height=20)
+        self.question_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=2)
+
+        # Create a frame for Options
+        self.options_frame = tk.LabelFrame(self.question_option_frame, text="Options", width=20)
+        self.options_frame.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+        # Widgets for attachment image for option1
+        self.option1_frame = tk.LabelFrame(self.options_frame, text="Option 1", width=10)
+        self.option1_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+        
+        self.option1_attachment_frame = tk.Frame(self.option1_frame)
+        self.option1_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option1_image_browse_button = tk.Button(self.option1_attachment_frame, text="Option Image", command=self.browse_option1_attachment_image)
+        self.option1_image_browse_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option1_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+        self.option1_has_attachment = tk.Checkbutton(self.option1_attachment_frame, text="Has Attachment?", variable=self.option1_has_attachment_var)
+        self.option1_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+        self.option1_attachment_image_path_var = tk.StringVar()
+        self.option1_attachment_image_path_var.set("")  # Default value
+        self.option1_image_path_label = tk.Label(self.option1_attachment_frame, width=12, textvariable=self.option1_attachment_image_path_var)
+        self.option1_image_path_label.grid(row=0, column=2, padx=2, pady=2, sticky=tk.W)
+
+        self.option1_is_correct_answer_var = tk.IntVar(value=0) # Default unchecked
+        self.option1_is_correct_answer = tk.Checkbutton(self.option1_attachment_frame, text="Is Correct Answer?", variable=self.option1_is_correct_answer_var)
+        self.option1_is_correct_answer.grid(row=0, column=3, padx=2, pady=2, sticky=tk.W)
+
+        # option1 text area
+        self.option1_text_area = tk.Text(self.option1_frame, width=50, height=7)
+        self.option1_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+        # Widgets for attachment image for option2
+        self.option2_frame = tk.LabelFrame(self.options_frame, text="Option 2", width=10)
+        self.option2_frame.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+        
+        self.option2_attachment_frame = tk.Frame(self.option2_frame)
+        self.option2_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option2_image_browse_button = tk.Button(self.option2_attachment_frame, text="Option Image", command=self.browse_option2_attachment_image)
+        self.option2_image_browse_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option2_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+        self.option2_has_attachment = tk.Checkbutton(self.option2_attachment_frame, text="Has Attachment?", variable=self.option2_has_attachment_var)
+        self.option2_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+        self.option2_attachment_image_path_var = tk.StringVar()
+        self.option2_attachment_image_path_var.set("")  # Default value
+        self.option2_image_path_label = tk.Label(self.option2_attachment_frame, width=12, textvariable=self.option2_attachment_image_path_var)
+        self.option2_image_path_label.grid(row=0, column=2, padx=2, pady=2, sticky=tk.W)
+
+        self.option2_is_correct_answer_var = tk.IntVar(value=0) # Default unchecked
+        self.option2_is_correct_answer = tk.Checkbutton(self.option2_attachment_frame, text="Is Correct Answer?", variable=self.option2_is_correct_answer_var)
+        self.option2_is_correct_answer.grid(row=0, column=3, padx=2, pady=2, sticky=tk.W)
+
+        # option2 text area
+        self.option2_text_area = tk.Text(self.option2_frame, width=50, height=7)
+        self.option2_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+        # Widgets for attachment image for option
+        self.option3_frame = tk.LabelFrame(self.options_frame, text="Option 3", width=10)
+        self.option3_frame.grid(row=1, column=0, padx=2, pady=2, sticky=tk.W)
+        
+        self.option3_attachment_frame = tk.Frame(self.option3_frame)
+        self.option3_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option3_image_browse_button = tk.Button(self.option3_attachment_frame, text="Option Image", command=self.browse_option3_attachment_image)
+        self.option3_image_browse_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option3_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+        self.option3_has_attachment = tk.Checkbutton(self.option3_attachment_frame, text="Has Attachment?", variable=self.option3_has_attachment_var)
+        self.option3_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+        self.option3_attachment_image_path_var = tk.StringVar()
+        self.option3_attachment_image_path_var.set("")  # Default value
+        self.option3_image_path_label = tk.Label(self.option3_attachment_frame, width=12, textvariable=self.option3_attachment_image_path_var)
+        self.option3_image_path_label.grid(row=0, column=2, padx=2, pady=2, sticky=tk.W)
+
+        self.option3_is_correct_answer_var = tk.IntVar(value=0) # Default unchecked
+        self.option3_is_correct_answer = tk.Checkbutton(self.option3_attachment_frame, text="Is Correct Answer?", variable=self.option3_is_correct_answer_var)
+        self.option3_is_correct_answer.grid(row=0, column=3, padx=2, pady=2, sticky=tk.W)
+
+        # option3 text area
+        self.option3_text_area = tk.Text(self.option3_frame, width=50, height=7)
+        self.option3_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+        # Widgets for attachment image for option
+        self.option4_frame = tk.LabelFrame(self.options_frame, text="Option 4", width=10)
+        self.option4_frame.grid(row=1, column=1, padx=2, pady=2, sticky=tk.W)
+        
+        self.option4_attachment_frame = tk.Frame(self.option4_frame)
+        self.option4_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option4_image_browse_button = tk.Button(self.option4_attachment_frame, text="Option Image", command=self.browse_option4_attachment_image)
+        self.option4_image_browse_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.option4_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+        self.option4_has_attachment = tk.Checkbutton(self.option4_attachment_frame, text="Has Attachment?", variable=self.option4_has_attachment_var)
+        self.option4_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+        self.option4_attachment_image_path_var = tk.StringVar()
+        self.option4_attachment_image_path_var.set("")  # Default value
+        self.option4_image_path_label = tk.Label(self.option4_attachment_frame, width=12, textvariable=self.option4_attachment_image_path_var)
+        self.option4_image_path_label.grid(row=0, column=2, padx=2, pady=2, sticky=tk.W)
+
+        self.option4_is_correct_answer_var = tk.IntVar(value=0) # Default unchecked
+        self.option4_is_correct_answer = tk.Checkbutton(self.option4_attachment_frame, text="Is Correct Answer?", variable=self.option4_is_correct_answer_var)
+        self.option4_is_correct_answer.grid(row=0, column=3, padx=2, pady=2, sticky=tk.W)
+
+        # option4 text area
+        self.option4_text_area = tk.Text(self.option4_frame, width=50, height=7)
+        self.option4_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+        # Create a frame for question buttons
+        self.question_buttons_frame = tk.Frame(question_creators_question_tab)
+        self.question_buttons_frame.grid(row=2, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Configure columns to expand equally
+        self.question_buttons_frame.columnconfigure(0, weight=1)
+        self.question_buttons_frame.columnconfigure(1, weight=1)
+        self.question_buttons_frame.columnconfigure(2, weight=1)
+        self.question_buttons_frame.columnconfigure(3, weight=1)
+
+        self.insert_question_button = tk.Button(self.question_buttons_frame, text="Insert Question + Options", command=self.gui_insert_question)
+        self.insert_question_button.grid(row=0, column=0, padx=10, pady=2, sticky=tk.E)
+
+        self.update_question_button = tk.Button(self.question_buttons_frame, text="Update Question + Options", command=self.gui_update_question)
+        self.update_question_button.grid(row=0, column=1, padx=10, pady=2)
+
+        self.delete_question_button = tk.Button(self.question_buttons_frame, text="Delete Question + Options", command=self.gui_delete_question)
+        self.delete_question_button.grid(row=0, column=2, padx=10, pady=2)
+
+        self.reset_question_fields_button = tk.Button(self.question_buttons_frame, text="Reset Fields", command=self.reset_question_fields)
+        self.reset_question_fields_button.grid(row=0, column=3, padx=10, pady=2, sticky=tk.W)
+
+        # Create a frame for table containing data
+        self.questions_table_frame = tk.Frame(question_creators_question_tab)
+        self.questions_table_frame.grid(row=3, column=0, sticky=tk.NSEW)
+
+        # Create the table containgn the questions created by this question creator
+        columns = ("question_id", "topic", "subtopic", "text", "image_path", "difficulty", "type", \
+                        "points", "creation_date", "creation_time")
+        self.questions_table = ttk.Treeview(self.questions_table_frame, column=columns, show='headings', selectmode="browse")
+        self.questions_table.heading("#1", text="question_id",anchor=tk.W)
+        self.questions_table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#2", text="topic", anchor=tk.W)
+        self.questions_table.column("#2", stretch=tk.NO, width = 150, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#3", text="subtopic", anchor=tk.W)
+        self.questions_table.column("#3", stretch=tk.NO, width = 150, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#4", text="text",anchor=tk.W)
+        self.questions_table.column("#4", stretch=tk.NO, width = 250, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#5", text="image_path", anchor=tk.W)
+        self.questions_table.column("#5", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#6", text="difficulty", anchor=tk.W)
+        self.questions_table.column("#6", stretch=tk.NO, width = 60, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#7", text="type", anchor=tk.W)
+        self.questions_table.column("#7", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#8", text="points",anchor=tk.W)
+        self.questions_table.column("#8", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#9", text="creation_date", anchor=tk.W)
+        self.questions_table.column("#9", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.questions_table.heading("#10", text="creation_time", anchor=tk.W)
+        self.questions_table.column("#10", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+
+        self.questions_table.grid(row=0, column=0, sticky="nsew")
+
+        self.questions_table_y_scrollbar = ttk.Scrollbar(self.questions_table_frame, orient="vertical", command=self.questions_table.yview)
+        self.questions_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.questions_table.configure(yscrollcommand=self.questions_table_y_scrollbar.set)
+        # Bind the function to the Treeview's selection event
+        self.questions_table.bind('<<TreeviewSelect>>', self.on_treeview_select)
+
+        s = ttk.Style(self.questions_table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+    def generate_question_id(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT question_id
+                       FROM Question
+                       ORDER BY creation_date DESC, creation_time DESC
+                       LIMIT 1""")
+        prev_last_question_id = cursor.fetchone()[0]
+        connection.close()
+        # Add one to the question id number and set the question_id
+        new_question_id = f"Q{(int(prev_last_question_id[1:]) + 1)}"
+        self.question_id_var.set(new_question_id)
+
+    def browse_question_attachment_image(self):
+        # Open file dialog to select image
+        filename = filedialog.askopenfilename(initialdir="/", title="Select Image File", filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif *.bmp")])
+        
+        if filename:
+            # Extract the file extension
+            _, file_extension = os.path.splitext(filename)
+
+            # Construct the destination path
+            destination_path = f"..\images\{self.question_id_var.get()}{file_extension}"
+            # Update the entry with the selected file path including the original file extension
+            self.question_attachment_image_path_var.set(destination_path)
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            destination_path = os.path.join(scriptdir, destination_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            
+            # Copy the file to the images folder and rename it
+            shutil.copy(filename, destination_path)
+
+            # After attaching the file, check the checkbox
+            self.question_has_attachment_var.set(1)
+    
+    def browse_option1_attachment_image(self):
+        # Open file dialog to select image
+        filename = filedialog.askopenfilename(initialdir="/", title="Select Image File", filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif *.bmp")])
+        
+        if filename:
+            # Extract the file extension
+            _, file_extension = os.path.splitext(filename)
+
+            # Construct the destination path
+            destination_path = f"..\images\{self.question_id_var.get()}O1{file_extension}"
+            # Update the entry with the selected file path including the original file extension
+            self.option1_attachment_image_path_var.set(destination_path)
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            destination_path = os.path.join(scriptdir, destination_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            
+            # Copy the file to the images folder and rename it
+            shutil.copy(filename, destination_path)
+
+            # After attaching the file, check the checkbox
+            self.option1_has_attachment_var.set(1)
+    
+    def browse_option2_attachment_image(self):
+        # Open file dialog to select image
+        filename = filedialog.askopenfilename(initialdir="/", title="Select Image File", filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif *.bmp")])
+        
+        if filename:
+            # Extract the file extension
+            _, file_extension = os.path.splitext(filename)
+
+            # Construct the destination path
+            destination_path = f"..\images\{self.question_id_var.get()}O2{file_extension}"
+            # Update the entry with the selected file path including the original file extension
+            self.option2_attachment_image_path_var.set(destination_path)
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            destination_path = os.path.join(scriptdir, destination_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            
+            # Copy the file to the images folder and rename it
+            shutil.copy(filename, destination_path)
+
+            # After attaching the file, check the checkbox
+            self.option2_has_attachment_var.set(1)
+    
+    def browse_option3_attachment_image(self):
+        # Open file dialog to select image
+        filename = filedialog.askopenfilename(initialdir="/", title="Select Image File", filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif *.bmp")])
+        
+        if filename:
+            # Extract the file extension
+            _, file_extension = os.path.splitext(filename)
+
+            # Construct the destination path
+            destination_path = f"..\images\{self.question_id_var.get()}O3{file_extension}"
+            # Update the entry with the selected file path including the original file extension
+            self.option3_attachment_image_path_var.set(destination_path)
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            destination_path = os.path.join(scriptdir, destination_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            
+            # Copy the file to the images folder and rename it
+            shutil.copy(filename, destination_path)
+
+            # After attaching the file, check the checkbox
+            self.option3_has_attachment_var.set(1)
+    
+    def browse_option4_attachment_image(self):
+        # Open file dialog to select image
+        filename = filedialog.askopenfilename(initialdir="/", title="Select Image File", filetypes=[("Image Files", "*.png *.jpg *.jpeg *.gif *.bmp")])
+        
+        if filename:
+            # Extract the file extension
+            _, file_extension = os.path.splitext(filename)
+
+            # Construct the destination path
+            destination_path = f"..\images\{self.question_id_var.get()}O4{file_extension}"
+            # Update the entry with the selected file path including the original file extension
+            self.option4_attachment_image_path_var.set(destination_path)
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            destination_path = os.path.join(scriptdir, destination_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+            
+            # Copy the file to the images folder and rename it
+            shutil.copy(filename, destination_path)
+
+            # After attaching the file, check the checkbox
+            self.option4_has_attachment_var.set(1)
+    
+    def gui_insert_question(self):
+        question_id = self.question_id_var.get()
+        topic = self.topic_entry.get()
+        subtopic = self.subtopic_entry.get() if len(self.subtopic_entry.get()) > 0 else None
+        text = self.question_text_area.get("1.0", tk.END) if len(self.question_text_area.get("1.0", tk.END)) > 0 else None
+        image = self.question_attachment_image_path_var.get() if self.question_attachment_image_path_var.get() else None
+        difficulty = self.question_difficulty_var.get()
+        type = self.question_type_var.get()
+        points = int(self.points_entry.get()) if len(self.points_entry.get()) > 0 else None
+        creator_user_name = self.username
+
+        if type == "Multiple choice":
+            option1_id = question_id + "O1"
+            option1_text = self.option1_text_area.get("1.0", tk.END) if len(self.option1_text_area.get("1.0", tk.END)) > 0 else None
+            option1_image = self.option1_attachment_image_path_var.get() if self.option1_attachment_image_path_var.get() else None
+            option1_is_correct_answer = int(self.option1_is_correct_answer_var.get())
+            
+            option2_id = question_id + "O2"
+            option2_text = self.option2_text_area.get("1.0", tk.END) if len(self.option2_text_area.get("1.0", tk.END)) > 0 else None
+            option2_image = self.option2_attachment_image_path_var.get() if self.option2_attachment_image_path_var.get() else None
+            option2_is_correct_answer = int(self.option2_is_correct_answer_var.get())
+
+            option3_id = question_id + "O3"
+            option3_text = self.option3_text_area.get("1.0", tk.END) if len(self.option3_text_area.get("1.0", tk.END)) > 0 else None
+            option3_image = self.option3_attachment_image_path_var.get() if self.option3_attachment_image_path_var.get() else None
+            option3_is_correct_answer = int(self.option3_is_correct_answer_var.get())
+
+            option4_id = question_id + "O4"
+            option4_text = self.option4_text_area.get("1.0", tk.END) if len(self.option4_text_area.get("1.0", tk.END)) > 0 else None
+            option4_image = self.option4_attachment_image_path_var.get() if self.option4_attachment_image_path_var.get() else None
+            option4_is_correct_answer = int(self.option4_is_correct_answer_var.get())
+        elif type == "True/False":
+            option1_id = question_id + "O1"
+            option1_text = "True"
+            option1_image = None
+            option1_is_correct_answer = int(self.option1_is_correct_answer_var.get())
+
+            option2_id = question_id + "O2"
+            option2_text = "False"
+            option2_image = None
+            option2_is_correct_answer = int(self.option2_is_correct_answer_var.get())
+        else:
+            option1_id = question_id + "O1"
+            option1_text = self.option1_text_area.get("1.0", tk.END) if len(self.option1_text_area.get("1.0", tk.END)) > 0 else None
+            option1_image = self.option1_attachment_image_path_var.get() if self.option1_attachment_image_path_var.get() else None
+            option1_is_correct_answer = 1
+
+        # Validate fields
+        if not (question_id and topic and (text or image) and difficulty and type and points):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        if type == "Multiple choice" and not((option1_text or option1_image) and (option2_text or option2_image) and (option3_text or option3_image) and (option4_text or option4_image) and
+                sum(1 for x in (option1_is_correct_answer, option2_is_correct_answer, option3_is_correct_answer, option4_is_correct_answer) if x == 1) == 1):
+            messagebox.showwarning("Invalid Options Information", "Please recheck the options info.")
+            return
+        elif type == "True/False" and not(option1_text == "True" and option2_text == "False" and
+                ((option1_is_correct_answer and not option2_is_correct_answer) or (option2_is_correct_answer and not option1_is_correct_answer))):
+            messagebox.showwarning("Invalid Options Information", "Please recheck the options info.")
+            return
+        elif type == "Descriptive/Practical" and not(option1_text or option1_image):
+            messagebox.showwarning("Invalid Options Information", "Please recheck the options info.")
+            return
+
+        # Call insert_question function from db1.py
+        question_insert_msg = insert_question(question_id, topic, subtopic, text, image, difficulty, type, points, creator_user_name)
+        if type == "Multiple choice":
+            option1_insert_msg = insert_question_option(option1_id, question_id, option1_text, option1_image, option1_is_correct_answer)
+            option2_insert_msg = insert_question_option(option2_id, question_id, option2_text, option2_image, option2_is_correct_answer)
+            option3_insert_msg = insert_question_option(option3_id, question_id, option3_text, option3_image, option3_is_correct_answer)
+            option4_insert_msg = insert_question_option(option4_id, question_id, option4_text, option4_image, option4_is_correct_answer)
+        elif type == "True/False":
+            option1_insert_msg = insert_question_option(option1_id, question_id, option1_text, option1_image, option1_is_correct_answer)
+            option2_insert_msg = insert_question_option(option2_id, question_id, option2_text, option2_image, option2_is_correct_answer)
+        else:
+            option1_insert_msg = insert_question_option(option1_id, question_id, option1_text, option1_image, option1_is_correct_answer)
+        
+        # Rollback all changes if any insert failed
+        if not question_insert_msg.endswith("successfully.") or not option1_insert_msg.endswith("successfully.") or (type in ("Multiple choice", "True/False") and not option2_insert_msg.endswith("successfully.")) or \
+           (type == "Multiple choice" and not option3_insert_msg.endswith("successfully.")) or (type == "Multiple choice" and not option4_insert_msg.endswith("successfully.")):
+            
+            # the relative file path
+            path = '..\data\Exam_App.db'
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the database file from there
+            db_path = os.path.join(scriptdir, path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+            connection=sqlite3.connect(db_path)
+            cursor=connection.cursor()
+            
+            sql = """ DELETE FROM Question
+                    WHERE question_id = ?"""
+            cursor.execute(sql, (question_id, ))
+            if type == "Multiple choice":
+                sql = """ DELETE FROM Option
+                        WHERE option_id IN (?, ?, ?, ?)"""
+                cursor.execute(sql, (option1_id, option2_id, option3_id, option4_id))
+            elif type == "True/False":
+                sql = """ DELETE FROM Option
+                            WHERE option_id IN (?, ?)"""
+                cursor.execute(sql, (option1_id, option2_id))
+            else:
+                sql = """ DELETE FROM Option
+                            WHERE option_id = ?"""
+                cursor.execute(sql, (option1_id, )) 
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+            messagebox.showwarning("Question + Options Insert Failed", "Insert failed and all changes rollbacked successffuly.")
+            return
+        else:
+            messagebox.showinfo("Question + Options Insert", "Question and it's options inserted successfully.")
+        
+        # Reset/clear fields
+        self.reset_question_fields()
+        # reload the question table data
+        self.load_creator_questions()
+
+    def gui_update_question(self):
+        question_id = self.question_id_var.get()
+        topic = self.topic_entry.get()
+        subtopic = self.subtopic_entry.get() if len(self.subtopic_entry.get()) > 0 else None
+        text = self.question_text_area.get("1.0", tk.END) if len(self.question_text_area.get("1.0", tk.END)) > 0 else None
+        image = self.question_attachment_image_path_var.get() if self.question_attachment_image_path_var.get() else None
+        difficulty = self.question_difficulty_var.get()
+        type = self.question_type_var.get()
+        points = int(self.points_entry.get()) if len(self.points_entry.get()) > 0 else None
+
+        if type == "Multiple choice":
+            option1_id = question_id + "O1"
+            option1_text = self.option1_text_area.get("1.0", tk.END) if len(self.option1_text_area.get("1.0", tk.END)) > 0 else None
+            option1_image = self.option1_attachment_image_path_var.get() if self.option1_attachment_image_path_var.get() else None
+            option1_is_correct_answer = int(self.option1_is_correct_answer_var.get())
+            
+            option2_id = question_id + "O2"
+            option2_text = self.option2_text_area.get("1.0", tk.END) if len(self.option2_text_area.get("1.0", tk.END)) > 0 else None
+            option2_image = self.option2_attachment_image_path_var.get() if self.option2_attachment_image_path_var.get() else None
+            option2_is_correct_answer = int(self.option2_is_correct_answer_var.get())
+
+            option3_id = question_id + "O3"
+            option3_text = self.option3_text_area.get("1.0", tk.END) if len(self.option3_text_area.get("1.0", tk.END)) > 0 else None
+            option3_image = self.option3_attachment_image_path_var.get() if self.option3_attachment_image_path_var.get() else None
+            option3_is_correct_answer = int(self.option3_is_correct_answer_var.get())
+
+            option4_id = question_id + "O4"
+            option4_text = self.option4_text_area.get("1.0", tk.END) if len(self.option4_text_area.get("1.0", tk.END)) > 0 else None
+            option4_image = self.option4_attachment_image_path_var.get() if self.option4_attachment_image_path_var.get() else None
+            option4_is_correct_answer = int(self.option4_is_correct_answer_var.get())
+        elif type == "True/False":
+            option1_id = question_id + "O1"
+            option1_text = "True"
+            option1_image = None
+            option1_is_correct_answer = int(self.option1_is_correct_answer_var.get())
+
+            option2_id = question_id + "O2"
+            option2_text = "False"
+            option2_image = None
+            option2_is_correct_answer = int(self.option2_is_correct_answer_var.get())
+        else:
+            option1_id = question_id + "O1"
+            option1_text = self.option1_text_area.get("1.0", tk.END) if len(self.option1_text_area.get("1.0", tk.END)) > 0 else None
+            option1_image = self.option1_attachment_image_path_var.get() if self.option1_attachment_image_path_var.get() else None
+            option1_is_correct_answer = 1
+
+        # Validate fields
+        if not (question_id and topic and (text or image) and difficulty and type and points):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        if type == "Multiple choice" and not((option1_text or option1_image) and (option2_text or option2_image) and (option3_text or option3_image) and (option4_text or option4_image) and
+                sum(1 for x in (option1_is_correct_answer, option2_is_correct_answer, option3_is_correct_answer, option4_is_correct_answer) if x == 1) == 1):
+            messagebox.showwarning("Invalid Options Information", "Please recheck the options info.")
+            return
+        elif type == "True/False" and not(option1_text == "True" and option2_text == "False" and
+                ((option1_is_correct_answer and not option2_is_correct_answer) or (option2_is_correct_answer and not option1_is_correct_answer))):
+            messagebox.showwarning("Invalid Options Information", "Please recheck the options info.")
+            return
+        elif type == "Descriptive/Practical" and not(option1_text or option1_image):
+            messagebox.showwarning("Invalid Options Information", "Please recheck the options info.")
+            return
+
+        # Take a snapshot of questiona and its options to rollback if necessary
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor=connection.cursor()
+
+        cursor.execute(""" SELECT question_id, topic, subtopic, text, image, difficulty, type, points FROM Question
+                    WHERE question_id = ?""", (question_id, ))
+        old_question = cursor.fetchone()[0]
+         
+        cursor.execute(""" SELECT option_id, text, image, is_correct_answer FROM Option
+                    WHERE question_id = ?
+                    ORDER BY option_id""", (question_id, ))
+        old_options = cursor.fetchall()
+        
+        # Call update_question function from db1.py
+        update_question_msg = update_question(question_id, topic, subtopic, text, image, difficulty, type, points)
+        if type == "Multiple choice":
+            update_option1_msg = update_question_option(option1_id, question_id, option1_text, option1_image, option1_is_correct_answer)
+            update_option2_msg = update_question_option(option2_id, question_id, option2_text, option2_image, option2_is_correct_answer)
+            update_option3_msg = update_question_option(option3_id, question_id, option3_text, option3_image, option3_is_correct_answer)
+            update_option4_msg = update_question_option(option4_id, question_id, option4_text, option4_image, option4_is_correct_answer)
+        elif type == "True/False":
+            update_option1_msg = update_question_option(option1_id, question_id, option1_text, option1_image, option1_is_correct_answer)
+            update_option2_msg = update_question_option(option2_id, question_id, option2_text, option2_image, option2_is_correct_answer)
+        else:
+            update_option1_msg = update_question_option(option1_id, question_id, option1_text, option1_image, option1_is_correct_answer)
+
+        # Rollback all changes if any insert failed
+        if not update_question_msg.endswith("successfully.") or not update_option1_msg.endswith("successfully.") or (type in ("Multiple choice", "True/False") and not update_option2_msg.endswith("successfully.")) or \
+           (type == "Multiple choice" and not update_option3_msg.endswith("successfully.")) or (type == "Multiple choice" and not update_option4_msg.endswith("successfully.")):
+            
+            sql = """UPDATE Question
+                    SET topic = ?, subtopic = ?, text = ?, image = ?, difficulty = ?, type = ?, points = ?
+                    WHERE question_id = ?"""
+            cursor.execute(sql, (old_question[1], old_question[2], old_question[3], old_question[4], old_question[5], old_question[6], old_question[7], question_id))
+            
+            if type == "Multiple choice":
+                sql = """UPDATE Question
+                        SET text = ?, image = ?, is_correct_answer = ?
+                        WHERE option_id = ?"""
+                cursor.execute(sql, (old_options[0][1], old_options[0][2], old_options[0][3], option1_id))
+                cursor.execute(sql, (old_options[1][1], old_options[1][2], old_options[1][3], option2_id))
+                cursor.execute(sql, (old_options[2][1], old_options[2][2], old_options[2][3], option3_id))
+                cursor.execute(sql, (old_options[3][1], old_options[3][2], old_options[3][3], option4_id))
+
+            elif type == "True/False":
+                sql = """UPDATE Question
+                        SET text = ?, image = ?, is_correct_answer = ?
+                        WHERE option_id = ?"""
+                cursor.execute(sql, (old_options[0][1], old_options[0][2], old_options[0][3], option1_id))
+                cursor.execute(sql, (old_options[1][1], old_options[1][2], old_options[1][3], option2_id))
+            else:
+                sql = """UPDATE Question
+                        SET text = ?, image = ?, is_correct_answer = ?
+                        WHERE option_id = ?"""
+                cursor.execute(sql, (old_options[0][1], old_options[0][2], old_options[0][3], option1_id)) 
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+            messagebox.showwarning("Question + Options Update Failed", "Update failed and all changes rollbacked successffuly.")
+            return
+        else:
+            messagebox.showinfo("Question + Options Update", "Question and it's options updated successfully.")
+        
+        # Reset/clear fields
+        self.reset_question_fields()
+        # reload the question table data
+        self.load_creator_questions()
+
+    def gui_delete_question(self):
+        question_id = self.question_id_var.get()
+
+        if type == "Multiple choice":
+            option1_id = question_id + "O1"
+            option2_id = question_id + "O2"
+            option3_id = question_id + "O3"
+            option4_id = question_id + "O4"
+        elif type == "True/False":
+            option1_id = question_id + "O1"
+            option2_id = question_id + "O2"
+        else:
+            option1_id = question_id + "O1"
+
+        # Validate fields
+        if not question_id:
+            messagebox.showwarning("Incomplete Information", "Please insert a question ID to delete.")
+            return
+
+        # Call delete_user function from db1.py
+        delete_question(question_id)
+        if type == "Multiple choice":
+            delete_question_option(option1_id)
+            delete_question_option(option2_id)
+            delete_question_option(option3_id)
+            delete_question_option(option4_id)
+        elif type == "True/False":
+            delete_question_option(option1_id)
+            delete_question_option(option2_id)
+        else:
+            delete_question_option(option1_id)
+
+        # Reset/clear fields
+        self.reset_question_fields()
+        # reload the question table data
+        self.load_creator_questions()
+        messagebox.showinfo("Question Delete", "Question and it's options deleted successfully.")
+        
+    def load_creator_questions(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT question_id, topic, subtopic, text, image, difficulty, type, points, creation_date, creation_time
+                       FROM Question
+                       WHERE creator_user_name = ?""", (self.username, ))
+        data = cursor.fetchall()
+        connection.close()
+
+        # Clear previous data in the table
+        self.questions_table.delete(*self.questions_table.get_children())
+
+        # Insert new data rows
+        for row in data:
+            self.questions_table.insert("", "end", values=row)
+
+    def on_tab_opened(self, event):
+        # Load questions when the tab is opened
+        self.load_creator_questions()
+
+    def on_treeview_select(self, event):
+        # Reset fields
+        self.reset_question_fields()
+        
+        # Get the selected item
+        selected_item = self.questions_table.selection()
+        
+        if selected_item:
+            # Get the values of the selected item
+            values = self.questions_table.item(selected_item, 'values')
+
+            # Replace None values with empty strings
+            values = ["" if value is None else value for value in values]
+
+            # Set the values of the question-related fields
+            self.question_id_var.set(values[0])
+            self.topic_entry.delete(0, tk.END)
+            self.topic_entry.insert(0, values[1])
+            self.subtopic_entry.delete(0, tk.END)
+            self.subtopic_entry.insert(0, values[2])
+            self.question_text_area.delete("1.0", tk.END)
+            self.question_text_area.insert(tk.END, values[3])
+            self.question_has_attachment_var.set(1) if values[4] != "None" else self.question_has_attachment_var.set(0)
+            self.question_attachment_image_path_var.set(values[4]) if values[4] != "None" else ""
+            self.question_difficulty_var.set(values[5])
+            self.question_type_var.set(values[6])
+            self.points_entry.delete(0, tk.END)
+            self.points_entry.insert(0, values[7])
+            
+            # reset options based on the question type
+            self.reset_options_based_on_type()
+
+            # Set the values of the option-related fields
+            # Fetch data by querying the database
+            path = '..\data\Exam_App.db'
+            scriptdir = os.path.dirname(__file__)
+            db_path = os.path.join(scriptdir, path)
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+            connection = sqlite3.connect(db_path)
+            cursor = connection.cursor()
+    
+            cursor.execute("""SELECT text, image, is_correct_answer
+                        FROM Option
+                        WHERE question_id = ?
+                        ORDER BY option_id""", (values[0], ))
+            options = cursor.fetchall()
+            connection.close()
+
+            if values[6] == "Multiple choice":
+                self.option1_text_area.delete("1.0", tk.END)
+                self.option1_text_area.insert(tk.END, options[0][0])
+                self.option1_has_attachment_var.set(1) if options[0][1] else self.option1_has_attachment_var.set(0)
+                self.option1_attachment_image_path_var.set(options[0][1]) if options[0][1] else ""
+                self.option1_is_correct_answer_var.set(1) if int(options[0][2]) == 1 else self.option1_is_correct_answer_var.set(0)
+
+                self.option2_text_area.delete("1.0", tk.END)
+                self.option2_text_area.insert(tk.END, options[1][0])
+                self.option2_has_attachment_var.set(1) if options[1][1] else self.option2_has_attachment_var.set(0)
+                self.option2_attachment_image_path_var.set(options[1][1]) if options[1][1] else ""
+                self.option2_is_correct_answer_var.set(1) if int(options[1][2]) == 1 else self.option2_is_correct_answer_var.set(0)
+
+                self.option3_text_area.delete("1.0", tk.END)
+                self.option3_text_area.insert(tk.END, options[2][0])
+                self.option3_has_attachment_var.set(1) if options[2][1] else self.option3_has_attachment_var.set(0)
+                self.option3_attachment_image_path_var.set(options[2][1]) if options[2][1] else ""
+                self.option3_is_correct_answer_var.set(1) if int(options[2][2]) == 1 else self.option3_is_correct_answer_var.set(0)
+
+                self.option4_text_area.delete("1.0", tk.END)
+                self.option4_text_area.insert(tk.END, options[3][0])
+                self.option4_has_attachment_var.set(1) if options[3][1] else self.option4_has_attachment_var.set(0)
+                self.option4_attachment_image_path_var.set(options[3][1]) if options[3][1] else ""
+                self.option4_is_correct_answer_var.set(1) if int(options[3][2]) == 1 else self.option4_is_correct_answer_var.set(0)
+                
+            elif values[6] == "True/False":
+                self.option1_text_area.delete("1.0", tk.END)
+                self.option1_text_area.insert(tk.END, options[0][0])
+                self.option1_is_correct_answer_var.set(1) if int(options[0][2]) == 1 else self.option1_is_correct_answer_var.set(0)
+
+                self.option2_text_area.delete("1.0", tk.END)
+                self.option2_text_area.insert(tk.END, options[1][0])
+                self.option2_is_correct_answer_var.set(1) if int(options[1][2]) == 1 else self.option2_is_correct_answer_var.set(0)
+            else:
+                self.option1_text_area.delete("1.0", tk.END)
+                self.option1_text_area.insert(tk.END, options[0][0])
+                self.option1_has_attachment_var.set(1) if options[0][1] else self.option1_has_attachment_var.set(0)
+                self.option1_attachment_image_path_var.set(options[0][1]) if options[0][1] else ""
+                self.option1_is_correct_answer_var.set(1) if int(options[0][2]) == 1 else self.option1_is_correct_answer_var.set(0)
+
+    def reset_question_fields(self):
+        # Clear Question ID field
+        self.question_id_var.set("")
+        # Clear Type field
+        self.question_type_var.set("")
+        # Clear Difficulty field
+        self.question_difficulty_var.set("")
+        # Clear Topic field
+        self.topic_entry.delete(0, tk.END)
+        # Clear Subtopic field
+        self.subtopic_entry.delete(0, tk.END)
+        # Clear Points field
+        self.points_entry.delete(0, tk.END)
+        # Clear Question Text Area
+        self.question_text_area.delete("1.0", tk.END)
+        # Clear Attachment Image Path
+        self.question_attachment_image_path_var.set("")
+        # Clear Option fields
+        self.option1_attachment_image_path_var.set("")
+        self.option1_text_area.delete("1.0", tk.END)
+        self.option2_attachment_image_path_var.set("")
+        self.option2_text_area.delete("1.0", tk.END)
+        self.option3_attachment_image_path_var.set("")
+        self.option3_text_area.delete("1.0", tk.END)
+        self.option4_attachment_image_path_var.set("")
+        self.option4_text_area.delete("1.0", tk.END)
+        # Clear Correct Answer Checkbuttons
+        self.option1_is_correct_answer_var.set(0)
+        self.option2_is_correct_answer_var.set(0)
+        self.option3_is_correct_answer_var.set(0)
+        self.option4_is_correct_answer_var.set(0)
+        # Clear Attachment Checkbuttons
+        self.question_has_attachment_var.set(0)
+        self.option1_has_attachment_var.set(0)
+        self.option2_has_attachment_var.set(0)
+        self.option3_has_attachment_var.set(0)
+        self.option4_has_attachment_var.set(0)
+    
+    def reset_options_based_on_type(self, event=None):
+        selected_type = self.question_type_var.get()
+
+        if selected_type == "Multiple choice":
+            # Enable all option widgets
+            self.option1_text_area.config(state=tk.NORMAL)
+            self.option1_has_attachment.config(state=tk.NORMAL)
+            self.option1_image_browse_button.config(state=tk.NORMAL)
+            self.option1_is_correct_answer.config(state=tk.NORMAL)
+            self.option2_text_area.config(state=tk.NORMAL)
+            self.option2_has_attachment.config(state=tk.NORMAL)
+            self.option2_image_browse_button.config(state=tk.NORMAL)
+            self.option2_is_correct_answer.config(state=tk.NORMAL)
+            self.option3_text_area.config(state=tk.NORMAL)
+            self.option3_has_attachment.config(state=tk.NORMAL)
+            self.option3_image_browse_button.config(state=tk.NORMAL)
+            self.option3_is_correct_answer.config(state=tk.NORMAL)
+            self.option4_text_area.config(state=tk.NORMAL)
+            self.option4_has_attachment.config(state=tk.NORMAL)
+            self.option4_image_browse_button.config(state=tk.NORMAL)
+            self.option4_is_correct_answer.config(state=tk.NORMAL)
+
+            # Reset text for options
+            self.option1_text_area.delete('1.0', tk.END)
+            self.option2_text_area.delete('1.0', tk.END)
+            self.option3_text_area.delete('1.0', tk.END)
+            self.option4_text_area.delete('1.0', tk.END)
+            # Reset is_correct_answer for options
+            self.option1_is_correct_answer_var.set(0)
+            self.option2_is_correct_answer_var.set(0)
+            self.option3_is_correct_answer_var.set(0)
+            self.option4_is_correct_answer_var.set(0)
+
+        elif selected_type == "True/False":
+            # Enable options 1,2 widgets and disable options 3,4 widgets
+            self.option1_text_area.config(state=tk.NORMAL)
+            self.option1_has_attachment.config(state=tk.DISABLED)
+            self.option1_image_browse_button.config(state=tk.DISABLED)
+            self.option1_is_correct_answer.config(state=tk.NORMAL)
+            self.option2_text_area.config(state=tk.NORMAL)
+            self.option2_has_attachment.config(state=tk.DISABLED)
+            self.option2_image_browse_button.config(state=tk.DISABLED)
+            self.option2_is_correct_answer.config(state=tk.NORMAL)
+            self.option3_text_area.config(state=tk.DISABLED)
+            self.option3_has_attachment.config(state=tk.DISABLED)
+            self.option3_image_browse_button.config(state=tk.DISABLED)
+            self.option3_is_correct_answer.config(state=tk.DISABLED)
+            self.option4_text_area.config(state=tk.DISABLED)
+            self.option4_has_attachment.config(state=tk.DISABLED)
+            self.option4_image_browse_button.config(state=tk.DISABLED)
+            self.option4_is_correct_answer.config(state=tk.DISABLED)
+            
+            # Set text for options 1 and 2
+            self.option1_text_area.delete('1.0', tk.END)
+            self.option1_text_area.insert(tk.END, "True")
+            self.option2_text_area.delete('1.0', tk.END)
+            self.option2_text_area.insert(tk.END, "False")
+            # Reset is_correct_answer for option 1,2
+            self.option1_is_correct_answer_var.set(0)
+            self.option2_is_correct_answer_var.set(0)
+
+        elif selected_type == "Descriptive/Practical":
+            # Enable option 1 widgets and disable options 2,3,4 widgets
+            self.option1_text_area.config(state=tk.NORMAL)
+            self.option1_has_attachment.config(state=tk.NORMAL)
+            self.option1_image_browse_button.config(state=tk.NORMAL)
+            self.option1_is_correct_answer.config(state=tk.NORMAL)
+            self.option2_text_area.config(state=tk.DISABLED)
+            self.option2_has_attachment.config(state=tk.DISABLED)
+            self.option2_image_browse_button.config(state=tk.DISABLED)
+            self.option2_is_correct_answer.config(state=tk.DISABLED)
+            self.option3_text_area.config(state=tk.DISABLED)
+            self.option3_has_attachment.config(state=tk.DISABLED)
+            self.option3_image_browse_button.config(state=tk.DISABLED)
+            self.option3_is_correct_answer.config(state=tk.DISABLED)
+            self.option4_text_area.config(state=tk.DISABLED)
+            self.option4_has_attachment.config(state=tk.DISABLED)
+            self.option4_image_browse_button.config(state=tk.DISABLED)
+            self.option4_is_correct_answer.config(state=tk.DISABLED)
+            
+            # Check is_correct_answer for option 1
+            self.option1_is_correct_answer_var.set(1)
+            # Reset text for options
+            self.option1_text_area.delete('1.0', tk.END)
+
+    def create_question_creators_help_widgets(self, question_creators_question_tab):
+        # Add User Manuals and Documentation
+        user_manual_label = tk.Label(question_creators_question_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
+        user_manual_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+
+        user_manual_info = tk.Label(question_creators_question_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
+        user_manual_info.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Frequently Asked Questions (FAQs)
+        faq_label = tk.Label(question_creators_question_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
+        faq_label.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+
+        faq_info = tk.Label(question_creators_question_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
+        faq_info.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Contact Information and Support Channels
+        contact_info_label = tk.Label(question_creators_question_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
+        contact_info_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+        contact_info = tk.Label(question_creators_question_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
+        contact_info.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Video Tutorials and Demos
+        video_tutorials_label = tk.Label(question_creators_question_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
+        video_tutorials_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+        video_tutorials_info = tk.Label(question_creators_question_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
+        video_tutorials_info.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Release Notes and Updates
+        release_notes_label = tk.Label(question_creators_question_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
+        release_notes_label.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+
+        release_notes_info = tk.Label(question_creators_question_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
+        release_notes_info.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Security Guidelines and Best Practices
+        security_guidelines_label = tk.Label(question_creators_question_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
+        security_guidelines_label.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
+        security_info = tk.Label(question_creators_question_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
+        security_info.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Glossary of Terms
+        glossary_label = tk.Label(question_creators_question_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
+        glossary_label.grid(row=12, column=0, sticky="w", padx=10, pady=5)
+
+        glossary_info = tk.Label(question_creators_question_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
+        glossary_info.grid(row=13, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Community Forums and User Groups
+        community_forums_label = tk.Label(question_creators_question_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
+        community_forums_label.grid(row=14, column=0, sticky="w", padx=10, pady=5)
+
+        community_info = tk.Label(question_creators_question_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
+        community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
+
     def add_student_tabs(self):
         # Add tabs for different functionalities
         self.students_exam_tab = ttk.Frame(self.notebook)
@@ -4244,6 +5266,8 @@ class UserPanel(tk.Toplevel):
 
     def create_students_help_widgets(self):
         pass
+
+
 
 # Main loop
 if __name__ == "__main__":
