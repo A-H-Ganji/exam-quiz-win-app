@@ -11,9 +11,12 @@
   - [4. Deployment](#4-deployment)
 - [Demo](#demo)
   - [Login Window](#login-window)
-  - [Admin's Panel Security Tab](#admins-panel-security-tab)
-  - [Admin's Panel Reports Tab](#admins-panel-reports-tab)
-  - [Question-Creator's Panel Questions \& Options Tab](#question-creators-panel-questions--options-tab)
+  - [Admin's Panel: Security Tab](#admins-panel-security-tab)
+  - [Admin's Panel: Reports Tab](#admins-panel-reports-tab)
+  - [Question-Creator's Panel: Questions \& Options Tab](#question-creators-panel-questions--options-tab)
+  - [Exam-Creator's Panel: Exam Tab](#exam-creators-panel-exam-tab)
+  - [Exam-Creator's Panel: Exam Questions Tab](#exam-creators-panel-exam-questions-tab)
+  - [Exam-Creator's Panel: Exam Students Tab](#exam-creators-panel-exam-students-tab)
 - [Running Tests](#running-tests)
 - [Contributing](#contributing)
   - [Reporting Issues](#reporting-issues)
@@ -131,18 +134,29 @@ Here are some demo GIFs and screenshots showcasing the functionality of the Exam
 
 ![Login](../images/login_shot.png)
 
-### Admin's Panel Security Tab
+### Admin's Panel: Security Tab
 
 ![Admin Security Tab](../images/admin_security_shot.png)
 
-### Admin's Panel Reports Tab
+### Admin's Panel: Reports Tab
 
 ![Admin Reports Tab](../images/admin_reports_shot.png)
 
-### Question-Creator's Panel Questions & Options Tab
+### Question-Creator's Panel: Questions & Options Tab
 
 ![Question-Creator's Questions & Options Tab](../images/question_creator_questions_options_shot.png)
 
+### Exam-Creator's Panel: Exam Tab
+
+![Exam-Creator's Exam Tab](../images/exam_creator_exam_tab_shot.png)
+
+### Exam-Creator's Panel: Exam Questions Tab
+
+![Exam-Creator's Exam Questions Tab](../images/exam_creator_exam_questions_tab_shot.png)
+
+### Exam-Creator's Panel: Exam Students Tab
+
+![Exam-Creator's Exam Students Tab](../images/exam_creator_exam_students_tab_shot.png)
 
 Feel free to explore more features and functionalities of the application by downloading and running it on your local machine!
 

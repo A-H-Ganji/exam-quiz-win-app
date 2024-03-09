@@ -1190,43 +1190,45 @@ class TestDatabaseOperations(unittest.TestCase):
 
     def test_insert_exam(self):
         # Create a exam creator user
-        insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com")
-        insert_user_role("TestECreator1","Exam_Creator")
+        self.assertEqual(insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestECreator1","Exam_Creator"), "User role assigned successfully.")
         # Create a exam handler user
-        insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com")
-        insert_user_role("TestEHandler1","Exam_Handler")
+        self.assertEqual(insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestEHandler1","Exam_Handler"), "User role assigned successfully.")
         # Create a exam supervisor user
-        insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com")
-        insert_user_role("TestESupervisor1","Exam_Supervisor")
+        self.assertEqual(insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestESupervisor1","Exam_Supervisor"), "User role assigned successfully.")
         
         # Insert a exam (valid inputs --> successful)
         exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
-        insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam info inserted successfully.")
         # Insert a exam (invalid exam_id --> unsuccessful)
-        insert_exam("E 101", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("E 101", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid exam ID format.")
         # Insert a exam (invalid exam_date --> unsuccessful)
         exam_date2 = (dt.now() - timedelta(days=2)).strftime('%Y/%m/%d')
-        insert_exam("Ex102", "Test exam name", exam_date2, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex102", "Test exam name", exam_date2, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid exam date format or it's not in the future.")
         # Insert a exam (invalid exam_time --> unsuccessful)
-        insert_exam("Ex103", "Test exam name", exam_date1, "68:74:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex103", "Test exam name", exam_date1, "68:74:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid start time format.")
         # Insert a exam (invalid duration --> unsuccessful)
-        insert_exam("Ex104", "Test exam name", exam_date1, "08:30:00", -45, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex104", "Test exam name", exam_date1, "08:30:00", -45, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid duration value.")
         # Insert a exam (invalid has_negative_score --> unsuccessful)
-        insert_exam("Ex105", "Test exam name", exam_date1, "08:30:00", 30, 10, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex105", "Test exam name", exam_date1, "08:30:00", 30, 10, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid value for has_negative_score.")
         # Insert a exam (invalid passing_score --> unsuccessful)
-        insert_exam("Ex106", "Test exam name", exam_date1, "08:30:00", 30, 0, 200, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex106", "Test exam name", exam_date1, "08:30:00", 30, 0, 200, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid passing score value.")
         # Insert a exam (invalid handler_user_name --> unsuccessful)
-        insert_exam("Ex107", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "Test#E*Handler", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex107", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "Test#E*Handler", "TestESupervisor1", "TestECreator1"), "Invalid username format.")
         # Insert a exam (valid but not registered handler_user_name --> unsuccessful)
-        insert_exam("Ex108", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler100", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex108", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler100", "TestESupervisor1", "TestECreator1"), "Invalid exam handler username.")
         # Insert a exam (invalid supervisor_user_name --> unsuccessful)
-        insert_exam("Ex109", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "Test@E=Supervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex109", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "Test@E=Supervisor1", "TestECreator1"), "Invalid username format.")
         # Insert a exam (valid but not registered supervisor_user_name --> unsuccessful)
-        insert_exam("Ex110", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor100", "TestECreator1")
+        self.assertEqual(insert_exam("Ex110", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor100", "TestECreator1"), "Invalid exam supervisor username.")
         # Insert a exam (invalid handler_user_name --> unsuccessful)
-        insert_exam("Ex111", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "Test$$ECreator1")
+        self.assertEqual(insert_exam("Ex111", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "Test$$ECreator1"), "Invalid username format.")
         # Insert a exam (valid but not registered handler_user_name --> unsuccessful)
-        insert_exam("Ex112", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator100")
+        self.assertEqual(insert_exam("Ex112", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator100"), "Invalid exam creator username.")
+        # Insert a exam (duplicate exam --> unsuccessful)
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam already exists.")
 
         # Check if the question has been inserted
         # the relative file path
@@ -1305,6 +1307,118 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertIsNone(res12)
         self.assertIsNone(res13)
     
+    def test_update_exam(self):
+        # Create a exam creator user
+        self.assertEqual(insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestECreator1","Exam_Creator"), "User role assigned successfully.")
+        # Create a exam handler user
+        self.assertEqual(insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestEHandler1","Exam_Handler"), "User role assigned successfully.")
+        # Create a exam supervisor user
+        self.assertEqual(insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestESupervisor1","Exam_Supervisor"), "User role assigned successfully.")
+        # Create a exam
+        exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam info inserted successfully.")
+        
+        # Update a exam (valid input --> successful)
+        self.assertEqual(update_exam("Ex100", "Test exam new name", exam_date1, "08:45:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam info updated successfully.")
+        # Update a exam (invalid exam_date --> successful)
+        exam_date2 = (dt.now() - timedelta(days=2)).strftime('%Y/%m/%d')
+        self.assertEqual(update_exam("Ex100", "Test exam name", exam_date2, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid exam date format or it's not in the future.")
+        # Update a exam (invalid exam_time --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam new name", exam_date1, "68:74:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid start time format.")
+        # Update a exam (invalid duration --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam new name", exam_date1, "08:30:00", -45.5, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid duration value.")
+        # Update a exam (invalid has_negative_score --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam new name", exam_date1, "08:30:00", 30, 10, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid value for has_negative_score.")
+        # Update a exam (invalid passing_score --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam new name", exam_date1, "08:30:00", 30, 0, 200, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Invalid passing score value.")
+        # Update a exam (invalid handler_user_name --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "Test#E*Handler", "TestESupervisor1", "TestECreator1"), "Invalid username format.")
+        # Update a exam (valid but not registered handler_user_name --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler100", "TestESupervisor1", "TestECreator1"), "Invalid exam handler username.")
+        # Update a exam (invalid supervisor_user_name --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "Test@E=Supervisor1", "TestECreator1"), "Invalid username format.")
+        # Update a exam (valid but not registered supervisor_user_name --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor100", "TestECreator1"), "Invalid exam supervisor username.")
+        # Update a exam (invalid handler_user_name --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "Test$$ECreator1"), "Invalid username format.")
+        # Update a exam (valid but not registered handler_user_name --> unsuccessful)
+        self.assertEqual(update_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator100"), "Invalid exam creator username.")
+        # Update a exam (exam not exists --> unsuccessful)
+        self.assertEqual(update_exam("Ex1000", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam not exists.")
+        
+        # Check if the question has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Exam WHERE exam_id='Ex100'")
+        res1 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNotNone(res1)
+        self.assertEqual(res1[0], "Ex100")
+        self.assertEqual(res1[1], "Test exam new name")
+        self.assertEqual(res1[3], "08:45:00")
+        self.assertEqual(res1[4], 30)
+        self.assertEqual(res1[7], 0)
+        self.assertEqual(res1[8], 40)
+        self.assertEqual(res1[9], "TestEHandler1")
+        self.assertEqual(res1[10], "TestESupervisor1")
+        self.assertEqual(res1[11], "TestECreator1")
+    
+    def test_delete_exam(self):
+        # Create a exam creator user
+        self.assertEqual(insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestECreator1","Exam_Creator"), "User role assigned successfully.")
+        # Create a exam handler user
+        self.assertEqual(insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestEHandler1","Exam_Handler"), "User role assigned successfully.")
+        # Create a exam supervisor user
+        self.assertEqual(insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestESupervisor1","Exam_Supervisor"), "User role assigned successfully.")
+        # Create a exam
+        exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam question info inserted successfully.")
+        
+        # delete a exam (valid input --> successful)
+        self.assertEqual(delete_exam("Ex100"), "Exam info deleted successfully.")
+        # delete a exam (invalid exam_id --> successful)
+        self.assertEqual(delete_exam("Ex/ 100"), "Invalid exam ID format.")
+        # delete a exam (exam not exists --> unsuccessful)
+        self.assertEqual(delete_exam("Ex1000"), "Exam not exists.")
+        
+        # Check if the question has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Exam WHERE exam_id='Ex100'")
+        res1 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNone(res1)
+    
     def test_create_exam_question_table(self):
         # the relative file path
         path = '..\data\Exam_App.db'
@@ -1333,41 +1447,41 @@ class TestDatabaseOperations(unittest.TestCase):
 
     def test_insert_exam_question(self):
         # Create a question creator user
-        insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com")
-        insert_user_role("TestQCreator1","Question_Creator")
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
         # Create a exam creator user
-        insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com")
-        insert_user_role("TestECreator1","Exam_Creator")
+        self.assertEqual(insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestECreator1","Exam_Creator"), "User role assigned successfully.")
         # Create a exam handler user
-        insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com")
-        insert_user_role("TestEHandler1","Exam_Handler")
+        self.assertEqual(insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestEHandler1","Exam_Handler"), "User role assigned successfully.")
         # Create a exam supervisor user
-        insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com")
-        insert_user_role("TestESupervisor1","Exam_Supervisor")
+        self.assertEqual(insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestESupervisor1","Exam_Supervisor"), "User role assigned successfully.")
         # TestQCreator1 creates 5 questions
-        insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
-        insert_question('Q1001', 'Math', 'Algebra', 'What is 2 - 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
-        insert_question('Q1002', 'Math', 'Algebra', 'What is 2 * 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
-        insert_question('Q1003', 'Math', 'Algebra', 'What is 2 / 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
-        insert_question('Q1004', 'Math', 'Algebra', 'What is 2 ^ 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1')
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1001', 'Math', 'Algebra', 'What is 2 - 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1002', 'Math', 'Algebra', 'What is 2 * 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1003', 'Math', 'Algebra', 'What is 2 / 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1004', 'Math', 'Algebra', 'What is 2 ^ 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
         # TestECreator1 creates an exam
         exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
-        insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam info inserted successfully.")
 
         # Insert 5 exam question (valid inputs --> successful)
-        insert_exam_question("Ex100", "Q1000")
-        insert_exam_question("Ex100", "Q1001")
-        insert_exam_question("Ex100", "Q1002")
-        insert_exam_question("Ex100", "Q1003")
-        insert_exam_question("Ex100", "Q1004")
+        self.assertEqual(insert_exam_question("Ex100", "Q1000"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1001"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1002"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1003"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1004"), "Exam question info inserted successfully.")
         # Insert an exam question (invalid exam_id --> unsuccessful)
-        insert_exam_question("E 100", "Q1000")
+        self.assertEqual(insert_exam_question("E 100", "Q1000"), "Invalid exam ID format.")
         # Insert an exam question (valid but not registered exam_id --> unsuccessful)
-        insert_exam_question("Ex200", "Q1000")
+        self.assertEqual(insert_exam_question("Ex200", "Q1000"), "Invalid exam_id.")
         # Insert an exam question (invalid question_id --> unsuccessful)
-        insert_exam_question("Ex100", "1000")
+        self.assertEqual(insert_exam_question("Ex100", "1000"), "Invalid question ID format.")
         # Insert an exam question (valid but not registered question_id --> unsuccessful)
-        insert_exam_question("Ex100", "Q2000")
+        self.assertEqual(insert_exam_question("Ex100", "Q2000"), "Invalid question_id.")
 
         # Check if the question has been inserted
         # the relative file path
@@ -1408,6 +1522,90 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertIsNone(res4)
         self.assertIsNone(res5)
     
+    def test_delete_exam_question(self):
+        # Create a question creator user
+        self.assertEqual(insert_user("TestQCreator1", "123*Qc#exam", "Test", "Question Creator", "qc1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestQCreator1","Question_Creator"), "User role assigned successfully.")
+        # Create a exam creator user
+        self.assertEqual(insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestECreator1","Exam_Creator"), "User role assigned successfully.")
+        # Create a exam handler user
+        self.assertEqual(insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestEHandler1","Exam_Handler"), "User role assigned successfully.")
+        # Create a exam supervisor user
+        self.assertEqual(insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestESupervisor1","Exam_Supervisor"), "User role assigned successfully.")
+        # TestQCreator1 creates 5 questions
+        self.assertEqual(insert_question('Q1000', 'Math', 'Algebra', 'What is 2 + 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1001', 'Math', 'Algebra', 'What is 2 - 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1002', 'Math', 'Algebra', 'What is 2 * 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1003', 'Math', 'Algebra', 'What is 2 / 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        self.assertEqual(insert_question('Q1004', 'Math', 'Algebra', 'What is 2 ^ 2?', None, 'Normal', 'Multiple choice', 5, 'TestQCreator1'), "Question info inserted successfully.")
+        # TestECreator1 creates an exam
+        exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam info inserted successfully.")
+        # Insert 5 exam question (valid inputs --> successful)
+        self.assertEqual(insert_exam_question("Ex100", "Q1000"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1001"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1002"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1003"), "Exam question info inserted successfully.")
+        self.assertEqual(insert_exam_question("Ex100", "Q1004"), "Exam question info inserted successfully.")
+        
+        # delete an exam question (valid --> successful)
+        self.assertEqual(delete_exam_question("Ex100", "Q1000"), "Exam question info deleted successfully.")
+        self.assertEqual(delete_exam_question("Ex100", "Q1001"), "Exam question info deleted successfully.")
+        self.assertEqual(delete_exam_question("Ex100", "Q1002"), "Exam question info deleted successfully.")
+        self.assertEqual(delete_exam_question("Ex100", "Q1003"), "Exam question info deleted successfully.")
+        self.assertEqual(delete_exam_question("Ex100", "Q1004"), "Exam question info deleted successfully.")
+        # delete an exam question (invalid exam_id --> unsuccessful)
+        self.assertEqual(delete_exam_question("Ex200", "Q1000"), "Invalid exam_id.")
+        # delete an exam question (valid but not registered exam_id --> unsuccessful)
+        self.assertEqual(delete_exam_question("Ex200", "Q1000"), "Invalid exam_id.")
+        # Insert an exam question (invalid question_id --> unsuccessful)
+        self.assertEqual(delete_exam_question("Ex100", "1000"), "Invalid question ID format.")
+        # Insert an exam question (valid but not registered question_id --> unsuccessful)
+        self.assertEqual(delete_exam_question("Ex100", "Q2000"), "Invalid question_id.")
+
+        # Check if the question has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM Exam_Question WHERE exam_id='Ex100' AND question_id='Q1000'")
+        res1 = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM Exam_Question WHERE exam_id='Ex100' AND question_id='Q1001'")
+        res2 = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM Exam_Question WHERE exam_id='Ex100' AND question_id='Q1002'")
+        res3 = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM Exam_Question WHERE exam_id='Ex100' AND question_id='Q1003'")
+        res4 = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM Exam_Question WHERE exam_id='Ex100' AND question_id='Q1004'")
+        res5 = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM Exam_Question WHERE exam_id='Ex100' AND question_id='Q1005'")
+        res6 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNone(res1)
+        self.assertIsNone(res2)
+        self.assertIsNone(res3)
+        self.assertIsNone(res4)
+        self.assertIsNone(res5)
+        self.assertIsNone(res6)
+    
     def test_create_user_exam_table(self):
         # the relative file path
         path = '..\data\Exam_App.db'
@@ -1437,34 +1635,48 @@ class TestDatabaseOperations(unittest.TestCase):
 
     def test_insert_user_exam(self):
         # Create 2 student users
-        insert_user("TestStudent1", "stud@Exam1", "Test", "Student", "stud1@example.com")
-        insert_user_role("TestStudent1","Student")
-        insert_user("TestStudent2", "stud@Exam2", "Test", "Student", "stud2@example.com")
-        insert_user_role("TestStudent2","Student")
+        self.assertEqual(insert_user("TestStudent1", "stud@Exam1", "Test", "Student", "stud1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestStudent1","Student"), "User role assigned successfully.")
+        self.assertEqual(insert_user("TestStudent2", "stud@Exam2", "Test", "Student", "stud2@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestStudent2","Student"), "User role assigned successfully.")
         # Create a exam creator user
-        insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com")
-        insert_user_role("TestECreator1","Exam_Creator")
+        self.assertEqual(insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestECreator1","Exam_Creator"), "User role assigned successfully.")
         # Create a exam handler user
-        insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com")
-        insert_user_role("TestEHandler1","Exam_Handler")
+        self.assertEqual(insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestEHandler1","Exam_Handler"), "User role assigned successfully.")
         # Create a exam supervisor user
-        insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com")
-        insert_user_role("TestESupervisor1","Exam_Supervisor")
+        self.assertEqual(insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestESupervisor1","Exam_Supervisor"), "User role assigned successfully.")
         # TestECreator1 creates an exam
         exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
-        insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1")
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam info inserted successfully.")
 
         # insert 2 user exams (valid inputs --> successful)
-        insert_user_exam("Ex100", "TestStudent1", 0, 5, 0, 0, 5, 0)
-        insert_user_exam("Ex100", "TestStudent2", 0, 5, 0, 0, 5, 0)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, 5, 0, 0, 5, 0), "User exam info inserted successfully.")
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent2", 0, 5, 0, 0, 5, 0), "User exam info inserted successfully.")
         # insert an user exam (invalid exam_id --> unsuccessful)
-        insert_user_exam("Ex 101", "TestStudent1", 0, 5, 0, 0, 5, 0)
+        self.assertEqual(insert_user_exam("Ex 101", "TestStudent1", 0, 5, 0, 0, 5, 0), "Invalid exam ID format.")
         # insert an user exam (valid but not registered exam_id --> unsuccessful)
-        insert_user_exam("Ex101", "TestStudent1", 0, 5, 0, 0, 5, 0)
+        self.assertEqual(insert_user_exam("Ex101", "TestStudent1", 0, 5, 0, 0, 5, 0), "Invalid exam_id.")
         # insert an user exam (invalid user_name --> unsuccessful)
-        insert_user_exam("Ex100", "Test Student", 0, 5, 0, 0, 5, 0)
+        self.assertEqual(insert_user_exam("Ex100", "Test Student", 0, 5, 0, 0, 5, 0), "Invalid username format.")
         # insert an user exam (valid but not registered user_name --> unsuccessful)
-        insert_user_exam("Ex100", "TestStudent100", 0, 5, 0, 0, 5, 0)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent100", 0, 5, 0, 0, 5, 0), "Invalid student username.")
+        # insert an user exams (invalid score --> successful)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", "ali", 5, 0, 0, 5, 0), "Invalid score.")
+        # insert an user exams (invalid total questions --> successful)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, -3.5, 0, 0, 5, 0), "Invalid total questions.")
+        # insert an user exams (invalid correct answers --> successful)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, 5, 10, 0, 5, 0), "Invalid correct answers.")
+        # insert an user exams (invalid wrong answers --> successful)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, 5, 0, -5, 5, 0), "Invalid wrong answers.")
+        # insert an user exams (invalid unanswered questions --> successful)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, 5, 0, 0, 10, 0), "Invalid unanswered questions.")
+        # insert an user exams (invalid sum --> successful)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, 5, 1, 2, 5, 0), "The sum of correct answers, wrong answers, and unanswered questions must be equal to total questions.")
+        # insert an user exams (invalid is_passed --> successful)
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, 5, 0, 0, 5, 10), "Invalid value for is_passed.")
 
         # Check if the question has been inserted
         # the relative file path
@@ -1511,6 +1723,65 @@ class TestDatabaseOperations(unittest.TestCase):
         self.assertIsNone(res4)
         self.assertIsNone(res5)
         self.assertIsNone(res6)
+    
+    def test_delete_user_exam(self):
+        # Create 2 student users
+        self.assertEqual(insert_user("TestStudent1", "stud@Exam1", "Test", "Student", "stud1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestStudent1","Student"), "User role assigned successfully.")
+        self.assertEqual(insert_user("TestStudent2", "stud@Exam2", "Test", "Student", "stud2@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestStudent2","Student"), "User role assigned successfully.")
+        # Create a exam creator user
+        self.assertEqual(insert_user("TestECreator1", "123*Ec#exam", "Test", "Exam Creator", "ec1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestECreator1","Exam_Creator"), "User role assigned successfully.")
+        # Create a exam handler user
+        self.assertEqual(insert_user("TestEHandler1", "123*Eh#exam", "Test", "Exam Handler", "eh1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestEHandler1","Exam_Handler"), "User role assigned successfully.")
+        # Create a exam supervisor user
+        self.assertEqual(insert_user("TestESupervisor1", "123*Es#exam", "Test", "Exam Supervisor", "es1@example.com"), "User info inserted successfully.")
+        self.assertEqual(insert_user_role("TestESupervisor1","Exam_Supervisor"), "User role assigned successfully.")
+        # TestECreator1 creates an exam
+        exam_date1 = (dt.now() + timedelta(weeks=1)).strftime('%Y/%m/%d')
+        self.assertEqual(insert_exam("Ex100", "Test exam name", exam_date1, "08:30:00", 30, 0, 40, "TestEHandler1", "TestESupervisor1", "TestECreator1"), "Exam info inserted successfully.")
+        # insert 2 user exams
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent1", 0, 5, 0, 0, 5, 0), "User exam info inserted successfully.")
+        self.assertEqual(insert_user_exam("Ex100", "TestStudent2", 0, 5, 0, 0, 5, 0), "User exam info inserted successfully.")
+
+        # delete 2 user exams (valid inputs --> successful)
+        self.assertEqual(delete_user_exam("Ex100", "TestStudent1"), "User exam info deleted successfully.")
+        self.assertEqual(delete_user_exam("Ex100", "TestStudent2"), "User exam info deleted successfully.")
+        
+        # delete an user exam (invalid exam_id --> unsuccessful)
+        self.assertEqual(delete_user_exam("Ex 101", "TestStudent1", 0, 5, 0, 0, 5, 0), "Invalid exam ID format.")
+        # delete an user exam (valid but not registered exam_id --> unsuccessful)
+        self.assertEqual(delete_user_exam("Ex101", "TestStudent1", 0, 5, 0, 0, 5, 0), "Invalid exam_id.")
+        # delete an user exam (invalid user_name --> unsuccessful)
+        self.assertEqual(delete_user_exam("Ex100", "Test Student", 0, 5, 0, 0, 5, 0), "Invalid username format.")
+        # delete an user exam (valid but not registered user_name --> unsuccessful)
+        self.assertEqual(delete_user_exam("Ex100", "TestStudent100", 0, 5, 0, 0, 5, 0), "Invalid student username.")
+
+        # Check if the question has been inserted
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM User_Exam WHERE exam_id='Ex100' AND user_name='TestStudent1'")
+        res1 = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM User_Exam WHERE exam_id='Ex100' AND user_name='TestStudent2'")
+        res2 = cursor.fetchone()
+
+        connection.close()
+
+        self.assertIsNone(res1)
+        self.assertIsNone(res2)
     
     def test_create_answer_table(self):
         # the relative file path

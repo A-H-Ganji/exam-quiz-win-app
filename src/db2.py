@@ -97,6 +97,10 @@ import os
 # Insert a question creator user
 # insert_user("Alij1995", "Tir@#1456spX", "Ali", "Jamali", "alig32@gmail.com")
 # insert_user_role("Alij1995","Question_Creator")
+
+# Insert an exam creator user
+# insert_user("babak247", "*64Bwmw-8#ooP", "Babak", "Samadi", "babaksmdi@gmail.com")
+# insert_user_role("babak247","Exam_Creator")
 #------------------------------------II-4-Inserting role permissions-------------------------------------#
 # insert_role_permission("Administrator","Administrate")
 # insert_role_permission("Question_Creator","Create_Question")

@@ -1226,24 +1226,26 @@ def insert_exam(exam_id, exam_name, exam_date, start_time, duration, has_negativ
 
     # Perform data validation
     if not is_exam_id(exam_id):
-        print("Invalid exam ID format.")
-        return
+        return "Invalid exam ID format."
+        
     if not is_valid_exam_date(exam_date):
-        print("Invalid exam date format or it's not in the future.")
-        return
+        return "Invalid exam date format or it's not in the future."
+        
     if not is_valid_exam_time(start_time):
-        print("Invalid start time format.")
-        return
+        return "Invalid start time format."
+        
     if not (isinstance(duration, int) and duration > 0):
-        print("Invalid duration value.")
-        return
+        return "Invalid duration value."
+        
     if has_negative_score not in [0, 1]:
-        print("Invalid value for has_negative_score.")
-        return
+        return "Invalid value for has_negative_score."
+        
     if not (isinstance(passing_score, int) and 0 < passing_score < 100):
-        print("Invalid passing score value.")
-        return
+        return "Invalid passing score value."
     
+    if not is_username(handler_user_name) or not is_username(supervisor_user_name) or not is_username(creator_user_name):
+        return "Invalid username format."
+        
     # check if the handler username is registered in the user table
     cursor.execute("""
     SELECT UR.user_name
@@ -1254,9 +1256,8 @@ def insert_exam(exam_id, exam_name, exam_date, start_time, duration, has_negativ
 
     exam_handler_users = [user[0] for user in cursor.fetchall()]
     if handler_user_name not in exam_handler_users:
-        print("Invalid exam handler username.")
-        return
-    
+        return "Invalid exam handler username."
+        
     # check if the supervisor username is registered in the user table
     cursor.execute("""
     SELECT UR.user_name
@@ -1267,8 +1268,7 @@ def insert_exam(exam_id, exam_name, exam_date, start_time, duration, has_negativ
 
     exam_supervisor_users = [user[0] for user in cursor.fetchall()]
     if supervisor_user_name not in exam_supervisor_users:
-        print("Invalid exam supervisor username.")
-        return
+        return "Invalid exam supervisor username."
     
     # check if the exam creator username is registered in the user table
     cursor.execute("""
@@ -1280,8 +1280,13 @@ def insert_exam(exam_id, exam_name, exam_date, start_time, duration, has_negativ
 
     exam_creator_users = [user[0] for user in cursor.fetchall()]
     if creator_user_name not in exam_creator_users:
-        print("Invalid exam creator username.")
-        return
+        return "Invalid exam creator username."
+    
+    # check the exam_id duplication
+    cursor.execute("""SELECT exam_id FROM Exam""")
+    exams = [e[0] for e in cursor.fetchall()]
+    if exam_id in exams:
+        return "Exam already exists."
     
     # get creation date and time in ISO format
     creation_date, creation_time = dt.now().isoformat().split("T")
@@ -1295,7 +1300,114 @@ def insert_exam(exam_id, exam_name, exam_date, start_time, duration, has_negativ
     connection.commit()
     cursor.close()
     connection.close()
-    print("Exam info inserted in the Exam table successfully.")
+    return "Exam info inserted successfully."
+
+def update_exam(exam_id, exam_name, exam_date, start_time, duration, has_negative_score, \
+                passing_score, handler_user_name, supervisor_user_name):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Perform data validation
+    if not is_exam_id(exam_id):
+        return "Invalid exam ID format."
+        
+    if not is_valid_exam_date(exam_date):
+        return "Invalid exam date format or it's not in the future."
+        
+    if not is_valid_exam_time(start_time):
+        return "Invalid start time format."
+        
+    if not (isinstance(duration, int) and duration > 0):
+        return "Invalid duration value."
+        
+    if has_negative_score not in [0, 1]:
+        return "Invalid value for has_negative_score."
+        
+    if not (isinstance(passing_score, int) and 0 < passing_score < 100):
+        return "Invalid passing score value."
+        
+    # check if the handler username is registered in the user table
+    cursor.execute("""
+    SELECT UR.user_name
+    FROM User U
+    JOIN User_Role UR
+    ON U.user_name = UR.user_name
+    Where role_name = 'Exam_Handler'""")
+
+    exam_handler_users = [user[0] for user in cursor.fetchall()]
+    if handler_user_name not in exam_handler_users:
+        return "Invalid exam handler username."
+        
+    # check if the supervisor username is registered in the user table
+    cursor.execute("""
+    SELECT UR.user_name
+    FROM User U
+    JOIN User_Role UR
+    ON U.user_name = UR.user_name
+    Where role_name = 'Exam_Supervisor'""")
+
+    exam_supervisor_users = [user[0] for user in cursor.fetchall()]
+    if supervisor_user_name not in exam_supervisor_users:
+        return "Invalid exam supervisor username."
+    
+    # check the exam_id exitence
+    cursor.execute("""SELECT exam_id FROM Exam""")
+    exams = [e[0] for e in cursor.fetchall()]
+    if exam_id not in exams:
+        return "Exam not exists."
+
+    sql = """ UPDATE Exam
+              SET exam_name = ?, exam_date = ?, start_time = ?, duration = ?,
+                  has_negative_score = ?, passing_score = ?, handler_user_name = ?, supervisor_user_name = ?
+              WHERE exam_id = ?"""
+    cursor.execute(sql, (exam_name, exam_date, start_time, duration, has_negative_score, \
+                         passing_score, handler_user_name, supervisor_user_name, exam_id))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "Exam info updated successfully."
+
+def delete_exam(exam_id):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Perform data validation
+    if not is_exam_id(exam_id):
+        return "Invalid exam ID format."
+    
+    # check the exam_id exitence
+    cursor.execute("""SELECT exam_id FROM Exam""")
+    exams = [e[0] for e in cursor.fetchall()]
+    if exam_id not in exams:
+        return "Exam not exists."
+
+    sql = """ DELETE FROM Exam
+              WHERE exam_id = ?"""
+    cursor.execute(sql, (exam_id, ))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "Exam info deleted successfully."
 #------------------------------------------- I-10- Exam_Question table ---------------------------------------------#
 # 10-1- exam_id must meet is_exam_id rules and already exists in Exam table
 # 10-2- question_id must meet is_question_id rules and already exists in Question table
@@ -1344,27 +1456,25 @@ def insert_exam_question(exam_id, question_id):
 
     # Perform data validation
     if not is_exam_id(exam_id):
-        print("Invalid exam ID format.")
-        return
+        return "Invalid exam ID format."
+        
     if not is_question_id(question_id):
-        print("Invalid question ID format.")
-        return
-    
+        return "Invalid question ID format."
+        
     # check if the exam_id is registered in the exam table
     cursor.execute("""SELECT exam_id FROM Exam""")
 
     exams = [exam[0] for exam in cursor.fetchall()]
     if exam_id not in exams:
-        print(f"Invalid exam_id.")
-        return
-    
+        return "Invalid exam_id."
+        
     # check if the question_id is registered in the question table
     cursor.execute("""SELECT question_id FROM Question""")
 
     questions = [question[0] for question in cursor.fetchall()]
     if question_id not in questions:
-        print(f"Invalid question_id.")
-        return
+        return "Invalid question_id."
+        
 
     sql = """ INSERT INTO Exam_Question (exam_id, question_id) VALUES (?, ?)"""
     cursor.execute(sql, (exam_id, question_id))
@@ -1372,7 +1482,50 @@ def insert_exam_question(exam_id, question_id):
     connection.commit()
     cursor.close()
     connection.close()
-    print("Exam question info inserted in the Exam_Question table successfully.")
+    return "Exam question info inserted successfully."
+
+def delete_exam_question(exam_id, question_id):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Perform data validation
+    if not is_exam_id(exam_id):
+        return "Invalid exam ID format."
+        
+    if not is_question_id(question_id):
+        return "Invalid question ID format."
+        
+    # check if the exam_id is registered in the exam table
+    cursor.execute("""SELECT exam_id FROM Exam""")
+
+    exams = [exam[0] for exam in cursor.fetchall()]
+    if exam_id not in exams:
+        return "Invalid exam_id."
+        
+    # check if the question_id is registered in the question table
+    cursor.execute("""SELECT question_id FROM Question""")
+
+    questions = [question[0] for question in cursor.fetchall()]
+    if question_id not in questions:
+        return "Invalid question_id."
+    
+    sql = """DELETE FROM Exam_Question
+             WHERE exam_id = ? AND question_id = ?"""
+    cursor.execute(sql, (exam_id, question_id))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "Exam question info deleted successfully."
 #------------------------------------------- I-11- User_Exam table ---------------------------------------------#
 # 11-1- exam_id must meet is_exam_id rules and already exists in Exam table
 # 11-2- user_name must meet is_user_name rules and already exists in User table and have Student Role
@@ -1453,41 +1606,39 @@ def insert_user_exam(exam_id, user_name, score, total_questions, correct_answers
 
     # Perform data validation
     if not is_exam_id(exam_id):
-        print("Invalid exam ID format.")
-        return
+        return "Invalid exam ID format."
+        
     if not is_username(user_name):
-        print("Invalid username.")
-        return
+        return "Invalid username format."
+        
     if not isinstance(score, int):
-        print("Invalid score.")
-        return
+        return "Invalid score."
+        
     if not (isinstance(total_questions, int) and total_questions >= 0):
-        print("Invalid total questions.")
-        return
+        return "Invalid total questions."
+        
     if not (isinstance(correct_answers, int) and 0 <= correct_answers <= total_questions):
-        print("Invalid correct answers.")
-        return
+        return "Invalid correct answers."
+        
     if not (isinstance(wrong_answers, int) and 0 <= wrong_answers <= total_questions):
-        print("Invalid wrong answers.")
-        return
+        return "Invalid wrong answers."
+        
     if not (isinstance(unanswered_questions, int) and 0 <= unanswered_questions <= total_questions):
-        print("Invalid unanswered questions.")
-        return
+        return "Invalid unanswered questions."
+        
     if correct_answers + wrong_answers + unanswered_questions != total_questions:
-        print("The sum of correct answers, wrong answers, and unanswered questions must be equal to total questions.")
-        return
+        return "The sum of correct answers, wrong answers, and unanswered questions must be equal to total questions."
+        
     if is_passed not in [0, 1]:
-        print("Invalid value for is_passed.")
-        return
-    
+        return "Invalid value for is_passed."
+        
     # check if the exam_id is registered in the exam table
     cursor.execute("""SELECT exam_id FROM Exam""")
 
     exams = [exam[0] for exam in cursor.fetchall()]
     if exam_id not in exams:
-        print(f"Invalid exam_id.")
-        return
-    
+        return "Invalid exam_id."
+        
     # check if the exam student username is registered in the user table
     cursor.execute("""
     SELECT UR.user_name
@@ -1498,9 +1649,8 @@ def insert_user_exam(exam_id, user_name, score, total_questions, correct_answers
 
     students = [student[0] for student in cursor.fetchall()]
     if user_name not in students:
-        print("Invalid student username.")
-        return
-
+        return "Invalid student username."
+        
     sql = """ INSERT INTO User_Exam (exam_id, user_name, score, total_questions, correct_answers,
                     wrong_answers, unanswered_questions, is_passed) VALUES 
                     (?, ?, ?, ?, ?, ?, ?, ?)"""
@@ -1510,7 +1660,55 @@ def insert_user_exam(exam_id, user_name, score, total_questions, correct_answers
     connection.commit()
     cursor.close()
     connection.close()
-    print("User exam info inserted in the User_Exam table successfully.")
+    return "User exam info inserted successfully."
+
+def delete_user_exam(exam_id, user_name):
+    # the relative file path
+    path = '..\data\Exam_App.db'
+    # get the path to the directory this script is in
+    scriptdir = os.path.dirname(__file__)
+    # add the relative path to the database file from there
+    db_path = os.path.join(scriptdir, path)
+    # make sure the path exists and if not create it
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    connection=sqlite3.connect(db_path)
+    cursor=connection.cursor()
+
+    # Perform data validation
+    if not is_exam_id(exam_id):
+        return "Invalid exam ID format."
+        
+    if not is_username(user_name):
+        return "Invalid username format."
+        
+    # check if the exam_id is registered in the exam table
+    cursor.execute("""SELECT exam_id FROM Exam""")
+
+    exams = [exam[0] for exam in cursor.fetchall()]
+    if exam_id not in exams:
+        return f"Invalid exam_id."
+        
+    # check if the exam student username is registered in the user table
+    cursor.execute("""
+    SELECT UR.user_name
+    FROM User U
+    JOIN User_Role UR
+    ON U.user_name = UR.user_name
+    Where role_name = 'Student'""")
+
+    students = [student[0] for student in cursor.fetchall()]
+    if user_name not in students:
+        return "Invalid student username."
+        
+    sql = """ DELETE FROM User_Exam
+              WHERE exam_id = ? AND user_name = ?"""
+    cursor.execute(sql, (exam_id, user_name))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return "User exam info deleted successfully."
 #------------------------------------------- I-12- Answer table ---------------------------------------------#
 # 12-1- exam_id must meet is_exam_id rules and already exists in Exam table
 # 12-2- user_name must meet is_user_name rules and already exists in User table

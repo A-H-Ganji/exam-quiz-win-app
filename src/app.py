@@ -4,9 +4,11 @@ from PIL import Image, ImageTk
 import os
 from tkinter import messagebox, filedialog
 from db1 import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from csv import writer
 import shutil
+from tkcalendar import Calendar
+import random
 
 class LoginPage(tk.Tk):
     def __init__(self):
@@ -4229,16 +4231,13 @@ class UserPanel(tk.Toplevel):
         self.notebook.add(self.question_creators_question_tab, text='Questions & Options')
         self.create_question_creators_question_widgets(self.question_creators_question_tab)
         # Bind the load_creator_questions method to the event of opening the tab
-        self.question_creators_question_tab.bind("<Visibility>", self.on_tab_opened)
+        self.question_creators_question_tab.bind("<Visibility>", self.questions_on_tab_opened)
 
         self.question_creators_help_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.question_creators_help_tab, text='Help')
         self.create_question_creators_help_widgets(self.question_creators_help_tab)
     
     def create_question_creators_question_widgets(self, question_creators_question_tab):
-        # question_id, topic, subtopic, text, image, difficulty, type, points, creator_user_name
-        # option_id, question_id, text, image, is_correct_answer
-
         # Create a frame for Qustion info
         self.question_info_frame = tk.Frame(question_creators_question_tab)
         self.question_info_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.W)
@@ -4498,7 +4497,7 @@ class UserPanel(tk.Toplevel):
         
         self.questions_table.configure(yscrollcommand=self.questions_table_y_scrollbar.set)
         # Bind the function to the Treeview's selection event
-        self.questions_table.bind('<<TreeviewSelect>>', self.on_treeview_select)
+        self.questions_table.bind('<<TreeviewSelect>>', self.questions_on_treeview_select)
 
         s = ttk.Style(self.questions_table_frame)
         s.theme_use("winnative")
@@ -4971,11 +4970,11 @@ class UserPanel(tk.Toplevel):
         for row in data:
             self.questions_table.insert("", "end", values=row)
 
-    def on_tab_opened(self, event):
+    def questions_on_tab_opened(self, event):
         # Load questions when the tab is opened
         self.load_creator_questions()
 
-    def on_treeview_select(self, event):
+    def questions_on_treeview_select(self, event):
         # Reset fields
         self.reset_question_fields()
         
@@ -5244,6 +5243,1227 @@ class UserPanel(tk.Toplevel):
         community_info = tk.Label(question_creators_question_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
         community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
 
+    def add_exam_creator_tabs(self):
+        # Add tabs for different functionalities
+        self.exam_creators_exam_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_creators_exam_tab, text='Exam')
+        self.create_exam_creators_exam_widgets(self.exam_creators_exam_tab)
+        # Bind the load_creator_exams method to the event of opening the tab
+        self.exam_creators_exam_tab.bind("<Visibility>", self.exams_on_tab_opened)
+
+        self.exam_creators_exam_questions_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_creators_exam_questions_tab, text='Exam Questions')
+        self.create_exam_creators_exam_questions_widgets(self.exam_creators_exam_questions_tab)
+        # Bind the load_exam_question_stats method to the event of opening the tab
+        self.exam_creators_exam_questions_tab.bind("<Visibility>", self.exam_question_stats_on_tab_opened)
+
+        self.exam_creators_exam_students_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_creators_exam_students_tab, text='Exam Students')
+        self.create_exam_creators_exam_students_widgets(self.exam_creators_exam_students_tab)
+        # Bind the load_exam_student_stats method to the event of opening the tab
+        self.exam_creators_exam_students_tab.bind("<Visibility>", self.exam_student_stats_on_tab_opened)
+
+        self.exam_creators_help_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_creators_help_tab, text='Help')
+        self.create_exam_creators_help_widgets(self.exam_creators_help_tab)
+    
+    def create_exam_creators_exam_widgets(self, exam_creators_exam_tab):
+        # Create a frame for Exam info (upper frame)
+        self.exam_info_upper_frame = tk.Frame(exam_creators_exam_tab)
+        self.exam_info_upper_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create fields and labels for question
+        # Exam ID
+
+        # id generate image 
+        path = "..\images\idgen.png"
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the file from there
+        image_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        self.idgen_image = Image.open(image_path)
+        self.idgen_icon = ImageTk.PhotoImage(self.idgen_image)
+
+        self.exam_id_label = tk.Label(self.exam_info_upper_frame, text="Exam ID:")
+        self.exam_id_label.grid(row=0, column=0, padx=(2,0), pady=2, sticky=tk.W)
+        self.exam_id_var = tk.StringVar()
+        self.exam_id_var.set("")
+        self.exam_id_value_label = tk.Label(self.exam_info_upper_frame, textvariable=self.exam_id_var, text="", width=10)
+        self.exam_id_value_label.grid(row=0, column=1, padx=2, pady=2)
+        self.generate_id_button = tk.Button(self.exam_info_upper_frame, image=self.idgen_icon, cursor="hand2", command=self.generate_exam_id, width=20, height=20)
+        self.generate_id_button.grid(row=0, column=2, padx=2, pady=2)
+
+        # Exam name
+        self.exam_name_label = tk.Label(self.exam_info_upper_frame, text="Exam Name:")
+        self.exam_name_label.grid(row=0, column=3, padx=(20,0), pady=2, sticky=tk.W)
+        self.exam_name_entry = tk.Entry(self.exam_info_upper_frame, width=30)
+        self.exam_name_entry.grid(row=0, column=4, padx=2, pady=2)
+
+        # Has negative score
+        self.has_negative_score_var = tk.IntVar(value=0) # Default unchecked
+        self.has_negative_score = tk.Checkbutton(self.exam_info_upper_frame, text="Has Negative Score?", variable=self.has_negative_score_var)
+        self.has_negative_score.grid(row=0, column=5, padx=(20,0), pady=2, sticky=tk.W)
+
+        # passing score
+        self.passing_score_label = tk.Label(self.exam_info_upper_frame, text="Passing Score:")
+        self.passing_score_label.grid(row=0, column=6, padx=(20,0), pady=2, sticky=tk.W)
+        self.passing_score_entry = tk.Entry(self.exam_info_upper_frame, width=10)
+        self.passing_score_entry.grid(row=0, column=7, padx=2, pady=2)
+
+        # duration
+        self.duration_label = tk.Label(self.exam_info_upper_frame, text="Duration(min):")
+        self.duration_label.grid(row=0, column=8, padx=(20,0), pady=2, sticky=tk.W)
+        self.duration_entry = tk.Entry(self.exam_info_upper_frame, width=10)
+        self.duration_entry.grid(row=0, column=9, padx=2, pady=2)
+
+        # Create a frame for Exam info (lower frame)
+        self.exam_info_lower_frame = tk.Frame(exam_creators_exam_tab)
+        self.exam_info_lower_frame.grid(row=1, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create a labeled frame for Exam date & time info
+        self.exam_datetime_frame = tk.LabelFrame(self.exam_info_lower_frame, text="Exam Date & Time")
+        self.exam_datetime_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+        
+        # Date
+        self.exam_date_label = tk.Label(self.exam_datetime_frame, text="Exam Date:")
+        self.exam_date_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.year_combo = ttk.Combobox(self.exam_datetime_frame, width=10, values=list(range(1900, 2101)))
+        self.year_combo.grid(row=0, column=1, padx=2, pady=2)
+        self.year_combo.set(datetime.now().year)
+        self.year_combo.bind("<<ComboboxSelected>>", self.update_calendar)
+
+        month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        self.month_combo = ttk.Combobox(self.exam_datetime_frame, width=10, values=[f"{i} ({month_names[i-1]})" for i in range(1, 13)])
+        self.month_combo.grid(row=0, column=2, padx=2, pady=2)
+        self.month_combo.set(datetime.now().month)
+        self.month_combo.bind("<<ComboboxSelected>>", self.update_calendar)
+
+        self.day_combo = ttk.Combobox(self.exam_datetime_frame, width=10, values=list(range(1, 32)))
+        self.day_combo.grid(row=0, column=3, padx=2, pady=2)
+        self.day_combo.set(datetime.now().day)
+        self.day_combo.bind("<<ComboboxSelected>>", self.update_calendar)
+
+        # Graphical calendar
+        self.cal_frame = ttk.Frame(self.exam_datetime_frame)
+        self.cal_frame.grid(row=1, column=0, columnspan=4, padx=2, pady=2)
+
+        self.cal = Calendar(self.cal_frame, selectmode='day', date_pattern='yyyy-mm-dd', cursor="hand1")
+        self.cal.grid(row=0, column=0, padx=2, pady=2)
+        self.cal.bind("<<CalendarSelected>>", self.update_combo_boxes)
+
+        # Time
+        self.start_time_label = tk.Label(self.exam_datetime_frame, text="Exam Time:")
+        self.start_time_label.grid(row=2, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.hour_combo = ttk.Combobox(self.exam_datetime_frame, width=10, values=list(range(24)))
+        self.hour_combo.grid(row=2, column=1, padx=2, pady=2)
+        self.hour_combo.set(datetime.now().hour)
+
+        self.minute_combo = ttk.Combobox(self.exam_datetime_frame, width=10, values=list(range(60)))
+        self.minute_combo.grid(row=2, column=2, padx=2, pady=2)
+        self.minute_combo.set(datetime.now().minute)
+
+        self.second_combo = ttk.Combobox(self.exam_datetime_frame, width=10, values=list(range(60)))
+        self.second_combo.grid(row=2, column=3, padx=2, pady=2)
+        self.second_combo.set(datetime.now().second)
+
+        # Create a labeled frame for Exam operators info
+        self.exam_operators_frame = tk.LabelFrame(self.exam_info_lower_frame, text="Exam Operators")
+        self.exam_operators_frame.grid(row=0, column=1, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Fetch exam handlers and supervisors data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT UR.user_name
+                        FROM User U
+                        JOIN User_Role UR 
+                        ON U.user_name = UR.user_name
+                        WHERE role_name = 'Exam_Handler'""")
+        exam_handler_users = [eh[0] for eh in cursor.fetchall()]
+
+        cursor.execute("""SELECT UR.user_name
+                        FROM User U
+                        JOIN User_Role UR 
+                        ON U.user_name = UR.user_name
+                        WHERE role_name = 'Exam_Supervisor'""")
+        exam_supervisor_users = [es[0] for es in cursor.fetchall()]
+        connection.close()
+
+        # Exam handler
+        self.exam_handler_label = tk.Label(self.exam_operators_frame, text="Exam Handler User:")
+        self.exam_handler_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.exam_handler_combo = ttk.Combobox(self.exam_operators_frame, width=20, values=exam_handler_users)
+        self.exam_handler_combo.grid(row=0, column=1, padx=2, pady=2)
+        self.exam_handler_combo.set(exam_handler_users[0])
+
+        # Exam supervisor
+        self.exam_supervisor_label = tk.Label(self.exam_operators_frame, text="Exam Supervisor User:")
+        self.exam_supervisor_label.grid(row=1, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.exam_supervisor_combo = ttk.Combobox(self.exam_operators_frame, width=20, values=exam_supervisor_users)
+        self.exam_supervisor_combo.grid(row=1, column=1, padx=2, pady=2)
+        self.exam_supervisor_combo.set(exam_supervisor_users[0])
+
+        # Create a frame for exam buttons
+        self.exam_buttons_frame = tk.Frame(self.exam_info_lower_frame)
+        self.exam_buttons_frame.grid(row=0, column=2, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Configure columns to expand equally
+        self.exam_buttons_frame.columnconfigure(0, weight=1)
+        self.exam_buttons_frame.columnconfigure(1, weight=1)
+        self.exam_buttons_frame.columnconfigure(2, weight=1)
+        self.exam_buttons_frame.columnconfigure(3, weight=1)
+
+        self.insert_exam_button = tk.Button(self.exam_buttons_frame, text="Insert Exam", command=self.gui_insert_exam, width=20)
+        self.insert_exam_button.grid(row=0, column=0, padx=20, pady=20, sticky=tk.E)
+
+        self.update_exam_button = tk.Button(self.exam_buttons_frame, text="Update Exam", command=self.gui_update_exam, width=20)
+        self.update_exam_button.grid(row=1, column=0, padx=20, pady=20)
+
+        self.delete_exam_button = tk.Button(self.exam_buttons_frame, text="Delete Exam", command=self.gui_delete_exam, width=20)
+        self.delete_exam_button.grid(row=2, column=0, padx=20, pady=20)
+
+        self.reset_exam_fields_button = tk.Button(self.exam_buttons_frame, text="Reset Exam", command=self.reset_exam_fields, width=20)
+        self.reset_exam_fields_button.grid(row=3, column=0, padx=20, pady=20, sticky=tk.W)
+
+        # Create a frame for table containing exam data
+        self.exams_table_frame = tk.Frame(exam_creators_exam_tab)
+        self.exams_table_frame.grid(row=2, column=0, sticky=tk.NSEW)
+
+        # Create the table containing the questions created by this exam creator
+        columns = ("exam_id", "exam_name", "exam_date", "start_time", "duration", "creation_date", "creation_time", "has_negative_score", \
+                    "passing_score", "handler_user_name", "supervisor_user_name")
+        self.exams_table = ttk.Treeview(self.exams_table_frame, column=columns, show='headings', selectmode="browse")
+        self.exams_table.heading("#1", text="exam_id",anchor=tk.W)
+        self.exams_table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#2", text="exam_name", anchor=tk.W)
+        self.exams_table.column("#2", stretch=tk.NO, width = 150, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#3", text="exam_date", anchor=tk.W)
+        self.exams_table.column("#3", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#4", text="start_time",anchor=tk.W)
+        self.exams_table.column("#4", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#5", text="duration", anchor=tk.W)
+        self.exams_table.column("#5", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#6", text="creation_date", anchor=tk.W)
+        self.exams_table.column("#6", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#7", text="creation_time",anchor=tk.W)
+        self.exams_table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#8", text="has_negative_score", anchor=tk.W)
+        self.exams_table.column("#8", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#9", text="passing_score", anchor=tk.W)
+        self.exams_table.column("#9", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#10", text="handler_user_name",anchor=tk.W)
+        self.exams_table.column("#10", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.exams_table.heading("#11", text="supervisor_user_name", anchor=tk.W)
+        self.exams_table.column("#11", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+
+        self.exams_table.grid(row=0, column=0, sticky="nsew")
+
+        self.exams_table_y_scrollbar = ttk.Scrollbar(self.exams_table_frame, orient="vertical", command=self.exams_table.yview)
+        self.exams_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.exams_table.configure(yscrollcommand=self.exams_table_y_scrollbar.set)
+        # Bind the function to the Treeview's selection event
+        self.exams_table.bind('<<TreeviewSelect>>', self.exams_on_treeview_select)
+
+        s = ttk.Style(self.exams_table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+    def generate_exam_id(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT exam_id
+                       FROM Exam
+                       ORDER BY creation_date DESC, creation_time DESC
+                       LIMIT 1""")
+        prev_last_exam_id = cursor.fetchone()[0]
+        connection.close()
+        # Add one to the exam id number and set the exam_id
+        new_exam_id = f"Ex{(int(prev_last_exam_id[2:]) + 1)}"
+        self.exam_id_var.set(new_exam_id)
+
+    def update_calendar(self, event=None):
+        selected_date = f"{self.year_combo.get()}-{self.month_combo.get().split()[0].zfill(2)}-{self.day_combo.get().zfill(2)}"
+        self.cal.selection_set(selected_date)
+    
+    def update_combo_boxes(self, event=None):
+        selected_date = self.cal.get_date().split('-')
+        self.year_combo.set(selected_date[0])
+        self.month_combo.set(selected_date[1])
+        self.day_combo.set(selected_date[2])
+
+    def gui_insert_exam(self):
+        exam_id = self.exam_id_var.get()
+        exam_name = self.exam_name_entry.get()
+        has_negative_score = int(self.has_negative_score_var.get())
+        passing_score = int(self.passing_score_entry.get()) if self.passing_score_entry.get() else None
+        duration = int(self.duration_entry.get()) if self.duration_entry.get() else None
+        exam_date = f"{self.year_combo.get()}/{self.month_combo.get().split()[0].zfill(2)}/{self.day_combo.get().zfill(2)}"
+        start_time = f"{self.hour_combo.get().zfill(2)}:{self.minute_combo.get().zfill(2)}:{self.second_combo.get().zfill(2)}"
+        handler_user_name = self.exam_handler_combo.get()
+        supervisor_user_name = self.exam_supervisor_combo.get()
+        creator_user_name = self.username
+
+        # Convert exam_date and start_time to datetime objects
+        exam_datetime = datetime.strptime(f"{exam_date} {start_time}", "%Y/%m/%d %H:%M:%S")
+        # Get tomorrow's date
+        tomorrow = datetime.now() + timedelta(days=1)
+
+        # Validate fields
+        if not (exam_id and exam_name and passing_score and duration and type and exam_date and start_time and handler_user_name and supervisor_user_name):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        if exam_datetime < tomorrow:
+            messagebox.showwarning("Invalid Exam Date & Time", "Exam datetime must be at least tomorrow.")
+            return
+        elif not (isinstance(duration, int) and duration > 0):
+            messagebox.showwarning("Invalid Exam Duration", "Exam duration must be a positive integer.")
+            return
+        elif not (isinstance(passing_score, int) and 0 < passing_score < 100):
+            messagebox.showwarning("Invalid Exam Passing Score", "Exam passing score must be a positive integer between 0 and 100.")
+            return
+
+        # Call insert_exam function from db1.py
+        exam_insert_msg = insert_exam(exam_id, exam_name, exam_date, start_time, duration, has_negative_score, \
+                                    passing_score, handler_user_name, supervisor_user_name, creator_user_name)
+        messagebox.showinfo("Exam Insert", exam_insert_msg)
+        
+        # Reset/clear fields
+        self.reset_exam_fields()
+        # reload the question table data
+        self.load_creator_exams()
+    
+    def load_creator_exams(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
+                                 has_negative_score, passing_score, handler_user_name, supervisor_user_name
+                       FROM Exam
+                       WHERE creator_user_name = ?""", (self.username, ))
+        data = cursor.fetchall()
+        connection.close()
+
+        # Clear previous data in the table
+        self.exams_table.delete(*self.exams_table.get_children())
+
+        # Insert new data rows
+        for row in data:
+            self.exams_table.insert("", "end", values=row)
+
+    def exams_on_tab_opened(self, event):
+        # Load exams when the tab is opened
+        self.load_creator_exams()
+
+    def gui_update_exam(self):
+        exam_id = self.exam_id_var.get()
+        exam_name = self.exam_name_entry.get()
+        has_negative_score = int(self.has_negative_score_var.get())
+        passing_score = int(self.passing_score_entry.get()) if self.passing_score_entry.get() else None
+        duration = int(self.duration_entry.get()) if self.duration_entry.get() else None
+        exam_date = f"{self.year_combo.get()}/{self.month_combo.get().split()[0].zfill(2)}/{self.day_combo.get().zfill(2)}"
+        start_time = f"{self.hour_combo.get().zfill(2)}:{self.minute_combo.get().zfill(2)}:{self.second_combo.get().zfill(2)}"
+        handler_user_name = self.exam_handler_combo.get()
+        supervisor_user_name = self.exam_supervisor_combo.get()
+
+        # Convert exam_date and start_time to datetime objects
+        exam_datetime = datetime.strptime(f"{exam_date} {start_time}", "%Y/%m/%d %H:%M:%S")
+        # Get tomorrow's date
+        tomorrow = datetime.now() + timedelta(days=1)
+
+        # Validate fields
+        if not (exam_id and exam_name and passing_score and duration and type and exam_date and start_time and handler_user_name and supervisor_user_name):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        if exam_datetime < tomorrow:
+            messagebox.showwarning("Invalid Exam Date & Time", "Exam datetime must be at least tomorrow.")
+            return
+        elif not (isinstance(duration, int) and duration > 0):
+            messagebox.showwarning("Invalid Exam Duration", "Exam duration must be a positive integer.")
+            return
+        elif not (isinstance(passing_score, int) and 0 < passing_score < 100):
+            messagebox.showwarning("Invalid Exam Passing Score", "Exam passing score must be a positive integer between 0 and 100.")
+            return
+
+        # Call update_exam function from db1.py
+        exam_update_msg = update_exam(exam_id, exam_name, exam_date, start_time, duration, has_negative_score, \
+                                    passing_score, handler_user_name, supervisor_user_name)
+        messagebox.showinfo("Exam Update", exam_update_msg)
+
+        # Reset/clear fields
+        self.reset_exam_fields()
+        # reload the question table data
+        self.load_creator_exams()
+
+    def gui_delete_exam(self):
+        exam_id = self.exam_id_var.get()
+
+        # Validate fields
+        if not exam_id:
+            messagebox.showwarning("Incomplete Information", "Please fill exam_id to delete.")
+            return
+
+        # Call delete_exam function from db1.py
+        exam_delete_msg = delete_exam(exam_id)
+        messagebox.showinfo("Exam Delete", exam_delete_msg)
+
+        # Reset/clear fields
+        self.reset_exam_fields()
+        # reload the question table data
+        self.load_creator_exams()
+
+    def exams_on_treeview_select(self, event):
+        # Reset fields
+        self.reset_exam_fields()
+        
+        # Get the selected item
+        selected_item = self.exams_table.selection()
+        
+        if selected_item:
+            # Get the values of the selected item
+            values = self.exams_table.item(selected_item, 'values')
+
+            # Replace None values with empty strings
+            values = ["" if value is None else value for value in values]
+
+            # Set the values of the exam-related fields
+            self.exam_id_var.set(values[0])
+            self.exam_name_entry.delete(0, tk.END)
+            self.exam_name_entry.insert(0, values[1])
+            self.year_combo.set(values[2].split("/")[0])
+            self.month_combo.set(values[2].split("/")[1])
+            self.day_combo.set(values[2].split("/")[2])
+            self.hour_combo.set(values[3].split(":")[0])
+            self.minute_combo.set(values[3].split(":")[1])
+            self.second_combo.set(values[3].split(":")[2])
+            self.duration_entry.delete(0, tk.END)
+            self.duration_entry.insert(0, values[4])
+            self.has_negative_score_var.set(1) if values[7] == "1" else self.has_negative_score_var.set(0)
+            self.passing_score_entry.delete(0, tk.END)
+            self.passing_score_entry.insert(0, values[8])
+            self.exam_handler_combo.set(values[9])
+            self.exam_supervisor_combo.set(values[10])
+            # Update calendar
+            selected_date = f"{values[2].split('/')[0]}-{values[2].split('/')[1].split()[0].zfill(2)}-{values[2].split('/')[2].zfill(2)}"
+            self.cal.selection_set(selected_date)
+
+    def reset_exam_fields(self):
+        # Clear Question ID field
+        self.exam_id_var.set("")
+        # Clear exam name field
+        self.exam_name_entry.delete(0, tk.END)
+        # Clear has negative score checkbuttons
+        self.has_negative_score_var.set(0)
+        # Clear passing score field
+        self.passing_score_entry.delete(0, tk.END)
+        # Clear duration field
+        self.duration_entry.delete(0, tk.END)
+        # Reset time comboboxes
+        self.hour_combo.set(datetime.now().hour)
+        self.minute_combo.set(datetime.now().minute)
+        self.second_combo.set(datetime.now().second)
+        # Reset date comboboxes
+        self.year_combo.set(datetime.now().year)
+        self.month_combo.set(datetime.now().month)
+        self.day_combo.set(datetime.now().day)
+
+    def create_exam_creators_exam_questions_widgets(self, exam_creators_exam_questions_tab):
+        # Create a left fram for Exam-questions info
+        self.exam_question_left_frame = tk.Frame(exam_creators_exam_questions_tab)
+        self.exam_question_left_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+        
+        # Create a frame for Exam info
+        self.exam_question_frame1 = tk.Frame(self.exam_question_left_frame)
+        self.exam_question_frame1.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Fetch exam handlers and supervisors data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT exam_id
+                        FROM Exam
+                        WHERE creator_user_name = ?
+                        ORDER BY exam_id""", (self.username, ))
+        exam_ids = [e[0] for e in cursor.fetchall()]
+
+        cursor.execute("""SELECT DISTINCT topic FROM Question WHERE topic IS NOT NULL""")
+        topics = [t[0] for t in cursor.fetchall()]
+
+        cursor.execute("""SELECT DISTINCT subtopic FROM Question WHERE subtopic IS NOT NULL""")
+        subtopics = [st[0] for st in cursor.fetchall()]
+
+        connection.close()
+
+        # Exam ID
+        self.exam_id_label = tk.Label(self.exam_question_frame1, text="Exam ID:")
+        self.exam_id_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.exam_id_combo = ttk.Combobox(self.exam_question_frame1, width=10, values=exam_ids)
+        self.exam_id_combo.grid(row=0, column=1, padx=2, pady=2)
+        self.exam_id_combo.set(exam_ids[-1])
+        self.exam_id_combo.bind("<<ComboboxSelected>>", self.update_exam_question_stats)
+
+        # Total Questions
+        self.exam_total_questions_label = tk.Label(self.exam_question_frame1, text="Total Questions:")
+        self.exam_total_questions_label.grid(row=0, column=2, padx=(20,0), pady=2, sticky=tk.W)
+        
+        self.exam_total_questions_var = tk.StringVar()
+        self.exam_total_questions_var.set("0")
+        self.exam_total_questions_value_label = tk.Label(self.exam_question_frame1, textvariable=self.exam_total_questions_var)
+        self.exam_total_questions_value_label.grid(row=0, column=3, padx=2, pady=2, sticky=tk.W)
+
+        # Total Points
+        self.exam_total_points_label = tk.Label(self.exam_question_frame1, text="Total Points:")
+        self.exam_total_points_label.grid(row=0, column=3, padx=(20,0), pady=2, sticky=tk.W)
+
+        self.exam_total_points_var = tk.StringVar()
+        self.exam_total_points_var.set("0")
+        self.exam_total_points_value_label = tk.Label(self.exam_question_frame1, textvariable=self.exam_total_points_var)
+        self.exam_total_points_value_label.grid(row=0, column=4, padx=2, pady=2, sticky=tk.W)
+
+        # Create a labeled frame for Exam questions type stats
+        self.exam_question_frame2 = tk.LabelFrame(self.exam_question_left_frame, text="Exam Questions Type Stats")
+        self.exam_question_frame2.grid(row=1, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        self.multiple_choice_count_var = tk.StringVar()
+        self.multiple_choice_count_var.set("0")
+        self.multiple_choice_pct_var = tk.StringVar()
+        self.multiple_choice_pct_var.set("0%")
+        self.multiple_choice_label = tk.Label(self.exam_question_frame2, text="Multiple choice:")
+        self.multiple_choice_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+        self.multiple_choice_count_label = tk.Label(self.exam_question_frame2, textvariable=self.multiple_choice_count_var)
+        self.multiple_choice_count_label.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+        self.multiple_choice_pct_label = tk.Label(self.exam_question_frame2, textvariable=self.multiple_choice_pct_var)
+        self.multiple_choice_pct_label.grid(row=0, column=2, padx=2, pady=2, sticky=tk.W)
+
+        self.true_false_count_var = tk.StringVar()
+        self.true_false_count_var.set("0")
+        self.true_false_pct_var = tk.StringVar()
+        self.true_false_pct_var.set("0%")
+        self.true_false_label = tk.Label(self.exam_question_frame2, text="True/False:")
+        self.true_false_label.grid(row=0, column=3, padx=(20, 0), pady=2, sticky=tk.W)
+        self.true_false_count_label = tk.Label(self.exam_question_frame2, textvariable=self.true_false_count_var)
+        self.true_false_count_label.grid(row=0, column=4, padx=2, pady=2, sticky=tk.W)
+        self.true_false_pct_label = tk.Label(self.exam_question_frame2, textvariable=self.true_false_pct_var)
+        self.true_false_pct_label.grid(row=0, column=5, padx=2, pady=2, sticky=tk.W)
+
+        self.descriptive_practical_count_var = tk.StringVar()
+        self.descriptive_practical_count_var.set("0")
+        self.descriptive_practical_pct_var = tk.StringVar()
+        self.descriptive_practical_pct_var.set("0%")
+        self.descriptive_practical_label = tk.Label(self.exam_question_frame2, text="Descriptive/Practical:")
+        self.descriptive_practical_label.grid(row=0, column=6, padx=(20, 0), pady=2, sticky=tk.W)
+        self.descriptive_practical_count_label = tk.Label(self.exam_question_frame2, textvariable=self.descriptive_practical_count_var)
+        self.descriptive_practical_count_label.grid(row=0, column=7, padx=2, pady=2, sticky=tk.W)
+        self.descriptive_practical_pct_label = tk.Label(self.exam_question_frame2, textvariable=self.descriptive_practical_pct_var)
+        self.descriptive_practical_pct_label.grid(row=0, column=8, padx=2, pady=2, sticky=tk.W)
+
+        # Create a labeled frame for Exam questions difficulty stats
+        self.exam_question_frame3 = tk.LabelFrame(self.exam_question_left_frame, text="Exam Questions Type Stats")
+        self.exam_question_frame3.grid(row=2, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        self.easy_count_var = tk.StringVar()
+        self.easy_count_var.set("0")
+        self.easy_pct_var = tk.StringVar()
+        self.easy_pct_var.set("0%")
+        self.easy_label = tk.Label(self.exam_question_frame3, text="Easy:")
+        self.easy_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+        self.easy_count_label = tk.Label(self.exam_question_frame3, textvariable=self.easy_count_var)
+        self.easy_count_label.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+        self.easy_pct_label = tk.Label(self.exam_question_frame3, textvariable=self.easy_pct_var)
+        self.easy_pct_label.grid(row=0, column=2, padx=2, pady=2, sticky=tk.W)
+
+        self.normal_count_var = tk.StringVar()
+        self.normal_count_var.set("0")
+        self.normal_pct_var = tk.StringVar()
+        self.normal_pct_var.set("0%")
+        self.normal_label = tk.Label(self.exam_question_frame3, text="Normal:")
+        self.normal_label.grid(row=0, column=3, padx=(20, 0), pady=2, sticky=tk.W)
+        self.normal_count_label = tk.Label(self.exam_question_frame3, textvariable=self.normal_count_var)
+        self.normal_count_label.grid(row=0, column=4, padx=2, pady=2, sticky=tk.W)
+        self.normal_pct_label = tk.Label(self.exam_question_frame3, textvariable=self.normal_pct_var)
+        self.normal_pct_label.grid(row=0, column=5, padx=2, pady=2, sticky=tk.W)
+
+        self.hard_count_var = tk.StringVar()
+        self.hard_count_var.set("0")
+        self.hard_pct_var = tk.StringVar()
+        self.hard_pct_var.set("0%")
+        self.hard_label = tk.Label(self.exam_question_frame3, text="Hard:")
+        self.hard_label.grid(row=0, column=6, padx=(20, 0), pady=2, sticky=tk.W)
+        self.hard_count_label = tk.Label(self.exam_question_frame3, textvariable=self.hard_count_var)
+        self.hard_count_label.grid(row=0, column=7, padx=2, pady=2, sticky=tk.W)
+        self.hard_pct_label = tk.Label(self.exam_question_frame3, textvariable=self.hard_pct_var)
+        self.hard_pct_label.grid(row=0, column=8, padx=2, pady=2, sticky=tk.W)
+
+        # Create a labeled frame for Exam questions filtering and selection
+        self.exam_question_frame4 = tk.LabelFrame(self.exam_question_left_frame, text="Exam Questions Selection by Filtering")
+        self.exam_question_frame4.grid(row=3, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Type
+        self.type_label = tk.Label(self.exam_question_frame4, text="Type:")
+        self.type_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+        self.type_combo = ttk.Combobox(self.exam_question_frame4, values=('Multiple choice', 'True/False', 'Descriptive/Practical'), width=30)
+        self.type_combo.grid(row=0, column=1, padx=2, pady=2)
+
+        # Difficulty
+        self.difficulty_label = tk.Label(self.exam_question_frame4, text="Difficulty:")
+        self.difficulty_label.grid(row=0, column=2, padx=(20,0), pady=2, sticky=tk.W)
+        self.difficulty_combo = ttk.Combobox(self.exam_question_frame4, values=('Easy', 'Normal', 'Hard'), width=30)
+        self.difficulty_combo.grid(row=0, column=3, padx=2, pady=2)
+
+        # How Many
+        self.how_many_label = tk.Label(self.exam_question_frame4, text="How Many?:")
+        self.how_many_label.grid(row=0, column=4, padx=(20,0), pady=2, sticky=tk.W)
+        self.how_many_entry = tk.Entry(self.exam_question_frame4, width=10)
+        self.how_many_entry.grid(row=0, column=5, padx=2, pady=2)
+
+        # Topic
+        self.topic_label = tk.Label(self.exam_question_frame4, text="Topic:")
+        self.topic_label.grid(row=1, column=0, padx=2, pady=2, sticky=tk.W)
+        self.topic_combo = ttk.Combobox(self.exam_question_frame4, values=topics, width=30)
+        self.topic_combo.grid(row=1, column=1, padx=2, pady=2)
+
+        # Subtopic
+        self.subtopic_label = tk.Label(self.exam_question_frame4, text="Subtopic:")
+        self.subtopic_label.grid(row=1, column=2, padx=(20,0), pady=2, sticky=tk.W)
+        self.subtopic_combo = ttk.Combobox(self.exam_question_frame4, values=subtopics, width=30)
+        self.subtopic_combo.grid(row=1, column=3, padx=2, pady=2)
+
+        # Pick random questions button
+        self.pick_random_questions_button = tk.Button(self.exam_question_frame4, text="Pick Random Questions", cursor="hand2", command=self.pick_random_questions, width=30)
+        self.pick_random_questions_button.grid(row=1, column=4, padx=20, columnspan=3, pady=2)
+
+        # Create a frame for table containing data
+        self.random_questions_table_frame = tk.Frame(self.exam_question_frame4)
+        self.random_questions_table_frame.grid(row=2, column=0, columnspan=6, sticky=tk.NSEW)
+
+        # Create the table containing the randomly picked questions
+        columns = ("question_id", "topic", "subtopic", "text","difficulty", "type", "points")
+        self.random_questions_table = ttk.Treeview(self.random_questions_table_frame, column=columns, show='headings', selectmode="browse")
+        self.random_questions_table.heading("#1", text="question_id",anchor=tk.W)
+        self.random_questions_table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.random_questions_table.heading("#2", text="topic", anchor=tk.W)
+        self.random_questions_table.column("#2", stretch=tk.NO, width = 150, minwidth=50, anchor=tk.W)
+        self.random_questions_table.heading("#3", text="subtopic", anchor=tk.W)
+        self.random_questions_table.column("#3", stretch=tk.NO, width = 150, minwidth=50, anchor=tk.W)
+        self.random_questions_table.heading("#4", text="text",anchor=tk.W)
+        self.random_questions_table.column("#4", stretch=tk.NO, width = 250, minwidth=50, anchor=tk.W)
+        self.random_questions_table.heading("#5", text="difficulty", anchor=tk.W)
+        self.random_questions_table.column("#5", stretch=tk.NO, width = 60, minwidth=50, anchor=tk.W)
+        self.random_questions_table.heading("#6", text="type", anchor=tk.W)
+        self.random_questions_table.column("#6", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.random_questions_table.heading("#7", text="points",anchor=tk.W)
+        self.random_questions_table.column("#7", stretch=tk.NO, width = 50, minwidth=50, anchor=tk.W)
+
+        self.random_questions_table.grid(row=0, column=0, sticky="nsew")
+
+        self.random_questions_table_y_scrollbar = ttk.Scrollbar(self.random_questions_table_frame, orient="vertical", command=self.random_questions_table.yview)
+        self.random_questions_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.random_questions_table.configure(yscrollcommand=self.random_questions_table_y_scrollbar.set)
+
+        s = ttk.Style(self.random_questions_table_frame)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Create a frame for adding the questions to exam
+        self.add_exam_questions_frame = tk.Frame(self.exam_question_frame4)
+        self.add_exam_questions_frame.grid(row=3, column=0, columnspan=6, sticky=tk.NSEW)
+
+        self.add_exam_questions_button = tk.Button(self.add_exam_questions_frame, text="Add Exam Questions", cursor="hand2", command=self.add_exam_questions)
+        self.add_exam_questions_button.grid(row=0, column=0, padx=100, pady=2)
+
+        self.reset_question_selection_button = tk.Button(self.add_exam_questions_frame, text="Reset Question Selection", cursor="hand2", command=self.reset_question_selection)
+        self.reset_question_selection_button.grid(row=0, column=1, padx=100, pady=2)
+
+        # Create a right frame for exam question ids info
+        self.exam_question_right_frame = tk.LabelFrame(exam_creators_exam_questions_tab, text="Exam Questions")
+        self.exam_question_right_frame.grid(row=0, column=1, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create the table containing the exam question ids
+        columns = ("question_id")
+        self.exam_questions_table = ttk.Treeview(self.exam_question_right_frame, column=columns, show='headings', selectmode="browse", height=20)
+        self.exam_questions_table.heading("#1", text="question_id",anchor=tk.W)
+        self.exam_questions_table.column("#1", stretch=tk.NO, width = 120, minwidth=80, anchor=tk.W)
+
+        self.exam_questions_table.grid(row=0, column=0, sticky="nsew")
+
+        self.exam_questions_table_y_scrollbar = ttk.Scrollbar(self.exam_question_right_frame, orient="vertical", command=self.exam_questions_table.yview)
+        self.exam_questions_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.exam_questions_table.configure(yscrollcommand=self.exam_questions_table_y_scrollbar.set)
+
+        s = ttk.Style(self.exam_questions_table)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Delete exam question button
+        self.delete_exam_question_button = tk.Button(self.exam_question_right_frame, text="Delete Exam Question", cursor="hand2", command=self.delete_exam_question)
+        self.delete_exam_question_button.grid(row=1, column=0, padx=2, pady=2)
+
+    def pick_random_questions(self):
+        exam_id = self.exam_id_combo.get()
+        type = self.type_combo.get()
+        difficulty = self.difficulty_combo.get()
+        how_many = int(self.how_many_entry.get())
+        topic = self.topic_combo.get()
+        subtopic = self.subtopic_combo.get() if self.subtopic_combo.get() != "None" and self.subtopic_combo.get() else None
+
+        # Validate fields
+        if not (exam_id and type and difficulty and how_many and topic):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        elif not (isinstance(how_many, int) and how_many > 0):
+            messagebox.showwarning("Invalid How Many", "How many must be a positive integer.")
+            return
+        
+        # Pick how_many random and not repeatetive questions
+        # the relative file path
+        path = '..\data\Exam_App.db'
+        # get the path to the directory this script is in
+        scriptdir = os.path.dirname(__file__)
+        # add the relative path to the database file from there
+        db_path = os.path.join(scriptdir, path)
+        # make sure the path exists and if not create it
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection=sqlite3.connect(db_path)
+        cursor=connection.cursor()
+        if subtopic:
+            cursor.execute("""
+            SELECT question_id
+            FROM Question
+            WHERE type = ? AND difficulty = ? AND topic = ? AND subtopic = ?""", (type, difficulty, topic, subtopic))
+        else:
+            cursor.execute("""
+            SELECT question_id
+            FROM Question
+            WHERE type = ? AND difficulty = ? AND topic = ? """, (type, difficulty, topic))
+
+        matched_questions = [q[0] for q in cursor.fetchall()]
+
+        cursor.execute("""
+        SELECT question_id
+        FROM Exam_Question
+        WHERE exam_id = ?""", (exam_id, ))
+        
+        exam_questions = [q[0] for q in cursor.fetchall()]
+
+        possible_questions = set(matched_questions) | set(exam_questions)
+
+        if how_many > len(possible_questions):
+            messagebox.showwarning("Sampling Impossible", "Not enough possible questions with these settings to sample.")
+            return
+        
+        random_questions = random.sample(matched_questions, k=how_many)
+
+        # load random questions in the table
+        # Build the IN clause with f-string and Construct the SQL query using f-string
+        cursor.execute(f"""SELECT question_id, topic, subtopic, text, difficulty, type, points
+                       FROM Question
+                       WHERE question_id IN ({', '.join('?' * len(random_questions))})""", random_questions)
+        data = cursor.fetchall()
+        connection.close()
+
+        # Clear previous data in the table
+        self.random_questions_table.delete(*self.random_questions_table.get_children())
+
+        # Insert new data rows
+        for row in data:
+            self.random_questions_table.insert("", "end", values=row)
+
+    def add_exam_questions(self):
+        exam_id = self.exam_id_combo.get()
+        # Iterate through all items in the random questions table
+        for item in self.random_questions_table.get_children():
+            values = self.random_questions_table.item(item, 'values')
+            if len(values) == 0:
+                messagebox.showwarning("No Question Selected", "Please select some random questions to add to the exam.")
+                return
+            question_id = values[0] 
+            # Call insert_exam_question function from db1.py
+            insert_exam_question(exam_id, question_id)
+        
+        messagebox.showinfo("Exam Questions Insert", "Exam Questions inserted successfully.")
+    
+        # reset question selection
+        self.reset_question_selection()
+        # Update exam question stats when the tab is opened
+        self.update_exam_question_stats()
+        #load the exam questions
+        self.load_exam_questions()
+
+    def reset_question_selection(self):
+        # Clear how many field
+        self.how_many_entry.delete(0, tk.END)
+        # Clear treeview (random_questions_table) data
+        self.random_questions_table.delete(*self.random_questions_table.get_children())
+    
+    def load_exam_questions(self):
+        exam_id = self.exam_id_combo.get()
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT question_id
+                       FROM Exam_Question
+                       WHERE exam_id = ?""", (exam_id, ))
+        
+        data = cursor.fetchall()
+        connection.close()
+
+        # Clear treeview (exam_questions_table) data
+        self.exam_questions_table.delete(*self.exam_questions_table.get_children())
+        # Insert data rows
+        for row in data:
+            self.exam_questions_table.insert("", "end", values=row)
+
+    def update_exam_question_stats(self , event=None):
+        exam_id = self.exam_id_combo.get()
+        # Fetch exam handlers and supervisors data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT COUNT(*) AS total_questions, SUM(Q.points) AS total_points
+                        FROM Exam_Question EQ
+                        JOIN Question Q ON Q.question_id = EQ.question_id
+                        WHERE EQ.exam_id = ?""", (exam_id, ))
+        data = cursor.fetchone()
+        total_questions = data[0]
+        total_points = data[1]
+
+        cursor.execute("""SELECT COUNT(*) AS multiple_choice_questions
+                        FROM Exam_Question EQ
+                        JOIN Question Q ON Q.question_id = EQ.question_id
+                        WHERE EQ.exam_id = ? AND Q.type = 'Multiple choice'""", (exam_id, ))
+        multiple_choice_questions_count = cursor.fetchone()[0]
+        multiple_choice_questions_pct = int(100 * multiple_choice_questions_count / total_questions)
+
+        cursor.execute("""SELECT COUNT(*) AS true_false_questions
+                        FROM Exam_Question EQ
+                        JOIN Question Q ON Q.question_id = EQ.question_id
+                        WHERE EQ.exam_id = ? AND Q.type = 'True/False'""", (exam_id, ))
+        true_false_questions_count = cursor.fetchone()[0]
+        true_false_questions_pct = int(100 * true_false_questions_count / total_questions)
+
+        cursor.execute("""SELECT COUNT(*) AS descriptive_practical_questions
+                        FROM Exam_Question EQ
+                        JOIN Question Q ON Q.question_id = EQ.question_id
+                        WHERE EQ.exam_id = ? AND Q.type = 'Descriptive/Practical'""", (exam_id, ))
+        descriptive_practical_questions_count = cursor.fetchone()[0]
+        descriptive_practical_questions_pct = int(100 * descriptive_practical_questions_count / total_questions)
+
+        cursor.execute("""SELECT COUNT(*) AS easy_questions
+                        FROM Exam_Question EQ
+                        JOIN Question Q ON Q.question_id = EQ.question_id
+                        WHERE EQ.exam_id = ? AND Q.difficulty = 'Easy'""", (exam_id, ))
+        easy_questions_count = cursor.fetchone()[0]
+        easy_questions_pct = int(100 * easy_questions_count / total_questions)
+
+        cursor.execute("""SELECT COUNT(*) AS normal_questions
+                        FROM Exam_Question EQ
+                        JOIN Question Q ON Q.question_id = EQ.question_id
+                        WHERE EQ.exam_id = ? AND Q.difficulty = 'Normal'""", (exam_id, ))
+        normal_questions_count = cursor.fetchone()[0]
+        normal_questions_pct = int(100 * normal_questions_count / total_questions)
+
+        cursor.execute("""SELECT COUNT(*) AS hard_questions
+                        FROM Exam_Question EQ
+                        JOIN Question Q ON Q.question_id = EQ.question_id
+                        WHERE EQ.exam_id = ? AND Q.difficulty = 'Hard'""", (exam_id, ))
+        hard_questions_count = cursor.fetchone()[0]
+        hard_questions_pct = int(100 * hard_questions_count / total_questions)
+        connection.close()
+
+        # Setting the calculated stats to the labels
+        self.exam_total_questions_var.set(total_questions)
+        self.exam_total_points_var.set(total_points)
+
+        self.multiple_choice_count_var.set(multiple_choice_questions_count)
+        self.multiple_choice_pct_var.set(f"{multiple_choice_questions_pct}%")
+        self.true_false_count_var.set(true_false_questions_count)
+        self.true_false_pct_var.set(f"{true_false_questions_pct}%")
+        self.descriptive_practical_count_var.set(descriptive_practical_questions_count)
+        self.descriptive_practical_pct_var.set(f"{descriptive_practical_questions_pct}%")
+
+        self.easy_count_var.set(easy_questions_count)
+        self.easy_pct_var.set(f"{easy_questions_pct}%")
+        self.normal_count_var.set(normal_questions_count)
+        self.normal_pct_var.set(f"{normal_questions_pct}%")
+        self.hard_count_var.set(hard_questions_count)
+        self.hard_pct_var.set(f"{hard_questions_pct}%")
+
+    def exam_question_stats_on_tab_opened(self, event):
+        # Update exam question stats when the tab is opened
+        self.update_exam_question_stats()
+        #load the exam questions
+        self.load_exam_questions()
+    
+    def delete_exam_question(self):
+        exam_id = self.exam_id_combo.get()
+        # Get the selected item
+        selected_item = self.exam_questions_table.selection()
+        
+        if selected_item:
+            # Get the values of the selected item
+            values = self.exam_questions_table.item(selected_item, 'values')
+            question_id = values[0] 
+
+        # Call delete_exam_question function from db1.py
+        delete_exam_question_msg = delete_exam_question(exam_id, question_id)
+        messagebox.showinfo("Exam Questions Insert", delete_exam_question_msg)
+    
+        # reset question selection
+        self.reset_question_selection()
+        # Update exam question stats when the tab is opened
+        self.update_exam_question_stats()
+        #load the exam questions
+        self.load_exam_questions()
+    
+    def create_exam_creators_exam_students_widgets(self, exam_creators_question_tab):
+        # Create a top frame
+        self.exam_student_top_frame = tk.Frame(exam_creators_question_tab)
+        self.exam_student_top_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Fetch exam handlers and supervisors data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT exam_id
+                        FROM Exam
+                        WHERE creator_user_name = ?
+                        ORDER BY exam_id""", (self.username, ))
+        exam_ids = [e[0] for e in cursor.fetchall()]
+
+        cursor.execute("""SELECT U.user_name, U.first_name, U.last_name
+                        FROM User U
+                        JOIN User_Role UR
+                        ON U.user_name = UR.user_name
+                        WHERE role_name = 'Student'""")
+        students_info = [t[0] for t in cursor.fetchall()]
+        student_values = [f"{si[1]} {si[2]} ({si[0]})" for si in students_info]
+        connection.close()
+
+        # Exam ID
+        self.exam_id_label = tk.Label(self.exam_student_top_frame, text="Exam ID:")
+        self.exam_id_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+        self.exam_id_combo = ttk.Combobox(self.exam_student_top_frame, width=10, values=exam_ids)
+        self.exam_id_combo.grid(row=0, column=1, padx=2, pady=2)
+        self.exam_id_combo.set(exam_ids[-1])
+        self.exam_id_combo.bind("<<ComboboxSelected>>", self.update_exam_student_stats)
+
+        # Total exam students
+        self.exam_total_students_label = tk.Label(self.exam_student_top_frame, text="Total Students:")
+        self.exam_total_students_label.grid(row=0, column=2, padx=(20,0), pady=2, sticky=tk.W)
+        
+        self.exam_total_students_var = tk.StringVar()
+        self.exam_total_students_var.set("0")
+        self.exam_total_students_value_label = tk.Label(self.exam_student_top_frame, textvariable=self.exam_total_students_var)
+        self.exam_total_students_value_label.grid(row=0, column=3, padx=2, pady=2, sticky=tk.W)
+
+        # Create a bottom frame for treeviews
+        self.exam_student_bottom_frame = tk.Frame(exam_creators_question_tab)
+        self.exam_student_bottom_frame.grid(row=1, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create a left frame for exam student ids info
+        self.exam_student_left_frame = tk.LabelFrame(self.exam_student_bottom_frame, text="Students")
+        self.exam_student_left_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create the table containing the exam student ids
+        columns = ("user_name", "first_name", "last_name")
+        self.students_table = ttk.Treeview(self.exam_student_left_frame, column=columns, show='headings', selectmode="browse", height=20)
+        self.students_table.heading("#1", text="user_name",anchor=tk.W)
+        self.students_table.column("#1", stretch=tk.NO, width = 100, minwidth=80, anchor=tk.W)
+        self.students_table.heading("#2", text="first_name",anchor=tk.W)
+        self.students_table.column("#2", stretch=tk.NO, width = 100, minwidth=80, anchor=tk.W)
+        self.students_table.heading("#3", text="last_name",anchor=tk.W)
+        self.students_table.column("#3", stretch=tk.NO, width = 100, minwidth=80, anchor=tk.W)
+
+        self.students_table.grid(row=0, column=0, sticky="nsew")
+
+        self.students_table_table_y_scrollbar = ttk.Scrollbar(self.exam_student_left_frame, orient="vertical", command=self.students_table.yview)
+        self.students_table_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.students_table.configure(yscrollcommand=self.students_table_table_y_scrollbar.set)
+
+        s = ttk.Style(self.students_table)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Delete exam student button
+        self.add_exam_student_button = tk.Button(self.exam_student_left_frame, text="Add Exam Student", cursor="hand2", command=self.add_exam_student)
+        self.add_exam_student_button.grid(row=1, column=0, padx=2, pady=2)
+        
+        # Create a right frame for exam student ids info
+        self.exam_student_right_frame = tk.LabelFrame(self.exam_student_bottom_frame, text="Exam Students")
+        self.exam_student_right_frame.grid(row=0, column=1, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create the table containing the exam student ids
+        columns = ("user_name", "first_name", "last_name")
+        self.exam_students_table = ttk.Treeview(self.exam_student_right_frame, column=columns, show='headings', selectmode="browse", height=20)
+        self.exam_students_table.heading("#1", text="student_id",anchor=tk.W)
+        self.exam_students_table.column("#1", stretch=tk.NO, width = 100, minwidth=80, anchor=tk.W)
+        self.exam_students_table.heading("#2", text="first_name",anchor=tk.W)
+        self.exam_students_table.column("#2", stretch=tk.NO, width = 100, minwidth=80, anchor=tk.W)
+        self.exam_students_table.heading("#3", text="last_name",anchor=tk.W)
+        self.exam_students_table.column("#3", stretch=tk.NO, width = 100, minwidth=80, anchor=tk.W)
+
+        self.exam_students_table.grid(row=0, column=0, sticky="nsew")
+
+        self.exam_students_table_y_scrollbar = ttk.Scrollbar(self.exam_student_right_frame, orient="vertical", command=self.exam_students_table.yview)
+        self.exam_students_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.exam_students_table.configure(yscrollcommand=self.exam_students_table_y_scrollbar.set)
+
+        s = ttk.Style(self.exam_students_table)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # Delete exam student button
+        self.delete_exam_student_button = tk.Button(self.exam_student_right_frame, text="Delete Exam Student", cursor="hand2", command=self.delete_exam_student)
+        self.delete_exam_student_button.grid(row=1, column=0, padx=2, pady=2)
+
+    def add_exam_student(self):
+        exam_id = self.exam_id_combo.get()
+
+        # Fetch exam handlers and supervisors data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT COUNT(*) AS exam_students_count
+                        FROM Exam_Question
+                        WHERE exam_id = ?""", (exam_id, ))
+        exam_questions_count = int(cursor.fetchone()[0])
+        connection.close()
+
+        # Get the selected item
+        selected_item = self.students_table.selection()
+        
+        if selected_item:
+            # Get the values of the selected item
+            values = self.students_table.item(selected_item, 'values')
+
+            # Set the values of the question-related fields
+            user_name = values[0] 
+
+        # Call insert_user_exam function from db1.py
+        add_exam_student_msg = insert_user_exam(exam_id, user_name, 0, exam_questions_count, 0, 0, exam_questions_count, 0)
+        messagebox.showinfo("Add Exam Student", add_exam_student_msg)
+    
+        # Update exam student stats when the tab is opened
+        self.update_exam_student_stats()
+        #load the exam students
+        self.load_exam_students()
+        #load the available students
+        self.load_students_available()
+
+    def delete_exam_student(self):
+        exam_id = self.exam_id_combo.get()
+        # Get the selected item
+        selected_item = self.exam_students_table.selection()
+        
+        if selected_item:
+            # Get the values of the selected item
+            values = self.exam_students_table.item(selected_item, 'values')
+            user_name = values[0] 
+
+        # Call delete_user_exam function from db1.py
+        delete_exam_student_msg = delete_user_exam(exam_id, user_name)
+        messagebox.showinfo("Exam Student Delete", delete_exam_student_msg)
+    
+        # Update exam student stats when the tab is opened
+        self.update_exam_student_stats()
+        #load the exam students
+        self.load_exam_students()
+        #load the available students
+        self.load_students_available()
+
+    def update_exam_student_stats(self, event=None):
+        exam_id = self.exam_id_combo.get()
+        # Fetch exam handlers and supervisors data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT COUNT(*) AS exam_students_count
+                        FROM User_Exam
+                        WHERE exam_id = ?""", (exam_id, ))
+        exam_students_count = cursor.fetchall()[0]
+
+        # Setting the calculated stats to the labels
+        self.exam_total_students_var.set(exam_students_count)
+
+    def load_students_available(self):
+        exam_id = self.exam_id_combo.get()
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT U.user_name, U.first_name, U.last_name
+                       FROM User U
+                       JOIN User_Role UR ON UR.user_name = U.user_name
+                       WHERE UR.role_name = 'Student' AND
+                       U.user_name NOT IN (
+                            SELECT UE.user_name
+                            FROM User_Exam UE
+                            WHERE exam_id = ?)""", (exam_id, ))
+        data = cursor.fetchall()
+        connection.close()
+
+        # Clear treeview (students_table) data
+        self.students_table.delete(*self.students_table.get_children())
+        # Insert data rows
+        for row in data:
+            self.students_table.insert("", "end", values=row)
+    
+    def load_exam_students(self):
+        exam_id = self.exam_id_combo.get()
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT U.user_name, U.first_name, U.last_name
+                       FROM User U
+                       JOIN User_Exam UE ON U.user_name = UE.user_name
+                       WHERE UE.exam_id = ?""", (exam_id, ))
+        data = cursor.fetchall()
+        connection.close()
+
+        # Clear treeview (exam_questions_table) data
+        self.exam_students_table.delete(*self.exam_students_table.get_children())
+        # Insert data rows
+        for row in data:
+            self.exam_students_table.insert("", "end", values=row)
+
+    def exam_student_stats_on_tab_opened(self, event):
+        # Update exam student stats when the tab is opened
+        self.update_exam_student_stats()
+        #load the exam students
+        self.load_exam_students()
+        #load the available students
+        self.load_students_available()
+
+    def create_exam_creators_help_widgets(self, exam_creators_question_tab):
+        # Add User Manuals and Documentation
+        user_manual_label = tk.Label(exam_creators_question_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
+        user_manual_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+
+        user_manual_info = tk.Label(exam_creators_question_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
+        user_manual_info.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Frequently Asked Questions (FAQs)
+        faq_label = tk.Label(exam_creators_question_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
+        faq_label.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+
+        faq_info = tk.Label(exam_creators_question_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
+        faq_info.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Contact Information and Support Channels
+        contact_info_label = tk.Label(exam_creators_question_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
+        contact_info_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+        contact_info = tk.Label(exam_creators_question_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
+        contact_info.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Video Tutorials and Demos
+        video_tutorials_label = tk.Label(exam_creators_question_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
+        video_tutorials_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+        video_tutorials_info = tk.Label(exam_creators_question_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
+        video_tutorials_info.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Release Notes and Updates
+        release_notes_label = tk.Label(exam_creators_question_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
+        release_notes_label.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+
+        release_notes_info = tk.Label(exam_creators_question_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
+        release_notes_info.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Security Guidelines and Best Practices
+        security_guidelines_label = tk.Label(exam_creators_question_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
+        security_guidelines_label.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
+        security_info = tk.Label(exam_creators_question_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
+        security_info.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Glossary of Terms
+        glossary_label = tk.Label(exam_creators_question_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
+        glossary_label.grid(row=12, column=0, sticky="w", padx=10, pady=5)
+
+        glossary_info = tk.Label(exam_creators_question_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
+        glossary_info.grid(row=13, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Community Forums and User Groups
+        community_forums_label = tk.Label(exam_creators_question_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
+        community_forums_label.grid(row=14, column=0, sticky="w", padx=10, pady=5)
+
+        community_info = tk.Label(exam_creators_question_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
+        community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
+    
     def add_student_tabs(self):
         # Add tabs for different functionalities
         self.students_exam_tab = ttk.Frame(self.notebook)
@@ -5266,8 +6486,6 @@ class UserPanel(tk.Toplevel):
 
     def create_students_help_widgets(self):
         pass
-
-
 
 # Main loop
 if __name__ == "__main__":
