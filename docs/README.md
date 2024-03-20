@@ -1,6 +1,11 @@
 <!-- omit in toc -->
 # Exam/Quiz Windows Application
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) [![Platform](https://img.shields.io/badge/Platform-Windows-green)](https://www.microsoft.com/en-us/windows) [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/downloads/) 
+[![Platform](https://img.shields.io/badge/Platform-Windows-green)](https://www.microsoft.com/en-us/windows) 
+![Tkinter](https://img.shields.io/badge/Tkinter-Yes-green)
+![SQLite3](https://img.shields.io/badge/SQLite3-Supported-blue)
+![UML 2](https://img.shields.io/badge/UML%202-Yes-green)
+[![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 - [Overview](#overview)
 - [Features](#features)
@@ -17,6 +22,13 @@
   - [Exam-Creator's Panel: Exam Tab](#exam-creators-panel-exam-tab)
   - [Exam-Creator's Panel: Exam Questions Tab](#exam-creators-panel-exam-questions-tab)
   - [Exam-Creator's Panel: Exam Students Tab](#exam-creators-panel-exam-students-tab)
+  - [Student's Panel: Exam Tab (No Active Exam)](#students-panel-exam-tab-no-active-exam)
+  - [Student's Panel: Exam Tab (Unstarted Exam)](#students-panel-exam-tab-unstarted-exam)
+  - [Student's Panel: Exam Tab (Started Exam)](#students-panel-exam-tab-started-exam)
+  - [Student's Panel: Feedback Tab](#students-panel-feedback-tab)
+  - [Student's Panel: Exam Result Tab](#students-panel-exam-result-tab)
+  - [Exam Handler's Panel: Exam Tab](#exam-handlers-panel-exam-tab)
+  - [Exam Supervisor's Panel: Feedbacks Tab](#exam-supervisors-panel-feedbacks-tab)
 - [Running Tests](#running-tests)
 - [Contributing](#contributing)
   - [Reporting Issues](#reporting-issues)
@@ -132,31 +144,62 @@ Here are some demo GIFs and screenshots showcasing the functionality of the Exam
 
 ### Login Window
 
-![Login](../images/login_shot.png)
+![Login Window](../images/login_shot.png)
 
 ### Admin's Panel: Security Tab
 
-![Admin Security Tab](../images/admin_security_shot.png)
+![Admin's Panel: Security Tab](../images/admin_security_shot.png)
 
 ### Admin's Panel: Reports Tab
 
-![Admin Reports Tab](../images/admin_reports_shot.png)
+![Admin's Panel: Reports Tab](../images/admin_reports_shot.png)
 
 ### Question-Creator's Panel: Questions & Options Tab
 
-![Question-Creator's Questions & Options Tab](../images/question_creator_questions_options_shot.png)
+![Question-Creator's Panel: Questions & Options Tab](../images/question_creator_questions_options_shot.png)
 
 ### Exam-Creator's Panel: Exam Tab
 
-![Exam-Creator's Exam Tab](../images/exam_creator_exam_tab_shot.png)
+![Exam-Creator's Panel: Exam Tab](../images/exam_creator_exam_tab_shot.png)
 
 ### Exam-Creator's Panel: Exam Questions Tab
 
-![Exam-Creator's Exam Questions Tab](../images/exam_creator_exam_questions_tab_shot.png)
+![Exam-Creator's Panel: Exam Questions Tab](../images/exam_creator_exam_questions_tab_shot.png)
 
 ### Exam-Creator's Panel: Exam Students Tab
 
-![Exam-Creator's Exam Students Tab](../images/exam_creator_exam_students_tab_shot.png)
+![Exam-Creator's Panel: Exam Students Tab](../images/exam_creator_exam_students_tab_shot.png)
+
+
+### Student's Panel: Exam Tab (No Active Exam)
+
+![Student's Panel: Exam Tab (No Active Exam)](../images/student_exam_tab_no_active_exam_shot.png)
+
+### Student's Panel: Exam Tab (Unstarted Exam)
+
+![Student's Panel: Exam Tab (Unstarted Exam)](../images/student_exam_tab_unstarted_exam_shot.png)
+
+### Student's Panel: Exam Tab (Started Exam)
+
+![Student's Panel: Exam Tab (Started Exam)](../images/student_exam_tab_started_exam_shot.png)
+
+### Student's Panel: Feedback Tab
+
+![Student's Panel: Feedback Tab](../images/student_feedback_tab_shot.png)
+
+Feel free to explore more features and functionalities of the application by downloading and running it on your local machine!
+
+### Student's Panel: Exam Result Tab
+
+![Student's Panel: Exam Result Tab](../images/student_exam_result_tab_shot.png)
+
+### Exam Handler's Panel: Exam Tab
+
+![Exam Handler's Panel: Exam Tab](../images/exam_handler_mark_exam_tab_shot.png)
+
+### Exam Supervisor's Panel: Feedbacks Tab
+
+![Exam Supervisor's Panel: Feedbacks Tab](../images/exam_supervisor_feedbacks_tab_shot.png)
 
 Feel free to explore more features and functionalities of the application by downloading and running it on your local machine!
 

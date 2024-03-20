@@ -200,20 +200,18 @@ class UserPanel(tk.Toplevel):
         # Add tabs based on user roles(single-role users)
         if len(self.roles) == 1 and self.roles[0] == 'Administrator':
             self.add_admin_tabs()
-        elif len(self.roles) == 1 and self.roles[0] == 'Student':
-            self.add_student_tabs()
         elif len(self.roles) == 1 and self.roles[0] == 'Question_Creator':
             self.add_question_creator_tabs()
         elif len(self.roles) == 1 and self.roles[0] == 'Exam_Creator':
             self.add_exam_creator_tabs()
         elif len(self.roles) == 1 and self.roles[0] == 'Exam_Supervisor':
-            self.exam_supervisor_tabs()
+            self.add_exam_supervisor_tabs()
         elif len(self.roles) == 1 and self.roles[0] == 'Exam_Handler':
             self.add_exam_handler_tabs()
         elif len(self.roles) == 1 and self.roles[0] == 'Exam_Analyst':
             self.add_exam_analyst_tabs()
-        elif len(self.roles) == 1 and self.roles[0] == 'Exam_Supervisor':
-            self.exam_supervisor_tabs()
+        elif len(self.roles) == 1 and self.roles[0] == 'Student':
+            self.add_student_tabs()
         # ...... Managing multi-role users ......
         
     
@@ -1132,20 +1130,20 @@ class UserPanel(tk.Toplevel):
 
         cursor.execute("""SELECT COUNT(*) AS unstarted_exams
                         FROM Exam
-                        WHERE DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
+                        WHERE DATETIME('now', 'localtime') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
         unstarted_exams = cursor.fetchone()
         self.unstarted_exams_var.set(unstarted_exams)
         
         cursor.execute("""SELECT COUNT(*) AS started_exams
                         FROM Exam
-                        WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
-                        AND DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+                        WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                        AND DATETIME('now', 'localtime') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
         started_exams = cursor.fetchone()
         self.started_exams_var.set(started_exams)
 
         cursor.execute("""SELECT COUNT(*) AS finished_exams
                         FROM Exam
-                        WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+                        WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
         finished_exams = cursor.fetchone()
         self.finished_exams_var.set(finished_exams)
 
@@ -1154,8 +1152,8 @@ class UserPanel(tk.Toplevel):
                         WHERE exam_id IN (
                             SELECT exam_id
                             FROM Exam
-                            WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
-                                AND DATETIME('now') <= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes'))""")
+                            WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                                AND DATETIME('now', 'localtime') <= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes'))""")
         students_taking_exam = cursor.fetchone()
         self.students_taking_exam_var.set(students_taking_exam)
         
@@ -1164,7 +1162,7 @@ class UserPanel(tk.Toplevel):
                         WHERE exam_id IN (
                             SELECT exam_id
                             FROM Exam
-                            WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes'))""")
+                            WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes'))""")
         students_took_exam = cursor.fetchone()
         self.students_took_exam_var.set(students_took_exam)
 
@@ -2292,7 +2290,7 @@ class UserPanel(tk.Toplevel):
         cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
                                 has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
                        FROM Exam
-                       WHERE DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
+                       WHERE DATETIME('now', 'localtime') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
         data = cursor.fetchall()
         connection.close()
 
@@ -2358,8 +2356,8 @@ class UserPanel(tk.Toplevel):
         cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
                                 has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
                        FROM Exam
-                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
-                        AND DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                        AND DATETIME('now', 'localtime') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
         data = cursor.fetchall()
         connection.close()
 
@@ -2425,7 +2423,7 @@ class UserPanel(tk.Toplevel):
         cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
                                 has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
                        FROM Exam
-                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
         data = cursor.fetchall()
         connection.close()
 
@@ -2495,8 +2493,8 @@ class UserPanel(tk.Toplevel):
                         WHERE UE.exam_id IN (
                             SELECT E.exam_id
                             FROM Exam E
-                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
-                                AND DATETIME('now') <= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes'))""")
+                            WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                                AND DATETIME('now', 'localtime') <= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes'))""")
         data = cursor.fetchall()
         connection.close()
 
@@ -2550,7 +2548,7 @@ class UserPanel(tk.Toplevel):
                         WHERE UE.exam_id IN (
                             SELECT E.exam_id
                             FROM Exam E
-                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
                         )
                         GROUP BY UE.user_name""")
                        
@@ -3730,7 +3728,7 @@ class UserPanel(tk.Toplevel):
         cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
                                 has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
                        FROM Exam
-                       WHERE DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
+                       WHERE DATETIME('now', 'localtime') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)""")
         data = cursor.fetchall()
         connection.close()
 
@@ -3763,8 +3761,8 @@ class UserPanel(tk.Toplevel):
         cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
                                 has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
                        FROM Exam
-                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
-                        AND DATETIME('now') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time)
+                        AND DATETIME('now', 'localtime') < DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
         data = cursor.fetchall()
         connection.close()
 
@@ -3797,7 +3795,7 @@ class UserPanel(tk.Toplevel):
         cursor.execute("""SELECT exam_id, exam_name, exam_date, start_time, duration, creation_date, creation_time,
                                 has_negative_score, passing_score, handler_user_name, supervisor_user_name, creator_user_name
                        FROM Exam
-                       WHERE DATETIME('now') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
         data = cursor.fetchall()
         connection.close()
 
@@ -3834,8 +3832,8 @@ class UserPanel(tk.Toplevel):
                         WHERE UE.exam_id IN (
                             SELECT E.exam_id
                             FROM Exam E
-                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
-                                AND DATETIME('now') <= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes'))""")
+                            WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                                AND DATETIME('now', 'localtime') <= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes'))""")
         data = cursor.fetchall()
         connection.close()
 
@@ -3870,7 +3868,7 @@ class UserPanel(tk.Toplevel):
                         WHERE UE.exam_id IN (
                             SELECT E.exam_id
                             FROM Exam E
-                            WHERE DATETIME('now') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
                         )
                         GROUP BY UE.user_name""")
         data = cursor.fetchall()
@@ -4299,7 +4297,7 @@ class UserPanel(tk.Toplevel):
         self.points_entry = tk.Entry(self.question_info_frame, width=5)
         self.points_entry.grid(row=0, column=12, padx=2, pady=2)
 
-        # Create a frame for auestion and options
+        # Create a frame for question and options
         self.question_option_frame = tk.Frame(question_creators_question_tab)
         self.question_option_frame.grid(row=1, column=0, padx=2, pady=2, sticky=tk.NSEW)
         
@@ -6076,42 +6074,42 @@ class UserPanel(tk.Toplevel):
                         JOIN Question Q ON Q.question_id = EQ.question_id
                         WHERE EQ.exam_id = ? AND Q.type = 'Multiple choice'""", (exam_id, ))
         multiple_choice_questions_count = cursor.fetchone()[0]
-        multiple_choice_questions_pct = int(100 * multiple_choice_questions_count / total_questions)
+        multiple_choice_questions_pct = int(100 * multiple_choice_questions_count / total_questions) if int(total_questions) else 0
 
         cursor.execute("""SELECT COUNT(*) AS true_false_questions
                         FROM Exam_Question EQ
                         JOIN Question Q ON Q.question_id = EQ.question_id
                         WHERE EQ.exam_id = ? AND Q.type = 'True/False'""", (exam_id, ))
         true_false_questions_count = cursor.fetchone()[0]
-        true_false_questions_pct = int(100 * true_false_questions_count / total_questions)
+        true_false_questions_pct = int(100 * true_false_questions_count / total_questions) if int(total_questions) else 0
 
         cursor.execute("""SELECT COUNT(*) AS descriptive_practical_questions
                         FROM Exam_Question EQ
                         JOIN Question Q ON Q.question_id = EQ.question_id
                         WHERE EQ.exam_id = ? AND Q.type = 'Descriptive/Practical'""", (exam_id, ))
         descriptive_practical_questions_count = cursor.fetchone()[0]
-        descriptive_practical_questions_pct = int(100 * descriptive_practical_questions_count / total_questions)
+        descriptive_practical_questions_pct = int(100 * descriptive_practical_questions_count / total_questions) if int(total_questions) else 0
 
         cursor.execute("""SELECT COUNT(*) AS easy_questions
                         FROM Exam_Question EQ
                         JOIN Question Q ON Q.question_id = EQ.question_id
                         WHERE EQ.exam_id = ? AND Q.difficulty = 'Easy'""", (exam_id, ))
         easy_questions_count = cursor.fetchone()[0]
-        easy_questions_pct = int(100 * easy_questions_count / total_questions)
+        easy_questions_pct = int(100 * easy_questions_count / total_questions) if int(total_questions) else 0
 
         cursor.execute("""SELECT COUNT(*) AS normal_questions
                         FROM Exam_Question EQ
                         JOIN Question Q ON Q.question_id = EQ.question_id
                         WHERE EQ.exam_id = ? AND Q.difficulty = 'Normal'""", (exam_id, ))
         normal_questions_count = cursor.fetchone()[0]
-        normal_questions_pct = int(100 * normal_questions_count / total_questions)
+        normal_questions_pct = int(100 * normal_questions_count / total_questions) if int(total_questions) else 0
 
         cursor.execute("""SELECT COUNT(*) AS hard_questions
                         FROM Exam_Question EQ
                         JOIN Question Q ON Q.question_id = EQ.question_id
                         WHERE EQ.exam_id = ? AND Q.difficulty = 'Hard'""", (exam_id, ))
         hard_questions_count = cursor.fetchone()[0]
-        hard_questions_pct = int(100 * hard_questions_count / total_questions)
+        hard_questions_pct = int(100 * hard_questions_count / total_questions) if int(total_questions) else 0
         connection.close()
 
         # Setting the calculated stats to the labels
@@ -6280,7 +6278,7 @@ class UserPanel(tk.Toplevel):
         connection = sqlite3.connect(db_path)
         cursor = connection.cursor()
  
-        cursor.execute("""SELECT COUNT(*) AS exam_students_count
+        cursor.execute("""SELECT COUNT(*) AS exam_questions_count
                         FROM Exam_Question
                         WHERE exam_id = ?""", (exam_id, ))
         exam_questions_count = int(cursor.fetchone()[0])
@@ -6297,7 +6295,7 @@ class UserPanel(tk.Toplevel):
             user_name = values[0] 
 
         # Call insert_user_exam function from db1.py
-        add_exam_student_msg = insert_user_exam(exam_id, user_name, 0, exam_questions_count, 0, 0, exam_questions_count, 0)
+        add_exam_student_msg = insert_user_exam(exam_id, user_name, 0, exam_questions_count, 0, 0, exam_questions_count, 0, 0)
         messagebox.showinfo("Add Exam Student", add_exam_student_msg)
     
         # Update exam student stats when the tab is opened
@@ -6407,61 +6405,61 @@ class UserPanel(tk.Toplevel):
         #load the available students
         self.load_students_available()
 
-    def create_exam_creators_help_widgets(self, exam_creators_question_tab):
+    def create_exam_creators_help_widgets(self, exam_creators_help_tab):
         # Add User Manuals and Documentation
-        user_manual_label = tk.Label(exam_creators_question_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
+        user_manual_label = tk.Label(exam_creators_help_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
         user_manual_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
 
-        user_manual_info = tk.Label(exam_creators_question_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
+        user_manual_info = tk.Label(exam_creators_help_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
         user_manual_info.grid(row=1, column=0, sticky="w", padx=10, pady=5)
 
         # Add Frequently Asked Questions (FAQs)
-        faq_label = tk.Label(exam_creators_question_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
+        faq_label = tk.Label(exam_creators_help_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
         faq_label.grid(row=2, column=0, sticky="w", padx=10, pady=5)
 
-        faq_info = tk.Label(exam_creators_question_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
+        faq_info = tk.Label(exam_creators_help_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
         faq_info.grid(row=3, column=0, sticky="w", padx=10, pady=5)
 
         # Add Contact Information and Support Channels
-        contact_info_label = tk.Label(exam_creators_question_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
+        contact_info_label = tk.Label(exam_creators_help_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
         contact_info_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
 
-        contact_info = tk.Label(exam_creators_question_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
+        contact_info = tk.Label(exam_creators_help_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
         contact_info.grid(row=5, column=0, sticky="w", padx=10, pady=5)
 
         # Add Video Tutorials and Demos
-        video_tutorials_label = tk.Label(exam_creators_question_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
+        video_tutorials_label = tk.Label(exam_creators_help_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
         video_tutorials_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
 
-        video_tutorials_info = tk.Label(exam_creators_question_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
+        video_tutorials_info = tk.Label(exam_creators_help_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
         video_tutorials_info.grid(row=7, column=0, sticky="w", padx=10, pady=5)
 
         # Add Release Notes and Updates
-        release_notes_label = tk.Label(exam_creators_question_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
+        release_notes_label = tk.Label(exam_creators_help_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
         release_notes_label.grid(row=8, column=0, sticky="w", padx=10, pady=5)
 
-        release_notes_info = tk.Label(exam_creators_question_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
+        release_notes_info = tk.Label(exam_creators_help_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
         release_notes_info.grid(row=9, column=0, sticky="w", padx=10, pady=5)
 
         # Add Security Guidelines and Best Practices
-        security_guidelines_label = tk.Label(exam_creators_question_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
+        security_guidelines_label = tk.Label(exam_creators_help_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
         security_guidelines_label.grid(row=10, column=0, sticky="w", padx=10, pady=5)
 
-        security_info = tk.Label(exam_creators_question_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
+        security_info = tk.Label(exam_creators_help_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
         security_info.grid(row=11, column=0, sticky="w", padx=10, pady=5)
 
         # Add Glossary of Terms
-        glossary_label = tk.Label(exam_creators_question_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
+        glossary_label = tk.Label(exam_creators_help_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
         glossary_label.grid(row=12, column=0, sticky="w", padx=10, pady=5)
 
-        glossary_info = tk.Label(exam_creators_question_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
+        glossary_info = tk.Label(exam_creators_help_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
         glossary_info.grid(row=13, column=0, sticky="w", padx=10, pady=5)
 
         # Add Community Forums and User Groups
-        community_forums_label = tk.Label(exam_creators_question_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
+        community_forums_label = tk.Label(exam_creators_help_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
         community_forums_label.grid(row=14, column=0, sticky="w", padx=10, pady=5)
 
-        community_info = tk.Label(exam_creators_question_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
+        community_info = tk.Label(exam_creators_help_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
         community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
     
     def add_student_tabs(self):
@@ -6473,19 +6471,2506 @@ class UserPanel(tk.Toplevel):
         self.students_feedback_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.students_feedback_tab, text='Feedback')
         self.create_students_feedback_widgets(self.students_feedback_tab)
+        # Bind the load_exam_feedbacks method to the event of opening the tab
+        self.students_feedback_tab.bind("<Visibility>", self.exam_feedbacks_on_tab_opened)
+
+        self.students_exam_result_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.students_exam_result_tab, text='Exam Result')
+        self.create_students_exam_result_widgets(self.students_exam_result_tab)
 
         self.students_help_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.students_help_tab, text='Help')
         self.create_students_help_widgets(self.students_help_tab)
     
-    def create_students_exam_widgets(self):
-        pass
+    def create_students_exam_widgets(self, students_exam_tab):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
-    def create_students_feedback_widgets(self):
-        pass
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
 
-    def create_students_help_widgets(self):
-        pass
+        cursor.execute("""SELECT UE.user_name, UE.exam_id
+                       FROM User_Exam UE
+                       JOIN Exam E ON UE.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') < DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)""")
+        unstarted_user_exams = cursor.fetchall()
+        unstarted_exam_students = [uue[0] for uue in unstarted_user_exams]
+
+        cursor.execute("""SELECT UE.user_name, UE.exam_id
+                       FROM User_Exam UE
+                       JOIN Exam E ON UE.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                        AND DATETIME('now', 'localtime') < DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')""")
+        started_user_exams = cursor.fetchall()
+        started_exam_students = [sue[0] for sue in started_user_exams]
+
+        cursor.execute("""SELECT E.exam_id, E.exam_name, E.has_negative_score
+                       FROM User_Exam UE
+                       JOIN Exam E ON UE.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                            AND DATETIME('now', 'localtime') < DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            AND UE.user_name = ?""", (self.username, ))
+        student_exam_data = cursor.fetchone()
+
+        if self.username in unstarted_exam_students:
+            cursor.execute("""SELECT E.exam_date, E.start_time, E.duration
+                       FROM User_Exam UE
+                       JOIN Exam E ON UE.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') < DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                       AND UE.user_name = ?""", (self.username, ))
+            exam_date, start_time, duration = cursor.fetchone()
+
+            # Combine date and time strings into a single string
+            combined_datetime_str = exam_date.replace('/', '-') + ' ' + start_time
+            # Convert the combined string into a datetime object
+            exam_datetime = datetime.strptime(combined_datetime_str, '%Y-%m-%d %H:%M:%S')
+            # Calculate exam finish datetime by adding duration minutes to exam datetime
+            exam_finish_datetime = exam_datetime + timedelta(minutes=duration)
+
+        elif self.username in started_exam_students:
+            cursor.execute("""SELECT E.exam_date, E.start_time, E.duration
+                       FROM User_Exam UE
+                       JOIN Exam E ON UE.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                            AND DATETIME('now', 'localtime') < DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            AND UE.user_name = ?""", (self.username, ))
+            exam_date, start_time, duration = cursor.fetchone()
+
+            cursor.execute("""SELECT Q.question_id, Q.text, Q.image, Q.points
+                       FROM User_Exam UE
+                       JOIN Exam E ON UE.exam_id = E.exam_id
+                       JOIN Exam_Question EQ ON EQ.exam_id = E.exam_id
+                       JOIN Question Q ON EQ.question_id = Q.question_id
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time)
+                            AND DATETIME('now', 'localtime') < DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            AND UE.user_name = ?""", (self.username, ))
+            self.student_exam_questions_data = cursor.fetchall()
+
+            # Combine date and time strings into a single string
+            combined_datetime_str = exam_date.replace('/', '-') + ' ' + start_time
+            # Convert the combined string into a datetime object
+            exam_datetime = datetime.strptime(combined_datetime_str, '%Y-%m-%d %H:%M:%S')
+            # Calculate exam finish datetime by adding duration minutes to exam datetime
+            exam_finish_datetime = exam_datetime + timedelta(minutes=duration)
+
+        connection.close()
+
+        # initialize some vars
+        self.to_exam_time_var = tk.StringVar(value="")
+        self.remaining_exam_time_var = tk.StringVar(value="")
+
+        if self.username in unstarted_exam_students:
+            self.not_started_active_exam_label = tk.Label(students_exam_tab, text=f"You have an active/pending exam that starts on {combined_datetime_str}", font=("Helvetica", 18, "bold"))
+            self.not_started_active_exam_label.grid(row=0, column=0, sticky="w", padx=5, pady=10)
+
+            # to exam label
+            self.to_exam_time_label = tk.Label(students_exam_tab, textvariable=self.to_exam_time_var, font=("Helvetica", 18, "bold"))
+            self.to_exam_time_label.grid(row=1, column=0, sticky="w", padx=5, pady=10)
+            # Update the countdown every second
+            self.update_to_exam_time_countdown(exam_datetime)
+
+            # note label
+            self.note_label = tk.Label(students_exam_tab, text=f"Note: When it's time to take exam once logout and login again.", fg="red", font=("Helvetica", 18, "bold"))
+            self.note_label.grid(row=2, column=0, sticky="w", padx=5, pady=10)
+        
+        elif self.username in started_exam_students:
+            # student has an active exam that is already startted so can take the exam and submit answers
+            student_exam_id = student_exam_data[0] if student_exam_data else None
+            student_exam_name = student_exam_data[1] if student_exam_data else None
+            student_exam_has_negative_score = student_exam_data[2] if student_exam_data else None
+
+            # Create a frame for exam overall info
+            self.exam_overall_info_frame = tk.Frame(students_exam_tab)
+            self.exam_overall_info_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+            # Student exam ID label
+            self.student_exam_id_var = tk.StringVar()
+            self.student_exam_id_var.set(f"Student Exam ID:  {student_exam_id}")
+            self.student_exam_id_label = tk.Label(self.exam_overall_info_frame, textvariable=self.student_exam_id_var, font=("Helvetica", 12))
+            self.student_exam_id_label.grid(row=0, column=0, sticky="w", padx=5, pady=2)
+
+            # Student exam name label
+            self.student_exam_name_label = tk.Label(self.exam_overall_info_frame, text=f"Student Exam Name:  {student_exam_name}", font=("Helvetica", 12))
+            self.student_exam_name_label.grid(row=0, column=1, sticky="w", padx=(20,0), pady=2)
+
+            # Student exam has_negative_score label
+            self.student_exam_has_negative_score_var = tk.IntVar(value=1) if student_exam_has_negative_score == 1 else tk.IntVar(value=0)
+            self.student_exam_has_negative_score_label = tk.Checkbutton(self.exam_overall_info_frame, text="Has Negative Score?", variable=self.student_exam_has_negative_score_var, font=("Helvetica", 12))
+            self.student_exam_has_negative_score_label.grid(row=0, column=2, sticky="w", padx=(20,0), pady=2)
+
+            # remaining exam time label
+            self.remaining_exam_time_label = tk.Label(self.exam_overall_info_frame, textvariable=self.remaining_exam_time_var, font=("Helvetica", 12, "bold"))
+            self.remaining_exam_time_label.grid(row=0, column=3, sticky="w", padx=(20,0), pady=2)
+            # Update the countdown every second
+            self.update_remaining_exam_time_countdown(exam_finish_datetime)
+
+            # Create a frame for Qustion info
+            self.question_info_frame = tk.Frame(students_exam_tab)
+            self.question_info_frame.grid(row=1, column=0, padx=5, pady=2, sticky=tk.W)
+
+            # Create fields and labels for question
+            
+            # first button image 
+            path = "..\images\\first.png"
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            self.first_image = Image.open(image_path)
+            self.first_icon = ImageTk.PhotoImage(self.first_image)
+
+            # last button image 
+            path = "..\images\last.png"
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            self.last_image = Image.open(image_path)
+            self.last_icon = ImageTk.PhotoImage(self.last_image)
+
+            # previous button image 
+            path = "..\images\previous.png"
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            self.previous_image = Image.open(image_path)
+            self.previous_icon = ImageTk.PhotoImage(self.previous_image)
+
+            # next button image 
+            path = "..\images\\next.png"
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            self.next_image = Image.open(image_path)
+            self.next_icon = ImageTk.PhotoImage(self.next_image)
+
+            # Question No
+            self.question_no_label = tk.Label(self.question_info_frame, text="Question No:")
+            self.question_no_label.grid(row=0, column=0, padx=(2,0), pady=2, sticky=tk.W)
+            self.question_no_var = tk.StringVar()
+            self.question_no_var.set("1")
+            self.question_no_value_label = tk.Label(self.question_info_frame, textvariable=self.question_no_var, width=5, font=("Helvetica", 12, "bold"))
+            self.question_no_value_label.grid(row=0, column=1, padx=2, pady=2)
+
+            # Question ID
+            self.question_id_label = tk.Label(self.question_info_frame, text="Question ID:")
+            self.question_id_label.grid(row=0, column=2, padx=(20,0), pady=2, sticky=tk.W)
+            self.question_id_var = tk.StringVar()
+            self.question_id_var.set(str(self.student_exam_questions_data[0][0]))
+            self.question_id_value_label = tk.Label(self.question_info_frame, textvariable=self.question_id_var, width=5, font=("Helvetica", 12, "bold"))
+            self.question_id_value_label.grid(row=0, column=3, padx=2, pady=2)
+
+            # Points
+            self.points_label = tk.Label(self.question_info_frame, text="Points:")
+            self.points_label.grid(row=0, column=4, padx=(20,0), pady=2, sticky=tk.W)
+            self.points_var = tk.StringVar()
+            self.points_var.set(str(self.student_exam_questions_data[0][3]))
+            self.points_value_label = tk.Label(self.question_info_frame, width=5, font=("Helvetica", 12, "bold"))
+            self.points_value_label.grid(row=0, column=5, padx=2, pady=2)
+
+            # Navigation buttons (first, previous, next, last)
+            self.first_button = tk.Button(self.question_info_frame, image=self.first_icon, cursor="hand2", command=self.nav_first, width=20, height=20)
+            self.first_button.grid(row=0, column=6, padx=(20,0), pady=2)
+
+            self.previous_button = tk.Button(self.question_info_frame, image=self.previous_icon, cursor="hand2", command=self.nav_previous, width=20, height=20)
+            self.previous_button.grid(row=0, column=7, padx=2, pady=2)
+
+            self.next_button = tk.Button(self.question_info_frame, image=self.next_icon, cursor="hand2", command=self.nav_next, width=20, height=20)
+            self.next_button.grid(row=0, column=8, padx=2, pady=2)
+
+            self.last_button = tk.Button(self.question_info_frame, image=self.last_icon, cursor="hand2", command=self.nav_last, width=20, height=20)
+            self.last_button.grid(row=0, column=9, padx=2, pady=2)
+
+            self.first_button.config(state=tk.DISABLED)
+            self.previous_button.config(state=tk.DISABLED)
+            self.next_button.config(state=tk.NORMAL)
+            self.last_button.config(state=tk.NORMAL)
+
+            # Create a frame for question and options
+            self.question_option_frame = tk.Frame(students_exam_tab)
+            self.question_option_frame.grid(row=2, column=0, padx=2, pady=2, sticky=tk.NSEW)
+            
+            # Create a frame for Question
+            self.question_frame = tk.LabelFrame(self.question_option_frame, text="Question", width=20)
+            self.question_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            # Widgets for attachment image
+            self.question_attachment_frame = tk.Frame(self.question_frame)
+            self.question_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.question_image_open_button = tk.Button(self.question_attachment_frame, text="Question Image", command=lambda: self.open_question_attachment_image(self.image_path_for_question(self.question_id_var.get())))
+            self.question_image_open_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+            
+            self.question_has_attachment_var = tk.IntVar(value=0)
+            self.question_has_attachment = tk.Checkbutton(self.question_attachment_frame, text="Has Attachment?", variable=self.question_has_attachment_var)
+            self.question_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+            self.question_has_attachment.config(state=tk.DISABLED)
+            self.question_has_attachment_var.set(1 if self.student_exam_questions_data[0][2] else 0)
+            
+            # configure question image button
+            if not self.question_has_attachment_var.get():
+                self.question_image_open_button.config(state=tk.DISABLED)
+            else:
+                # enable the question image button
+                self.question_image_open_button.config(state=tk.NORMAL)
+                # set image path that open_question_attachment_image can access it
+                self.question_attachment_image_path = self.student_exam_questions_data[0][2]
+
+            # Question text area
+            self.question_text_area = tk.Text(self.question_frame, width=40, height=20)
+            self.question_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=2)
+            self.question_text_area.delete('1.0', tk.END)
+            self.question_text_area.insert(tk.END, self.student_exam_questions_data[0][1])
+            self.question_text_area.config(state=tk.DISABLED)
+
+            # Create a frame for Options
+            self.options_frame = tk.LabelFrame(self.question_option_frame, text="Options", width=20)
+            self.options_frame.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+            # Widgets for attachment image for option1
+            self.option1_frame = tk.LabelFrame(self.options_frame, text="Option 1", width=10)
+            self.option1_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+            
+            self.option1_attachment_frame = tk.Frame(self.option1_frame)
+            self.option1_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option1_image_open_button = tk.Button(self.option1_attachment_frame, text="Option Image", command=lambda: self.open_option1_attachment_image(self.image_path_for_option(self.question_id_var.get(), 1)))
+            self.option1_image_open_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option1_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+            self.option1_has_attachment = tk.Checkbutton(self.option1_attachment_frame, text="Has Attachment?", variable=self.option1_has_attachment_var)
+            self.option1_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+            self.option1_is_checked_var = tk.IntVar(value=0) # Default unchecked
+            self.option1_is_checked = tk.Checkbutton(self.option1_attachment_frame, variable=self.option1_is_checked_var)
+            self.option1_is_checked.grid(row=0, column=2, padx=(170,0), pady=2, sticky=tk.W)
+
+            # option1 text area
+            self.option1_text_area = tk.Text(self.option1_frame, width=50, height=7)
+            self.option1_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+            # Widgets for attachment image for option2
+            self.option2_frame = tk.LabelFrame(self.options_frame, text="Option 2", width=10)
+            self.option2_frame.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+            
+            self.option2_attachment_frame = tk.Frame(self.option2_frame)
+            self.option2_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option2_image_open_button = tk.Button(self.option2_attachment_frame, text="Option Image", command=lambda: self.open_option2_attachment_image(self.image_path_for_option(self.question_id_var.get(), 2)))
+            self.option2_image_open_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option2_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+            self.option2_has_attachment = tk.Checkbutton(self.option2_attachment_frame, text="Has Attachment?", variable=self.option2_has_attachment_var)
+            self.option2_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+            self.option2_is_checked_var = tk.IntVar(value=0) # Default unchecked
+            self.option2_is_checked = tk.Checkbutton(self.option2_attachment_frame, variable=self.option2_is_checked_var)
+            self.option2_is_checked.grid(row=0, column=2, padx=(170,0), pady=2, sticky=tk.W)
+
+            # option2 text area
+            self.option2_text_area = tk.Text(self.option2_frame, width=50, height=7)
+            self.option2_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+            # Widgets for attachment image for option
+            self.option3_frame = tk.LabelFrame(self.options_frame, text="Option 3", width=10)
+            self.option3_frame.grid(row=1, column=0, padx=2, pady=2, sticky=tk.W)
+            
+            self.option3_attachment_frame = tk.Frame(self.option3_frame)
+            self.option3_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option3_image_open_button = tk.Button(self.option3_attachment_frame, text="Option Image", command=lambda: self.open_option3_attachment_image(self.image_path_for_option(self.question_id_var.get(), 3)))
+            self.option3_image_open_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option3_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+            self.option3_has_attachment = tk.Checkbutton(self.option3_attachment_frame, text="Has Attachment?", variable=self.option3_has_attachment_var)
+            self.option3_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+            self.option3_is_checked_var = tk.IntVar(value=0) # Default unchecked
+            self.option3_is_checked = tk.Checkbutton(self.option3_attachment_frame, variable=self.option3_is_checked_var)
+            self.option3_is_checked.grid(row=0, column=2, padx=(170,0), pady=2, sticky=tk.W)
+
+            # option3 text area
+            self.option3_text_area = tk.Text(self.option3_frame, width=50, height=7)
+            self.option3_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+            # Widgets for attachment image for option
+            self.option4_frame = tk.LabelFrame(self.options_frame, text="Option 4", width=10)
+            self.option4_frame.grid(row=1, column=1, padx=2, pady=2, sticky=tk.W)
+            
+            self.option4_attachment_frame = tk.Frame(self.option4_frame)
+            self.option4_attachment_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option4_image_open_button = tk.Button(self.option4_attachment_frame, text="Option Image", command=lambda: self.open_option4_attachment_image(self.image_path_for_option(self.question_id_var.get(), 4)))
+            self.option4_image_open_button.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.option4_has_attachment_var = tk.IntVar(value=0) # Default unchecked
+            self.option4_has_attachment = tk.Checkbutton(self.option4_attachment_frame, text="Has Attachment?", variable=self.option4_has_attachment_var)
+            self.option4_has_attachment.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+            self.option4_is_checked_var = tk.IntVar(value=0) # Default unchecked
+            self.option4_is_checked = tk.Checkbutton(self.option4_attachment_frame, variable=self.option4_is_checked_var)
+            self.option4_is_checked.grid(row=0, column=2, padx=(170,0), pady=2, sticky=tk.W)
+
+            # option4 text area
+            self.option4_text_area = tk.Text(self.option4_frame, width=50, height=7)
+            self.option4_text_area.grid(row=1, column=0, padx=2, pady=2, columnspan=3)
+
+            # Create a frame for answer buttons
+            self.question_buttons_frame = tk.Frame(students_exam_tab)
+            self.question_buttons_frame.grid(row=3, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+            # load exam_question_options
+            self.load_exam_question_options(self.student_exam_questions_data[0][0])
+
+            # Configure columns to expand equally
+            self.question_buttons_frame.columnconfigure(0, weight=1)
+            self.question_buttons_frame.columnconfigure(1, weight=1)
+
+            self.submit_answer_button = tk.Button(self.question_buttons_frame, text="Submit Answer", command=self.submit_answer)
+            self.submit_answer_button.grid(row=0, column=0, padx=10, pady=2, sticky=tk.E)
+
+            self.reset_answer_button = tk.Button(self.question_buttons_frame, text="Reset Answer", command=self.reset_answer)
+            self.reset_answer_button.grid(row=0, column=1, padx=10, pady=2, sticky=tk.W)
+
+            # Create a frame for answer stats
+            self.answer_stats_frame = tk.Frame(students_exam_tab)
+            self.answer_stats_frame.grid(row=4, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+            # Answered and Unanswered questions
+            self.answered_questions_label = tk.Label(self.answer_stats_frame, text="Answered Questions:")
+            self.answered_questions_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+            self.answered_questions_var = tk.StringVar()
+            self.answered_questions_var.set("0")
+            self.answered_questions_value_label = tk.Label(self.answer_stats_frame, textvariable=self.answered_questions_var, width=5, font=("Helvetica", 12, "bold"))
+            self.answered_questions_value_label.grid(row=0, column=1, padx=2, pady=2)
+
+            self.unanswered_questions_label = tk.Label(self.answer_stats_frame, text="Unanswered Questions:")
+            self.unanswered_questions_label.grid(row=0, column=2, padx=(10,0), pady=2, sticky=tk.W)
+            self.unanswered_questions_var = tk.StringVar()
+            self.unanswered_questions_var.set("0")
+            self.unanswered_questions_value_label = tk.Label(self.answer_stats_frame, textvariable=self.unanswered_questions_var, width=5, font=("Helvetica", 12, "bold"))
+            self.unanswered_questions_value_label.grid(row=0, column=3, padx=2, pady=2)
+
+            # update answer stats
+            self.update_answer_stats()
+
+        else:
+            # Student has no active exam so in this tab just sees a label informing this case
+            self.no_active_exam_label = tk.Label(students_exam_tab, text="You have no active/pending exam.", font=("Helvetica", 18, "bold"))
+            self.no_active_exam_label.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+    def update_to_exam_time_countdown(self, exam_datetime):
+        # Calculate the time difference
+        current_time = datetime.now()
+        time_difference = exam_datetime - current_time
+
+        # Calculate days, hours, minutes, and seconds
+        days = time_difference.days
+        hours, remainder = divmod(time_difference.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        # Construct countdown text based on remaining time
+        if days > 0:
+            countdown_text = f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds until exam starts..."
+        elif hours > 0:
+            countdown_text = f"{hours} hours, {minutes} minutes, {seconds} seconds until exam starts..."
+        elif minutes > 0:
+            countdown_text = f"{minutes} minutes, {seconds} seconds until exam starts..."
+        else:
+            countdown_text = f"{seconds} seconds until exam starts..."
+
+        # Update the label with the countdown
+        self.to_exam_time_var.set(countdown_text)
+
+        # Schedule the update every second
+        self.after(1000, self.update_to_exam_time_countdown, exam_datetime)
+
+    def update_remaining_exam_time_countdown(self, exam_finish_datetime):
+        # Calculate the time difference
+        current_time = datetime.now()
+        time_difference = exam_finish_datetime - current_time
+
+        # Calculate hours, minutes, and seconds
+        hours, remainder = divmod(time_difference.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        # Construct countdown text based on remaining time
+        if hours > 0:
+            countdown_text = f"{hours} hours, {minutes} minutes, {seconds} seconds remaining from exam time"
+        elif minutes > 0:
+            countdown_text = f"{minutes} minutes, {seconds} seconds remaining from exam time"
+        else:
+            countdown_text = f"{seconds} seconds remaining from exam time"
+
+        # Update the label with the countdown
+        self.remaining_exam_time_var.set(countdown_text)
+
+        # Schedule the update every second
+        self.after(1000, self.update_remaining_exam_time_countdown, exam_finish_datetime)
+
+    def nav_first(self):
+        # Activate fields to set values
+        self.question_has_attachment.config(state=tk.NORMAL)
+        self.question_text_area.config(state=tk.NORMAL)
+        # set values
+        self.question_no_var.set("1")
+        self.question_id_var.set(str(self.student_exam_questions_data[0][0]))
+        self.points_var.set(str(self.student_exam_questions_data[0][3]))
+        self.question_has_attachment_var.set(1 if self.student_exam_questions_data[0][2] else 0)
+        
+        if not self.question_has_attachment_var.get():
+                self.question_image_open_button.config(state=tk.DISABLED)
+        else:
+            # enable the question image button
+            self.question_image_open_button.config(state=tk.NORMAL)
+            # set image path that open_question_attachment_image can access it
+            self.question_attachment_image_path = self.student_exam_questions_data[0][2]
+
+        self.question_text_area.delete('1.0', tk.END)
+        self.question_text_area.insert(tk.END, self.student_exam_questions_data[0][1])
+        # disable fields
+        self.question_has_attachment.config(state=tk.DISABLED)
+        self.question_text_area.config(state=tk.DISABLED)
+        # disable previous and first buttons but make sure next and last buttons are normal
+        self.first_button.config(state=tk.DISABLED)
+        self.previous_button.config(state=tk.DISABLED)
+        self.next_button.config(state=tk.NORMAL)
+        self.last_button.config(state=tk.NORMAL)
+
+        # load exam_question_options
+        self.load_exam_question_options(self.student_exam_questions_data[0][0])
+
+    def nav_previous(self):    
+        # Activate fields to set values
+        self.question_has_attachment.config(state=tk.NORMAL)
+        self.question_text_area.config(state=tk.NORMAL)
+        # set values
+        self.question_no_var.set(str(int(self.question_no_var.get()) - 1))
+        x = int(self.question_no_var.get())
+        self.question_id_var.set(str(self.student_exam_questions_data[x-1][0]))
+        self.points_var.set(str(self.student_exam_questions_data[x-1][3]))
+        self.question_has_attachment_var.set(1 if self.student_exam_questions_data[x-1][2] else 0)
+        
+        if not self.question_has_attachment_var.get():
+                self.question_image_open_button.config(state=tk.DISABLED)
+        else:
+            # enable the question image button
+            self.question_image_open_button.config(state=tk.NORMAL)
+            # set image path that open_question_attachment_image can access it
+            self.question_attachment_image_path = self.student_exam_questions_data[x-1][2]
+                
+        self.question_text_area.delete('1.0', tk.END)
+        self.question_text_area.insert(tk.END, self.student_exam_questions_data[x-1][1])
+        # disable fields
+        self.question_has_attachment.config(state=tk.DISABLED)
+        self.question_text_area.config(state=tk.DISABLED)
+        
+        # after navigation, check question index and enable/disable nav buttons if necessary
+        if x == 1:
+            # we're gonna be in the first question
+            self.first_button.config(state=tk.DISABLED)
+            self.previous_button.config(state=tk.DISABLED)
+            self.next_button.config(state=tk.NORMAL)
+            self.last_button.config(state=tk.NORMAL)
+        else:
+            # make sure all of the nav buttons are enabled
+            self.first_button.config(state=tk.NORMAL)
+            self.previous_button.config(state=tk.NORMAL)
+            self.next_button.config(state=tk.NORMAL)
+            self.last_button.config(state=tk.NORMAL)
+        
+        # load exam_question_options
+        self.load_exam_question_options(self.student_exam_questions_data[x-1][0])
+
+    def nav_next(self):
+        # Activate fields to set values
+        self.question_has_attachment.config(state=tk.NORMAL)
+        self.question_text_area.config(state=tk.NORMAL)
+        # set values
+        self.question_no_var.set(str(int(self.question_no_var.get()) + 1))
+        x = int(self.question_no_var.get())
+        self.question_id_var.set(str(self.student_exam_questions_data[x-1][0]))
+        self.points_var.set(str(self.student_exam_questions_data[x-1][3]))
+        self.question_has_attachment_var.set(1 if self.student_exam_questions_data[x-1][2] else 0)
+        
+        if not self.question_has_attachment_var.get():
+                self.question_image_open_button.config(state=tk.DISABLED)
+        else:
+            # enable the question image button
+            self.question_image_open_button.config(state=tk.NORMAL)
+            # set image path that open_question_attachment_image can access it
+            self.question_attachment_image_path = self.student_exam_questions_data[x-1][2]
+                
+        self.question_text_area.delete('1.0', tk.END)
+        self.question_text_area.insert(tk.END, self.student_exam_questions_data[x-1][1])
+        # disable fields
+        self.question_has_attachment.config(state=tk.DISABLED)
+        self.question_text_area.config(state=tk.DISABLED)
+        
+        # after navigation, check question index and enable/disable nav buttons if necessary
+        if x == len(self.student_exam_questions_data):
+            # we're gonna be in the last question
+            self.first_button.config(state=tk.NORMAL)
+            self.previous_button.config(state=tk.NORMAL)
+            self.next_button.config(state=tk.DISABLED)
+            self.last_button.config(state=tk.DISABLED)
+        else:
+            # make sure all of the nav buttons are enabled
+            self.first_button.config(state=tk.NORMAL)
+            self.previous_button.config(state=tk.NORMAL)
+            self.next_button.config(state=tk.NORMAL)
+            self.last_button.config(state=tk.NORMAL)
+        
+        # load exam_question_options
+        self.load_exam_question_options(self.student_exam_questions_data[x-1][0])
+        
+    def nav_last(self):
+        # Activate fields to set values
+        self.question_has_attachment.config(state=tk.NORMAL)
+        self.question_text_area.config(state=tk.NORMAL)
+        # set values
+        self.question_no_var.set(str(len(self.student_exam_questions_data)))
+        self.question_id_var.set(str(self.student_exam_questions_data[-1][0]))
+        self.points_var.set(str(self.student_exam_questions_data[-1][3]))
+        self.question_has_attachment_var.set(1 if self.student_exam_questions_data[-1][2] else 0)
+        
+        if not self.question_has_attachment_var.get():
+                self.question_image_open_button.config(state=tk.DISABLED)
+        else:
+            # enable the question image button
+            self.question_image_open_button.config(state=tk.NORMAL)
+            # set image path that open_question_attachment_image can access it
+            self.question_attachment_image_path = self.student_exam_questions_data[-1][2]
+
+        self.question_text_area.delete('1.0', tk.END)
+        self.question_text_area.insert(tk.END, self.student_exam_questions_data[-1][1])
+        # disable fields
+        self.question_has_attachment.config(state=tk.DISABLED)
+        self.question_text_area.config(state=tk.DISABLED)
+        # disable next and last buttons but make sure previous and first buttons are normal
+        self.first_button.config(state=tk.NORMAL)
+        self.previous_button.config(state=tk.NORMAL)
+        self.next_button.config(state=tk.DISABLED)
+        self.last_button.config(state=tk.DISABLED)
+
+        # load exam_question_options
+        self.load_exam_question_options(self.student_exam_questions_data[-1][0])
+    
+    def load_exam_question_options(self, exam_question_id):
+        exam_id = self.student_exam_id_var.get().split(" ")[-1] #text variable is like Student Exam ID:  XXXX
+        user_name = self.username
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT option_id, question_id, text, image, is_correct_answer
+                       FROM Option
+                       WHERE question_id = ?
+                       ORDER BY option_id""", (exam_question_id, ))
+        exam_question_options_data = cursor.fetchall()
+
+        cursor.execute("""SELECT type, text, image
+                       FROM Question
+                       WHERE question_id = ?""", (exam_question_id, ))
+        exam_question_data = cursor.fetchone()
+
+        cursor.execute("""SELECT question_id, option_id, answer_text
+                       FROM Answer
+                       WHERE exam_id = ? AND user_name = ? AND question_id = ?""", (exam_id, user_name, exam_question_id))
+        
+        student_question_answers_data = cursor.fetchone()
+
+        connection.close()
+
+        question_answered = False
+        # find the option that the student chosen if any
+        if student_question_answers_data:
+            # student has answered the question
+            question_answered = True
+            chosen_option_number = student_question_answers_data[1][-1] #last character of the optionid id the option number
+        
+        # Set options based on the question type
+        if exam_question_data[0] == "Multiple choice":
+            # activate some fields and widgets to set the
+            self.option1_text_area.config(state=tk.NORMAL)
+            self.option1_has_attachment.config(state=tk.NORMAL)
+            self.option1_image_open_button.config(state=tk.NORMAL)
+            self.option1_is_checked.config(state=tk.NORMAL)
+
+            self.option2_text_area.config(state=tk.NORMAL)
+            self.option2_has_attachment.config(state=tk.NORMAL)
+            self.option2_image_open_button.config(state=tk.NORMAL)
+            self.option2_is_checked.config(state=tk.NORMAL)
+
+            self.option3_text_area.config(state=tk.NORMAL)
+            self.option3_has_attachment.config(state=tk.NORMAL)
+            self.option3_image_open_button.config(state=tk.NORMAL)
+            self.option3_is_checked.config(state=tk.NORMAL)
+
+            self.option4_text_area.config(state=tk.NORMAL)
+            self.option4_has_attachment.config(state=tk.NORMAL)
+            self.option4_image_open_button.config(state=tk.NORMAL)
+            self.option4_is_checked.config(state=tk.NORMAL)
+            
+            # set fields
+            self.option1_text_area.delete("1.0", tk.END)
+            self.option1_text_area.insert(tk.END, exam_question_options_data[0][2])
+            self.option1_has_attachment_var.set(1 if exam_question_options_data[0][3] else 0)
+            self.option1_is_checked_var.set(1 if (question_answered and chosen_option_number == "1") else 0)
+
+            self.option2_text_area.delete("1.0", tk.END)
+            self.option2_text_area.insert(tk.END, exam_question_options_data[1][2])
+            self.option2_has_attachment_var.set(1 if exam_question_options_data[1][3] else 0)
+            self.option2_is_checked_var.set(1 if (question_answered and chosen_option_number == "2") else 0)
+
+            self.option3_text_area.delete("1.0", tk.END)
+            self.option3_text_area.insert(tk.END, exam_question_options_data[2][2])
+            self.option3_has_attachment_var.set(1 if exam_question_options_data[2][3] else 0)
+            self.option3_is_checked_var.set(1 if (question_answered and chosen_option_number == "3") else 0)
+
+            self.option4_text_area.delete("1.0", tk.END)
+            self.option4_text_area.insert(tk.END, exam_question_options_data[3][2])
+            self.option4_has_attachment_var.set(1 if exam_question_options_data[3][3] else 0)
+            self.option4_is_checked_var.set(1 if (question_answered and chosen_option_number == "4") else 0)
+            
+            # disable some fields and widgets again
+            self.option1_text_area.config(state=tk.DISABLED)
+            if not self.option1_has_attachment_var.get():
+                self.option1_image_open_button.config(state=tk.DISABLED)
+            else:
+                # enable the option1 image button
+                self.option1_image_open_button.config(state=tk.NORMAL)
+                # set image path that open_option1_attachment_image can access it
+                self.option1_attachment_image_path = exam_question_options_data[0][3]
+            self.option1_has_attachment.config(state=tk.DISABLED)
+
+            self.option2_text_area.config(state=tk.DISABLED)
+            if not self.option2_has_attachment_var.get():
+                self.option2_image_open_button.config(state=tk.DISABLED)
+            else:
+                # enable the option2 image button
+                self.option2_image_open_button.config(state=tk.NORMAL)
+                # set image path that open_option2_attachment_image can access it
+                self.option2_attachment_image_path = exam_question_options_data[1][3]
+            self.option2_has_attachment.config(state=tk.DISABLED)
+
+            self.option3_text_area.config(state=tk.DISABLED)
+            if not self.option3_has_attachment_var.get():
+                self.option3_image_open_button.config(state=tk.DISABLED)
+            else:
+                # enable the option3 image button
+                self.option3_image_open_button.config(state=tk.NORMAL)
+                # set image path that open_option3_attachment_image can access it
+                self.option3_attachment_image_path = exam_question_options_data[2][3]
+            self.option3_has_attachment.config(state=tk.DISABLED)
+
+            self.option4_text_area.config(state=tk.DISABLED)
+            if not self.option4_has_attachment_var.get():
+                self.option4_image_open_button.config(state=tk.DISABLED)
+            else:
+                # enable the option4 image button
+                self.option4_image_open_button.config(state=tk.NORMAL)
+                # set image path that open_option4_attachment_image can access it
+                self.option4_attachment_image_path = exam_question_options_data[3][3]
+            self.option4_has_attachment.config(state=tk.DISABLED)
+        
+        elif exam_question_data[0] == "True/False":
+            # activate some fields and widgets to set the
+            self.option1_text_area.config(state=tk.NORMAL)
+            self.option1_has_attachment.config(state=tk.NORMAL)
+            self.option1_image_open_button.config(state=tk.NORMAL)
+            self.option1_is_checked.config(state=tk.NORMAL)
+
+            self.option2_text_area.config(state=tk.NORMAL)
+            self.option2_has_attachment.config(state=tk.NORMAL)
+            self.option2_image_open_button.config(state=tk.NORMAL)
+            self.option2_is_checked.config(state=tk.NORMAL)
+
+            self.option3_text_area.config(state=tk.NORMAL)
+            self.option3_has_attachment.config(state=tk.NORMAL)
+            self.option3_image_open_button.config(state=tk.NORMAL)
+            self.option3_is_checked.config(state=tk.NORMAL)
+
+            self.option4_text_area.config(state=tk.NORMAL)
+            self.option4_has_attachment.config(state=tk.NORMAL)
+            self.option4_image_open_button.config(state=tk.NORMAL)
+            self.option4_is_checked.config(state=tk.NORMAL)
+            
+            # set fields
+            self.option1_text_area.delete("1.0", tk.END)
+            self.option1_text_area.insert(tk.END, exam_question_options_data[0][2])
+            self.option1_has_attachment_var.set(1 if exam_question_options_data[0][3] else 0)
+            self.option1_is_checked_var.set(1 if (question_answered and chosen_option_number == "1") else 0)
+
+            self.option2_text_area.delete("1.0", tk.END)
+            self.option2_text_area.insert(tk.END, exam_question_options_data[1][2])
+            self.option2_has_attachment_var.set(1 if exam_question_options_data[1][3] else 0)
+            self.option2_is_checked_var.set(1 if (question_answered and chosen_option_number == "2") else 0)
+
+            self.option3_text_area.delete("1.0", tk.END)
+            self.option3_has_attachment_var.set(0)
+            self.option3_is_checked_var.set(0)
+
+            self.option4_text_area.delete("1.0", tk.END)
+            self.option4_has_attachment_var.set(0)
+            self.option4_is_checked_var.set(0)
+            
+            # disable some fields and widgets again
+            self.option1_text_area.config(state=tk.DISABLED)
+            if not self.option1_has_attachment_var.get():
+                self.option1_image_open_button.config(state=tk.DISABLED)
+            else:
+                # enable the option1 image button
+                self.option1_image_open_button.config(state=tk.NORMAL)
+                # set image path that open_option1_attachment_image can access it
+                self.option1_attachment_image_path = exam_question_options_data[0][3]
+            self.option1_has_attachment.config(state=tk.DISABLED)
+
+            self.option2_text_area.config(state=tk.DISABLED)
+            if not self.option2_has_attachment_var.get():
+                self.option2_image_open_button.config(state=tk.DISABLED)
+            else:
+                # enable the option2 image button
+                self.option2_image_open_button.config(state=tk.NORMAL)
+                # set image path that open_option2_attachment_image can access it
+                self.option2_attachment_image_path = exam_question_options_data[1][3]
+            self.option2_has_attachment.config(state=tk.DISABLED)
+
+            self.option3_text_area.config(state=tk.DISABLED)
+            self.option3_image_open_button.config(state=tk.DISABLED)
+            self.option3_has_attachment.config(state=tk.DISABLED)
+            self.option3_is_checked.config(state=tk.DISABLED)
+
+            self.option4_text_area.config(state=tk.DISABLED)
+            self.option4_image_open_button.config(state=tk.DISABLED)
+            self.option4_has_attachment.config(state=tk.DISABLED)
+            self.option4_is_checked.config(state=tk.DISABLED)
+        
+        elif exam_question_data[0] == "Descriptive/Practical":
+            # activate some fields and widgets to set the
+            self.option1_text_area.config(state=tk.NORMAL)
+            self.option1_has_attachment.config(state=tk.NORMAL)
+            self.option1_image_open_button.config(state=tk.NORMAL)
+            self.option1_is_checked.config(state=tk.NORMAL)
+
+            self.option2_text_area.config(state=tk.NORMAL)
+            self.option2_has_attachment.config(state=tk.NORMAL)
+            self.option2_image_open_button.config(state=tk.NORMAL)
+            self.option2_is_checked.config(state=tk.NORMAL)
+
+            self.option3_text_area.config(state=tk.NORMAL)
+            self.option3_has_attachment.config(state=tk.NORMAL)
+            self.option3_image_open_button.config(state=tk.NORMAL)
+            self.option3_is_checked.config(state=tk.NORMAL)
+
+            self.option4_text_area.config(state=tk.NORMAL)
+            self.option4_has_attachment.config(state=tk.NORMAL)
+            self.option4_image_open_button.config(state=tk.NORMAL)
+            self.option4_is_checked.config(state=tk.NORMAL)
+            
+            # set fields
+            self.option1_text_area.delete("1.0", tk.END)
+            if question_answered:
+                self.option1_text_area.insert(tk.END, student_question_answers_data[2])
+            self.option1_has_attachment_var.set(0)
+            self.option1_is_checked_var.set(0)
+
+            self.option2_text_area.delete("1.0", tk.END)
+            self.option2_has_attachment_var.set(0)
+            self.option2_is_checked_var.set(0)
+
+            self.option3_text_area.delete("1.0", tk.END)
+            self.option3_has_attachment_var.set(0)
+            self.option3_is_checked_var.set(0)
+
+            self.option4_text_area.delete("1.0", tk.END)
+            self.option4_has_attachment_var.set(0)
+            self.option4_is_checked_var.set(0)
+            
+            # disable some fields and widgets again
+            self.option1_image_open_button.config(state=tk.DISABLED)
+            self.option1_has_attachment.config(state=tk.DISABLED)
+            self.option1_is_checked.config(state=tk.DISABLED)
+
+            self.option2_text_area.config(state=tk.DISABLED)
+            self.option2_image_open_button.config(state=tk.DISABLED)
+            self.option2_has_attachment.config(state=tk.DISABLED)
+            self.option2_is_checked.config(state=tk.DISABLED)
+
+            self.option3_text_area.config(state=tk.DISABLED)
+            self.option3_image_open_button.config(state=tk.DISABLED)
+            self.option3_has_attachment.config(state=tk.DISABLED)
+            self.option3_is_checked.config(state=tk.DISABLED)
+
+            self.option4_text_area.config(state=tk.DISABLED)
+            self.option4_image_open_button.config(state=tk.DISABLED)
+            self.option4_has_attachment.config(state=tk.DISABLED)
+            self.option4_is_checked.config(state=tk.DISABLED)
+        
+    def open_question_attachment_image(self, question_image_path): 
+        try:
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, question_image_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            
+            # Open the image file
+            image = Image.open(image_path)
+            # Show the image
+            image.show()
+        except FileNotFoundError:
+            messagebox.showwarning("File not found", "Please check the path and try again.")
+        except Exception as e:
+            messagebox.showwarning("Error", f"An error occurred: {e}")
+
+    def open_option1_attachment_image(self, option1_image_path):
+        try:
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, option1_image_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            
+            # Open the image file
+            image = Image.open(image_path)
+            # Show the image
+            image.show()
+        except FileNotFoundError:
+            messagebox.showwarning("File not found", "Please check the path and try again.")
+        except Exception as e:
+            messagebox.showwarning("Error", f"An error occurred: {e}")
+
+    def open_option2_attachment_image(self, option2_image_path):
+        try:
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, option2_image_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            
+            # Open the image file
+            image = Image.open(image_path)
+            # Show the image
+            image.show()
+        except FileNotFoundError:
+            messagebox.showwarning("File not found", "Please check the path and try again.")
+        except Exception as e:
+            messagebox.showwarning("Error", f"An error occurred: {e}")
+
+    def open_option3_attachment_image(self, option3_image_path):
+        try:
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, option3_image_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            
+            # Open the image file
+            image = Image.open(image_path)
+            # Show the image
+            image.show()
+        except FileNotFoundError:
+            messagebox.showwarning("File not found", "Please check the path and try again.")
+        except Exception as e:
+            messagebox.showwarning("Error", f"An error occurred: {e}")
+
+    def open_option4_attachment_image(self, option4_image_path):
+        try:
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, option4_image_path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            
+            # Open the image file
+            image = Image.open(image_path)
+            # Show the image
+            image.show()
+        except FileNotFoundError:
+            messagebox.showwarning("File not found", "Please check the path and try again.")
+        except Exception as e:
+            messagebox.showwarning("Error", f"An error occurred: {e}")
+    
+    def image_path_for_question(self, question_id):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT image
+                       FROM Question
+                       WHERE question_id = ?""", (question_id, ))
+        question_image_path = cursor.fetchone()[0]
+
+        connection.close()
+
+        return question_image_path
+    
+    def image_path_for_option(self, question_id, option_number):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT image
+                       FROM Option
+                       WHERE question_id = ?
+                       ORDER BY option_id""", (question_id, ))
+        question_options_images = cursor.fetchall()
+
+        connection.close()
+
+        return question_options_images[option_number-1][0]
+
+    def submit_answer(self):  
+        exam_id = self.student_exam_id_var.get().split(" ")[-1] #text variable is like Student Exam ID:  XXXX
+        question_id = self.question_id_var.get()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT option_id, question_id, text, image, is_correct_answer
+                       FROM Option
+                       WHERE question_id = ?
+                       ORDER BY option_id""", (question_id, ))
+        exam_question_options_data = cursor.fetchall()
+
+        cursor.execute("""SELECT type, text, image
+                       FROM Question
+                       WHERE question_id = ?""", (question_id, ))
+        exam_question_data = cursor.fetchone()
+
+        cursor.execute("""SELECT exam_id, user_name, question_id
+                     FROM Answer""")
+        answers = cursor.fetchall()
+
+        connection.close()
+        
+        user_name = self.username
+        
+        answer_text = self.option1_text_area.get("1.0", tk.END).strip() if self.option1_text_area.get("1.0", tk.END) else None
+        
+        # Validate fields
+        conditions = [
+            self.option1_is_checked_var.get() == 1,
+            self.option2_is_checked_var.get() == 1,
+            self.option3_is_checked_var.get() == 1,
+            self.option4_is_checked_var.get() == 1
+        ]
+        # Count the number of True values in the conditions list
+        count_true = sum(1 for condition in conditions if condition)
+
+        if not (exam_id and question_id):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        elif (exam_question_data[0] == "Multiple choice" and count_true == 0) or (exam_question_data[0] == "True/False" and count_true == 0):
+            messagebox.showwarning("No Option Selected", "You must select one option to submit, otherwise don't need to submit.")
+            return
+        elif (exam_question_data[0] == "Multiple choice" and 1 < count_true) or (exam_question_data[0] == "True/False" and 1 < count_true):
+            messagebox.showwarning("Multiple Options Selected", "You must select only one option to submit.")
+            return
+        elif exam_question_data[0] == "Descriptive/Practical" and not answer_text:
+            messagebox.showwarning("No Answer Text", "You must type some text in option1 textarea to submit, otherwise don't need to submit.")
+            return
+        
+        if exam_question_data[0] == "Multiple choice":
+            if self.option1_is_checked_var.get() == 1:
+                option_id = exam_question_options_data[0][0]
+            elif self.option2_is_checked_var.get() == 1:
+                option_id = exam_question_options_data[1][0]
+            elif self.option3_is_checked_var.get() == 1:
+                option_id = exam_question_options_data[2][0]
+            else:
+                option_id = exam_question_options_data[3][0]
+        elif exam_question_data[0] == "True/False":
+            if self.option1_is_checked_var.get() == 1:
+                option_id = exam_question_options_data[0][0]
+            elif self.option2_is_checked_var.get() == 1:
+                option_id = exam_question_options_data[1][0]
+        else:
+            option_id = exam_question_options_data[0][0]
+
+        if (exam_id, user_name, question_id) in answers:
+            # student already answered this question in this exam, just update the answer
+            answer_update_msg = update_answer(exam_id, user_name, question_id, option_id, answer_text)
+            messagebox.showinfo("Answer Update", answer_update_msg)
+            return
+
+        # Call insert_answer function from db1.py
+        answer_sumbit_msg = insert_answer(exam_id, user_name, question_id, option_id, answer_text)
+        messagebox.showinfo("Answer Submit", answer_sumbit_msg)
+
+        # update answer stats
+        self.update_answer_stats()
+
+    def reset_answer(self):
+        question_id = self.question_id_var.get()
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT type, text, image
+                       FROM Question
+                       WHERE question_id = ?""", (question_id, ))
+        exam_question_data = cursor.fetchone()
+
+        connection.close()
+        
+        if exam_question_data[0] == "Multiple choice":
+            self.option1_is_checked_var.set(0)
+            self.option2_is_checked_var.set(0)
+            self.option3_is_checked_var.set(0)
+            self.option4_is_checked_var.set(0)
+        elif exam_question_data[0] == "True/False":
+            self.option1_is_checked_var.set(0)
+            self.option2_is_checked_var.set(0)
+        else:
+            self.option1_text_area.delete("1.0", tk.END)
+        
+        # update answer stats
+        self.update_answer_stats()
+    
+    def update_answer_stats(self):
+        exam_id = self.student_exam_id_var.get().split(" ")[-1] #text variable is like Student Exam ID:  XXXX
+        user_name = self.username
+
+        # Fetch answers data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+ 
+        cursor.execute("""SELECT COUNT(*) AS answered_questions_count
+                        FROM Answer
+                        WHERE exam_id = ? AND user_name = ?""", (exam_id, user_name))
+        answered_questions_count = cursor.fetchone()[0]
+
+        cursor.execute("""SELECT COUNT(*) AS exam_questions_count
+                        FROM Exam_Question
+                        WHERE exam_id = ?""", (exam_id, ))
+        exam_questions_count = int(cursor.fetchone()[0])
+
+        connection.close()
+
+        # Setting the calculated stats to the labels
+        self.answered_questions_var.set(answered_questions_count)
+        self.unanswered_questions_var.set(int(exam_questions_count) - int(answered_questions_count))
+
+    def create_students_feedback_widgets(self, students_feedback_tab):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT E.exam_id
+                       FROM Exam E
+                       JOIN User_Exam UE ON UE.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            AND UE.user_name = ?
+                       ORDER BY E.exam_id""", (self.username, ))
+        student_finished_exam_ids = cursor.fetchall()
+
+        connection.close()
+
+        # Create an upper frame for feedback info
+        self.upper_feedback_frame = tk.Frame(students_feedback_tab)
+        self.upper_feedback_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Exam ID
+        self.exam_id_label = tk.Label(self.upper_feedback_frame, text="Exam ID:")
+        self.exam_id_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+        self.exam_id_combo = ttk.Combobox(self.upper_feedback_frame, width=5, values=student_finished_exam_ids)
+        self.exam_id_combo.grid(row=0, column=1, padx=2, pady=2)
+        self.exam_id_combo.set(student_finished_exam_ids[-1])
+
+        # feedback type
+        self.feedback_type_label = tk.Label(self.upper_feedback_frame, text="Feedback Type:")
+        self.feedback_type_label.grid(row=0, column=2, padx=(20,0), pady=2, sticky=tk.W)
+        self.feedback_type_combo = ttk.Combobox(self.upper_feedback_frame, values=('Suggestion for improvement', 'Comment on clarity, and difficulty levels'), width=35)
+        self.feedback_type_combo.grid(row=0, column=3, padx=2, pady=2)
+
+        # Question ID
+        self.question_id_label = tk.Label(self.upper_feedback_frame, text="Question ID:")
+        self.question_id_label.grid(row=0, column=4, padx=(20,0), pady=2, sticky=tk.W)
+        self.question_id_entry = tk.Entry(self.upper_feedback_frame, width=5)
+        self.question_id_entry.grid(row=0, column=5, padx=2, pady=2)
+
+        # rating
+        self.feedback_rating_label = tk.Label(self.upper_feedback_frame, text="Rating:")
+        self.feedback_rating_label.grid(row=0, column=6, padx=(20,0), pady=2, sticky=tk.W)
+        self.feedback_rating_combo = ttk.Combobox(self.upper_feedback_frame, values=list(range(1,11)), width=10)
+        self.feedback_rating_combo.grid(row=0, column=7, padx=2, pady=2)
+
+        # Add radio buttons for feedback visibility
+        self.feedback_visibility_var = tk.StringVar()
+        self.feedback_visibility_var.set("Visible")  # Default selection
+
+        self.visible_radio = tk.Radiobutton(self.upper_feedback_frame, text="Visible", variable=self.feedback_visibility_var, value="Visible")
+        self.visible_radio.grid(row=0, column=8, padx=(20,0), pady=2)
+
+        self.invisible_radio = tk.Radiobutton(self.upper_feedback_frame, text="Invisible", variable=self.feedback_visibility_var, value="Invisible")
+        self.invisible_radio.grid(row=0, column=9, padx=2, pady=2)
+
+        # Create a lower frame for feedback info
+        self.lower_feedback_frame = tk.Frame(students_feedback_tab)
+        self.lower_feedback_frame.grid(row=1, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create a left frame for feedback info (textarea)
+        self.left_feedback_frame = tk.Frame(self.lower_feedback_frame)
+        self.left_feedback_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # feedback text area
+        self.feedback_text_area = tk.Text(self.left_feedback_frame, width=100, height=20)
+        self.feedback_text_area.grid(row=0, column=0, padx=2, pady=2)
+
+        # Create a right frame for feedback info (notes)
+        self.right_feedback_frame = tk.Frame(self.lower_feedback_frame)
+        self.right_feedback_frame.grid(row=0, column=1, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Note1
+        self.note1_label = tk.Label(self.right_feedback_frame, text="Note1: Be careful when submitting feedbacks, because you can't edit them later.", fg="red", font=("Helvetica", 12, "bold"), wraplength=350, justify="left")
+        self.note1_label.grid(row=0, column=0, padx=2, pady=2, columnspan=2, sticky=tk.W)
+
+        # Note2
+        self.note2_label = tk.Label(self.right_feedback_frame, text='Note2: If you set the feedback visibility on "Visible", everybody can read it.', fg="red", font=("Helvetica", 12, "bold"), wraplength=350, justify="left")
+        self.note2_label.grid(row=1, column=0, padx=2, pady=10, columnspan=2, sticky=tk.W)
+
+        # Note3
+        self.note3_label = tk.Label(self.right_feedback_frame, text="Note3: Feedbacks are very important for us, they are analyzed and will be considered in exam app improvement. Thanks for sharing your experiences, comments, and suggestions.", font=("Helvetica", 12, "bold"), wraplength=350, justify="left")
+        self.note3_label.grid(row=2, column=0, padx=2, pady=10, columnspan=2, sticky=tk.W)
+
+        # Create a feedback buttons frame
+        self.feedback_buttons_frame = tk.Frame(self.right_feedback_frame)
+        self.feedback_buttons_frame.grid(row=3, column=1, padx=5, pady=2, sticky=tk.NSEW)
+        
+        # Submit feedback button
+        self.submit_feedback_button = tk.Button(self.feedback_buttons_frame, text="Submit Feedback", cursor="hand2", command=self.submit_feedback)
+        self.submit_feedback_button.grid(row=0, column=0, padx=10, pady=10)
+
+        # Reset feedback button
+        self.reset_feedback_button = tk.Button(self.feedback_buttons_frame, text="Reset Feedback", cursor="hand2", command=self.reset_feedback)
+        self.reset_feedback_button.grid(row=0, column=1, padx=10, pady=10)
+
+        # Create a frame for feedbacks table
+        self.feedbacks_table_frame = tk.Frame(students_feedback_tab)
+        self.feedbacks_table_frame.grid(row=2, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        # Create the table containing the visible feedbacks on the student finished exams 
+        columns = ("exam_id", "user_name", "feedback_time", "feedback_type", "text", "question_id", "rating", "status")
+        self.feedbacks_table = ttk.Treeview(self.feedbacks_table_frame, column=columns, show='headings', selectmode="browse", height=20)
+        self.feedbacks_table.heading("#1", text="exam_id",anchor=tk.W)
+        self.feedbacks_table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.feedbacks_table.heading("#2", text="user_name",anchor=tk.W)
+        self.feedbacks_table.column("#2", stretch=tk.NO, width = 110, minwidth=100, anchor=tk.W)
+        self.feedbacks_table.heading("#3", text="feedback_time",anchor=tk.W)
+        self.feedbacks_table.column("#3", stretch=tk.NO, width = 110, minwidth=100, anchor=tk.W)
+        self.feedbacks_table.heading("#4", text="feedback_type",anchor=tk.W)
+        self.feedbacks_table.column("#4", stretch=tk.NO, width = 200, minwidth=100, anchor=tk.W)
+        self.feedbacks_table.heading("#5", text="text",anchor=tk.W)
+        self.feedbacks_table.column("#5", stretch=tk.NO, width = 400, minwidth=200, anchor=tk.W)
+        self.feedbacks_table.heading("#6", text="question_id",anchor=tk.W)
+        self.feedbacks_table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.feedbacks_table.heading("#7", text="rating",anchor=tk.W)
+        self.feedbacks_table.column("#7", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.feedbacks_table.heading("#8", text="status",anchor=tk.W)
+        self.feedbacks_table.column("#8", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        
+        self.feedbacks_table.grid(row=0, column=0, padx=5, pady=2, sticky="nsew")
+
+        self.feedbacks_table_y_scrollbar = ttk.Scrollbar(self.feedbacks_table_frame, orient="vertical", command=self.feedbacks_table.yview)
+        self.feedbacks_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.feedbacks_table.configure(yscrollcommand=self.feedbacks_table_y_scrollbar.set)
+
+        # Bind the function to the Treeview's selection event
+        self.feedbacks_table.bind('<<TreeviewSelect>>', self.feedbacks_on_treeview_select)
+
+        s = ttk.Style(self.feedbacks_table)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+        # load the exam feedbacks table data
+        self.load_student_exam_feedbacks()
+    
+    def submit_feedback(self):
+        exam_id = self.exam_id_combo.get()
+        user_name = self.username
+        feedback_type = self.feedback_type_combo.get()
+        text = self.feedback_text_area.get("1.0", tk.END)
+        question_id = self.question_id_entry.get()
+        rating = int(self.feedback_rating_combo.get())
+        status = "Pending/Unread"
+        is_visible = 1 if self.feedback_visibility_var.get() == "Visible" else 0
+
+        # Validate fields
+        if not (exam_id and feedback_type and rating and status):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+
+        # Call insert_feedback function from db1.py
+        feedback_submit_msg = insert_feedback(exam_id, user_name, feedback_type, text, question_id, rating, status, is_visible)
+        messagebox.showinfo("Feedback Submit", feedback_submit_msg)
+        
+        # Reset/clear fields
+        self.reset_feedback()
+        # reload the exam feedbacks table data
+        self.load_student_exam_feedbacks()
+
+    def load_student_exam_feedbacks(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        # retrieve all of the feedbacks on the finished exams that this username was in
+        # (only visible feedbacks from other users but all the feedbacks from this user)
+        cursor.execute("""SELECT F.exam_id, F.user_name, F.feedback_time, F.feedback_type, F.text, F.question_id, F.rating, F.status
+                       FROM Feedback F
+                       JOIN Exam E ON F.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            AND (F.is_visible = 1 OR (F.is_visible = 0 AND F.user_name = ?))
+                            AND E.exam_id IN (
+                                SELECT UE.exam_id
+                                FROM User_Exam UE
+                                WHERE UE.user_name = ?
+                            )
+                        ORDER BY F.feedback_time DESC""", (self.username, self.username))
+        data = cursor.fetchall()
+        connection.close()
+
+        # Clear treeview (feedbacks_table) data
+        self.feedbacks_table.delete(*self.feedbacks_table.get_children())
+        # Insert data rows
+        for row in data:
+            self.feedbacks_table.insert("", "end", values=row)
+    
+    def exam_feedbacks_on_tab_opened(self, event):
+        #load the exam feedbacks
+        self.load_student_exam_feedbacks()
+    
+    def reset_feedback(self):
+        # activate fields to set their values
+        self.exam_id_combo.config(state=tk.NORMAL)
+        self.feedback_type_combo.config(state=tk.NORMAL)
+        self.question_id_entry.config(state=tk.NORMAL)
+        self.feedback_rating_combo.config(state=tk.NORMAL)
+        self.visible_radio.config(state=tk.NORMAL)
+        self.visible_radio.config(state=tk.NORMAL)
+        self.feedback_text_area.config(state=tk.NORMAL)
+        self.submit_feedback_button.config(state=tk.NORMAL)
+
+        # Clear Question ID field
+        self.question_id_entry.delete(0, tk.END)
+        # Reset feedback visibility
+        self.feedback_visibility_var.set("Visible")
+        # Clear feedback Text Area
+        self.feedback_text_area.delete("1.0", tk.END)
+    
+    def feedbacks_on_treeview_select(self, event):
+        # Reset fields
+        self.reset_feedback()
+        
+        # Get the selected item
+        selected_item = self.feedbacks_table.selection()
+        
+        if selected_item:
+            # Get the values of the selected item
+            values = self.feedbacks_table.item(selected_item, 'values')
+
+            # Replace None values with empty strings
+            values = ["" if value is None else value for value in values]
+
+            # activate fields to set their values
+            self.exam_id_combo.config(state=tk.NORMAL)
+            self.feedback_type_combo.config(state=tk.NORMAL)
+            self.question_id_entry.config(state=tk.NORMAL)
+            self.feedback_rating_combo.config(state=tk.NORMAL)
+            self.visible_radio.config(state=tk.NORMAL)
+            self.invisible_radio.config(state=tk.NORMAL)
+            self.feedback_text_area.config(state=tk.NORMAL)
+
+            # Set the values of the feedback-related fields
+            self.exam_id_combo.set(values[0])
+            self.feedback_type_combo.set(values[3])
+            self.feedback_text_area.delete("1.0", tk.END)
+            self.feedback_text_area.insert(tk.END, values[4])
+            self.question_id_entry.delete(0, tk.END)
+            self.question_id_entry.insert(tk.END, values[5])
+            self.feedback_rating_combo.set(int(values[6]))
+            self.feedback_visibility_var.set("Visible")
+            
+            # disable fields
+            self.exam_id_combo.config(state=tk.DISABLED)
+            self.feedback_type_combo.config(state=tk.DISABLED)
+            self.question_id_entry.config(state=tk.DISABLED)
+            self.feedback_rating_combo.config(state=tk.DISABLED)
+            self.visible_radio.config(state=tk.DISABLED)
+            self.invisible_radio.config(state=tk.DISABLED)
+            self.feedback_text_area.config(state=tk.DISABLED)
+            self.submit_feedback_button.config(state=tk.DISABLED)
+
+    def create_students_exam_result_widgets(self, students_exam_result_tab):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT UE.exam_id, UE.score, UE.total_questions, UE.correct_answers,
+                                UE.wrong_answers, UE.unanswered_questions, UE.is_passed, UE.is_marked
+                       FROM User_Exam UE
+                       JOIN Exam E ON UE.exam_id = E.exam_id
+                       WHERE DATETIME('now', 'localtime') >= DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            AND UE.user_name = ?""", (self.username, ))
+        data = cursor.fetchall()
+        connection.close()
+
+        # load this student exams results
+
+        # Create a frame for student exam results table
+        self.student_exam_results_table_frame = tk.Frame(students_exam_result_tab)
+        self.student_exam_results_table_frame.grid(row=2, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+        columns = ("exam_id", "score", "total_questions", "correct_answers", "wrong_answers", "unanswered_questions", "is_passed", "is_marked")
+
+        self.student_exam_results_table = ttk.Treeview(self.student_exam_results_table_frame, column=columns, show='headings', selectmode="browse")
+        self.student_exam_results_table.heading("#1", text="exam_id",anchor=tk.W)
+        self.student_exam_results_table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.student_exam_results_table.heading("#2", text="score", anchor=tk.W)
+        self.student_exam_results_table.column("#2", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+        self.student_exam_results_table.heading("#3", text="total_questions", anchor=tk.W)
+        self.student_exam_results_table.column("#3", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.student_exam_results_table.heading("#4", text="correct_answers", anchor=tk.W)
+        self.student_exam_results_table.column("#4", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.student_exam_results_table.heading("#5", text="wrong_answers", anchor=tk.W)
+        self.student_exam_results_table.column("#5", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.student_exam_results_table.heading("#6", text="unanswered_questions", anchor=tk.W)
+        self.student_exam_results_table.column("#6", stretch=tk.NO, width = 120, minwidth=50, anchor=tk.W)
+        self.student_exam_results_table.heading("#7", text="is_passed", anchor=tk.W)
+        self.student_exam_results_table.column("#7", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+        self.student_exam_results_table.heading("#8", text="is_marked", anchor=tk.W)
+        self.student_exam_results_table.column("#8", stretch=tk.NO, width = 100, minwidth=50, anchor=tk.W)
+
+        self.student_exam_results_table.grid(row=0, column=0, sticky="nsew")
+
+        self.y_scrollbar = ttk.Scrollbar(self.student_exam_results_table_frame, orient="vertical", command=self.student_exam_results_table.yview)
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        
+        self.student_exam_results_table.configure(yscrollcommand=self.y_scrollbar.set)
+
+        s = ttk.Style(self.student_exam_results_table)
+        s.theme_use("winnative")
+        s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+        
+        # Insert data rows
+        for row in data:
+            self.student_exam_results_table.insert("", "end", values=row)
+
+    def create_students_help_widgets(self, students_help_tab):
+        # Add User Manuals and Documentation
+        user_manual_label = tk.Label(students_help_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
+        user_manual_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+
+        user_manual_info = tk.Label(students_help_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
+        user_manual_info.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Frequently Asked Questions (FAQs)
+        faq_label = tk.Label(students_help_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
+        faq_label.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+
+        faq_info = tk.Label(students_help_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
+        faq_info.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Contact Information and Support Channels
+        contact_info_label = tk.Label(students_help_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
+        contact_info_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+        contact_info = tk.Label(students_help_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
+        contact_info.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Video Tutorials and Demos
+        video_tutorials_label = tk.Label(students_help_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
+        video_tutorials_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+        video_tutorials_info = tk.Label(students_help_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
+        video_tutorials_info.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Release Notes and Updates
+        release_notes_label = tk.Label(students_help_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
+        release_notes_label.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+
+        release_notes_info = tk.Label(students_help_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
+        release_notes_info.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Security Guidelines and Best Practices
+        security_guidelines_label = tk.Label(students_help_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
+        security_guidelines_label.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
+        security_info = tk.Label(students_help_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
+        security_info.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Glossary of Terms
+        glossary_label = tk.Label(students_help_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
+        glossary_label.grid(row=12, column=0, sticky="w", padx=10, pady=5)
+
+        glossary_info = tk.Label(students_help_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
+        glossary_info.grid(row=13, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Community Forums and User Groups
+        community_forums_label = tk.Label(students_help_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
+        community_forums_label.grid(row=14, column=0, sticky="w", padx=10, pady=5)
+
+        community_info = tk.Label(students_help_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
+        community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
+    
+    def add_exam_handler_tabs(self):
+        # Add tabs for different functionalities
+        self.exam_handlers_mark_exam_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_handlers_mark_exam_tab, text='Mark Exam')
+        self.create_exam_handlers_mark_exam_widgets(self.exam_handlers_mark_exam_tab)
+
+        self.exam_handlers_help_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_handlers_help_tab, text='Help')
+        self.create_exam_handlers_help_widgets(self.exam_handlers_help_tab)
+    
+    def create_exam_handlers_mark_exam_widgets(self, exam_handlers_exam_tab):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+        # exam handlers that have a finished exam that at least has one unmarked user exam
+        cursor.execute("""SELECT DISTINCT handler_user_name
+                        FROM Exam E
+                        JOIN User_Exam UE ON E.exam_id = UE.exam_id
+                        WHERE DATETIME('now', 'localtime') > DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')
+                            AND E.exam_id IN (SELECT DISTINCT UE.exam_id
+                                              FROM User_Exam UE
+                                              WHERE UE.is_marked = 0)""")
+        has_unmarked_exam_handlers = [x[0] for x in cursor.fetchall()]
+
+        connection.close()
+
+        if self.username not in has_unmarked_exam_handlers:
+            self.no_unmarked_exam_handlers_label = tk.Label(exam_handlers_exam_tab, text="You have no unmarked exams", font=("Helvetica", 18, "bold"))
+            self.no_unmarked_exam_handlers_label.grid(row=0, column=0, sticky="w", padx=5, pady=10)
+        
+        else:
+            # exam handler has a finnished but unmarked exam
+            # Fetch data by querying the database
+            path = '..\data\Exam_App.db'
+            scriptdir = os.path.dirname(__file__)
+            db_path = os.path.join(scriptdir, path)
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+            connection = sqlite3.connect(db_path)
+            cursor = connection.cursor()
+
+            cursor.execute("""SELECT DISTINCT UE.exam_id
+                        FROM User_Exam UE
+                        JOIN Exam E ON E.exam_id = UE.exam_id
+                        WHERE UE.is_marked = 0 AND E.handler_user_name = ? AND
+                            DATETIME('now', 'localtime') > DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes') 
+                        """, (self.username, ))
+            handler_finished_umarked_exam_ids = [x[0] for x in cursor.fetchall()]
+
+            cursor.execute("""SELECT DISTINCT UE.user_name
+                            FROM User_Exam UE
+                            JOIN Exam E ON E.exam_id = UE.exam_id
+                            WHERE UE.is_marked = 0 AND E.handler_user_name = ? AND
+                                DATETIME('now', 'localtime') > DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes') 
+                            """, (self.username, ))
+            handler_finished_umarked_exam_students = [x[0] for x in cursor.fetchall()]
+
+            connection.close()
+
+            # Create an upper frame for exam and student selection to mark
+            self.exam_student_selection_frame = tk.LabelFrame(exam_handlers_exam_tab)
+            self.exam_student_selection_frame.grid(row=0, column=0, padx=2, pady=2, sticky=tk.NSEW)
+
+            # Exam ID
+            self.exam_id_label = tk.Label(self.exam_student_selection_frame, text="Exam ID:")
+            self.exam_id_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+
+            self.exam_id_combo = ttk.Combobox(self.exam_student_selection_frame, width=5, values=handler_finished_umarked_exam_ids)
+            self.exam_id_combo.grid(row=0, column=1, padx=2, pady=2)
+            self.exam_id_combo.set(handler_finished_umarked_exam_ids[-1])
+
+            # Exam student
+            self.unmarked_exam_students_label = tk.Label(self.exam_student_selection_frame, text="Unmarked Exam Students:")
+            self.unmarked_exam_students_label.grid(row=0, column=2, padx=(20, 0), pady=2, sticky=tk.W)
+
+            self.unmarked_exam_students_combo = ttk.Combobox(self.exam_student_selection_frame, width=15, values=handler_finished_umarked_exam_students)
+            self.unmarked_exam_students_combo.grid(row=0, column=3, padx=2, pady=2)
+            self.unmarked_exam_students_combo.set(handler_finished_umarked_exam_students[0])
+
+            # Create a frame for student exam mark stats
+            self.student_exam_mark_stats_frame = tk.LabelFrame(exam_handlers_exam_tab, text="Student Exam Mark Stats")
+            self.student_exam_mark_stats_frame.grid(row=1, column=0, padx=2, pady=2, sticky=tk.NSEW)
+
+            # Labels and entry fields for mark student exam stats
+            self.total_exam_questions_label = tk.Label(self.student_exam_mark_stats_frame, text="Total Exam Questions:", width=20, anchor=tk.W)
+            self.total_exam_questions_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+            self.total_exam_questions_var = tk.StringVar(value="")
+            self.total_exam_questions_value_label = tk.Label(self.student_exam_mark_stats_frame, textvariable=self.total_exam_questions_var, width=5, anchor=tk.W)
+            self.total_exam_questions_value_label.grid(row=0, column=1, padx=2, pady=2, sticky=tk.W)
+
+            self.total_marked_questions_label = tk.Label(self.student_exam_mark_stats_frame, text="Total Marked Questions:", width=20, anchor=tk.W)
+            self.total_marked_questions_label.grid(row=0, column=2, padx=(20, 0), pady=2, sticky=tk.W)
+            self.total_marked_questions_var = tk.StringVar(value="")
+            self.total_marked_questions_value_label = tk.Label(self.student_exam_mark_stats_frame, textvariable=self.total_marked_questions_var, width=5, anchor=tk.W)
+            self.total_marked_questions_value_label.grid(row=0, column=3, padx=2, pady=2, sticky=tk.W)
+
+            self.score_label = tk.Label(self.student_exam_mark_stats_frame, text="Score:", width=20, anchor=tk.W)
+            self.score_label.grid(row=0, column=4, padx=(20, 0), pady=2, sticky=tk.W)
+            self.score_var = tk.StringVar(value="")
+            self.score_value_label = tk.Label(self.student_exam_mark_stats_frame, textvariable=self.score_var, width=5, anchor=tk.W)
+            self.score_value_label.grid(row=0, column=5, padx=2, pady=2, sticky=tk.W)
+
+            self.correct_answers_label = tk.Label(self.student_exam_mark_stats_frame, text="Correct Answers:", width=20, anchor=tk.W)
+            self.correct_answers_label.grid(row=1, column=0, padx=2, pady=2, sticky=tk.W)
+            self.correct_answers_var = tk.StringVar(value="")
+            self.correct_answers_value_label = tk.Label(self.student_exam_mark_stats_frame, textvariable=self.correct_answers_var, width=5, anchor=tk.W)
+            self.correct_answers_value_label.grid(row=1, column=1, padx=2, pady=2, sticky=tk.W)
+
+            self.wrong_answers_label = tk.Label(self.student_exam_mark_stats_frame, text="Wrong Answers:", width=20, anchor=tk.W)
+            self.wrong_answers_label.grid(row=1, column=2, padx=(20, 0), pady=2, sticky=tk.W)
+            self.wrong_answers_var = tk.StringVar(value="")
+            self.wrong_answers_value_label = tk.Label(self.student_exam_mark_stats_frame, textvariable=self.wrong_answers_var, width=5, anchor=tk.W)
+            self.wrong_answers_value_label.grid(row=1, column=3, padx=2, pady=2, sticky=tk.W)
+
+            self.unanswered_questions_label = tk.Label(self.student_exam_mark_stats_frame, text="Unanswered Questions:", width=20, anchor=tk.W)
+            self.unanswered_questions_label.grid(row=1, column=4, padx=(20, 0), pady=2, sticky=tk.W)
+            self.unanswered_questions_var = tk.StringVar(value="")
+            self.unanswered_questions_value_label = tk.Label(self.student_exam_mark_stats_frame, textvariable=self.unanswered_questions_var, width=5, anchor=tk.W)
+            self.unanswered_questions_value_label.grid(row=1, column=5, padx=2, pady=2, sticky=tk.W)
+
+            self.is_passed_label = tk.Label(self.student_exam_mark_stats_frame, text="Is Passed:", width=20, anchor=tk.W)
+            self.is_passed_label.grid(row=2, column=0, padx=2, pady=2, sticky=tk.W)
+            self.is_passed_var = tk.StringVar(value="")
+            self.is_passed_value_label = tk.Label(self.student_exam_mark_stats_frame, textvariable=self.is_passed_var, width=10, font=("Helvetica", 12, "bold"), anchor=tk.W)
+            self.is_passed_value_label.grid(row=2, column=1, padx=(20, 0), pady=2, sticky=tk.W)
+
+            # mark next button image 
+            path = "..\images\\next.png"
+            # get the path to the directory this script is in
+            scriptdir = os.path.dirname(__file__)
+            # add the relative path to the file from there
+            image_path = os.path.join(scriptdir, path)
+            # make sure the path exists and if not create it
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            self.mark_next_image = Image.open(image_path)
+            self.mark_next_icon = ImageTk.PhotoImage(self.mark_next_image)
+
+            self.start_mark_exam_button = tk.Button(self.student_exam_mark_stats_frame, text="Start Mark Exam", cursor="hand2", command=self.start_mark_exam)
+            self.start_mark_exam_button.grid(row=2, column=2, padx=(20, 0), pady=2, sticky=tk.NSEW)
+            
+            self.mark_next_button = tk.Button(self.student_exam_mark_stats_frame, image=self.mark_next_icon, cursor="hand2", command=self.mark_next, width=20, height=20, anchor=tk.W)
+            self.mark_next_button.grid(row=2, column=3, padx=2, pady=2, sticky=tk.W)
+            self.mark_next_button.config(state=tk.DISABLED)
+
+            self.submit_exam_mark_button = tk.Button(self.student_exam_mark_stats_frame, text="Submit Exam Mark", cursor="hand2", command=self.submit_exam_mark)
+            self.submit_exam_mark_button.grid(row=2, column=4, padx=(20, 0), pady=2, sticky=tk.NSEW)
+            self.submit_exam_mark_button.config(state=tk.DISABLED)
+
+            # Create a frame for marking the discriptive/practical questions
+            self.marking_frame = tk.LabelFrame(exam_handlers_exam_tab, text="Mark Questions")
+            self.marking_frame.grid(row=2, column=0, padx=2, pady=2, sticky=tk.NSEW)
+
+            self.marking_message_var = tk.StringVar(value="Start the exam marking process!")
+            self.marking_message_label = tk.Label(self.marking_frame, textvariable=self.marking_message_var, fg="red", font=("Helvetica", 12, "bold"), anchor=tk.W)
+            self.marking_message_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W, columnspan=3)
+
+            # Create a frame for discriptive/practical question 
+            self.question_frame = tk.LabelFrame(self.marking_frame, text="Question")
+            self.question_frame.grid(row=1, column=0, padx=2, pady=2, sticky=tk.NSEW)
+
+            # Question text area
+            self.question_text_area = tk.Text(self.question_frame, width=40, height=20)
+            self.question_text_area.grid(row=0, column=0, padx=2, pady=2, columnspan=4)
+            self.question_text_area.config(state=tk.DISABLED)
+
+            self.question_points_label = tk.Label(self.question_frame, text="Question Points:", anchor=tk.W)
+            self.question_points_label.grid(row=1, column=0, padx=2, pady=2, sticky=tk.W)
+            self.question_points_var = tk.StringVar(value="")
+            self.question_points_value_label = tk.Label(self.question_frame, textvariable=self.question_points_var, width=5, anchor=tk.W)
+            self.question_points_value_label.grid(row=1, column=1, padx=2, pady=2, sticky=tk.W)
+
+            # Create a frame for question answer 
+            self.question_answer_frame = tk.LabelFrame(self.marking_frame, text="Question Answer")
+            self.question_answer_frame.grid(row=1, column=1, padx=2, pady=2, sticky=tk.NSEW)
+
+            # Question Answer text area
+            self.question_answer_text_area = tk.Text(self.question_answer_frame, width=40, height=20)
+            self.question_answer_text_area.grid(row=0, column=0, padx=2, pady=2)
+            self.question_answer_text_area.config(state=tk.DISABLED)
+
+            # Create a frame for student answer 
+            self.student_answer_frame = tk.LabelFrame(self.marking_frame, text="Student Answer")
+            self.student_answer_frame.grid(row=1, column=2, padx=2, pady=2, sticky=tk.NSEW)
+
+            # Student Answer text area
+            self.student_answer_text_area = tk.Text(self.student_answer_frame, width=40, height=20)
+            self.student_answer_text_area.grid(row=0, column=0, padx=2, pady=2, columnspan=4)
+            self.student_answer_text_area.config(state=tk.DISABLED)
+
+            self.points_given_label = tk.Label(self.student_answer_frame, text="Points Given:", anchor=tk.W)
+            self.points_given_label.grid(row=1, column=0, padx=2, pady=2, sticky=tk.W)
+            self.points_given_entry = tk.Entry(self.student_answer_frame, width=5)
+            self.points_given_entry.grid(row=1, column=1, padx=2, pady=2, sticky=tk.W)
+            self.points_given_entry.config(state=tk.DISABLED)
+            
+    def start_mark_exam(self):
+        # disable the start_mark_exam button
+        self.start_mark_exam_button.config(state=tk.DISABLED)
+
+        # Validate fields
+        exam_id = self.exam_id_combo.get()
+        student_user_name = self.unmarked_exam_students_combo.get()
+        
+        if not (exam_id and student_user_name):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+
+        # update exam marking message
+        self.marking_message_var.set("Exam marking process started...")
+
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT Q.question_id, Q.text, Q.type, Q.points
+                    FROM Question Q
+                    JOIN Exam_Question EQ ON EQ.question_id = Q.question_id 
+                    JOIN Exam E ON E.exam_id = EQ.exam_id 
+                    WHERE Q.type IN ('Multiple choice', 'True/False') AND E.exam_id = ?""", (exam_id, ))
+        nondescriptive_question_data = cursor.fetchall()
+
+        cursor.execute("""SELECT Q.question_id, Q.text, Q.type, Q.points
+                    FROM Question Q
+                    JOIN Exam_Question EQ ON EQ.question_id = Q.question_id 
+                    JOIN Exam E ON E.exam_id = EQ.exam_id    
+                    WHERE Q.type = 'Descriptive/Practical' AND E.exam_id = ?""", (exam_id, ))
+        descriptive_question_data = cursor.fetchall()
+
+        cursor.execute("""SELECT has_negative_score
+                    FROM Exam  
+                    WHERE exam_id = ?""", (exam_id, ))
+        has_negative_score = int(cursor.fetchone()[0])
+
+        cursor.execute("""SELECT passing_score
+                    FROM Exam  
+                    WHERE exam_id = ?""", (exam_id, ))
+        passing_score = int(cursor.fetchone()[0])
+
+        connection.close()
+
+        # Initially set the exam mark stats
+        self.total_exam_questions_var.set(str(len(nondescriptive_question_data) + len(descriptive_question_data)))
+        self.total_marked_questions_var.set("0")
+        self.score_var.set("0")
+        self.correct_answers_var.set("0")
+        self.wrong_answers_var.set("0")
+        self.unanswered_questions_var.set("0")
+
+        # Loop through all of the exam nondescriptive questions
+        for idx, question in enumerate(nondescriptive_question_data, 1):
+            # update exam marking message
+            self.marking_message_var.set(f"Automarking nondescriptive questions [{idx}/{len(nondescriptive_question_data) + 1}]...")
+
+            # disable the mark_next button
+            self.mark_next_button.config(state=tk.DISABLED)
+            # disable descriptive/practical question & answer related fields
+            self.question_text_area.config(state=tk.DISABLED)
+            self.question_answer_text_area.config(state=tk.DISABLED)
+            self.student_answer_text_area.config(state=tk.DISABLED)
+            self.question_points_var.set("")
+            self.points_given_entry.delete(0, tk.END)
+            self.points_given_entry.config(state=tk.DISABLED)
+
+            # just mark it by comparing the option_id in the answer and is_correct answer
+            # Fetch data by querying the database
+            path = '..\data\Exam_App.db'
+            scriptdir = os.path.dirname(__file__)
+            db_path = os.path.join(scriptdir, path)
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+            connection = sqlite3.connect(db_path)
+            cursor = connection.cursor()
+
+            cursor.execute("""SELECT option_id
+                        FROM Answer   
+                        WHERE exam_id = ? AND user_name = ? AND question_id = ?""", (exam_id, student_user_name, question[0]))
+            student_answer_option_id = cursor.fetchone()
+
+            cursor.execute("""SELECT option_id
+                        FROM Option   
+                        WHERE question_id = ? AND is_correct_answer = 1""", (question[0], ))
+            question_answer_option_id = cursor.fetchone()
+
+            connection.close()
+            # mark exam question
+            if student_answer_option_id == question_answer_option_id:
+                # the answer is correct so give its points and include it in correct answers
+                self.total_marked_questions_var.set(str(int(self.total_marked_questions_var.get()) + 1))
+                self.score_var.set(str(int(self.score_var.get()) + question[3]))
+                self.correct_answers_var.set(str(int(self.correct_answers_var.get()) + 1))
+            elif not student_answer_option_id:
+                # the answer is none (the student did't answered this question)
+                self.total_marked_questions_var.set(str(int(self.total_marked_questions_var.get()) + 1))
+                self.unanswered_questions_var.set(str(int(self.unanswered_questions_var.get()) + 1))
+            else:
+                # the answer is wrong so give its points and include it in wrong answers
+                self.total_marked_questions_var.set(str(int(self.total_marked_questions_var.get()) + 1))
+                self.wrong_answers_var.set(str(int(self.wrong_answers_var.get()) + 1))
+                if has_negative_score == 1:
+                    # if the exam has negative score the wrong answer descreses 1/3 of the point of the question
+                    self.score_var.set(str(int(self.score_var.get()) - int(question[3]/3)))
+            # loops until all of the nondescriptive questions are marked....
+            # update exam marking message and is_passed
+            self.is_passed_var.set("Passed" if int(self.score_var.get()) >= passing_score else "Failed")
+            self.marking_message_var.set(f"Automarking nondescriptive questions finished successfully.")
+            
+            # if there is a descriptive question in the exam
+            if descriptive_question_data:
+                # update exam marking message
+                if len(descriptive_question_data) == 1:
+                    self.marking_message_var.set(f"Manual marking descriptive question...")
+                else:
+                    self.marking_message_var.set(f"Manual marking descriptive questions [1/{len(descriptive_question_data) + 1}]...")
+
+                # define a variable to keep track of the descriptive being marked
+                self.current_descriptive_question = 0 # initialize with first descriptive question
+
+                # enable the mark_next button
+                self.mark_next_button.config(state=tk.NORMAL)
+
+                # Fetch data by querying the database
+                path = '..\data\Exam_App.db'
+                scriptdir = os.path.dirname(__file__)
+                db_path = os.path.join(scriptdir, path)
+                os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+                connection = sqlite3.connect(db_path)
+                cursor = connection.cursor()
+
+                cursor.execute("""SELECT answer_text
+                            FROM Answer   
+                            WHERE exam_id = ? AND user_name = ? AND question_id = ?""", (exam_id, student_user_name, descriptive_question_data[0][0]))
+                student_answer_text = cursor.fetchone()
+
+                cursor.execute("""SELECT text
+                            FROM Option   
+                            WHERE question_id = ? AND is_correct_answer = 1""", (descriptive_question_data[0][0], ))
+                question_answer_text = cursor.fetchone()
+
+                connection.close()
+                # enable descriptive/practical question & answer related fields
+                self.question_text_area.config(state=tk.NORMAL)
+                self.question_answer_text_area.config(state=tk.NORMAL)
+                self.student_answer_text_area.config(state=tk.NORMAL)
+                self.points_given_entry.delete(0, tk.END)
+                self.points_given_entry.config(state=tk.NORMAL)
+
+                # then load the question and its correct answer and the student answer
+                self.question_text_area.delete("1.0", tk.END)
+                self.question_text_area.insert(tk.END, descriptive_question_data[0][1])
+                self.question_text_area.config(state=tk.DISABLED)
+                                               
+                self.question_answer_text_area.delete("1.0", tk.END)
+                self.question_answer_text_area.insert(tk.END, question_answer_text)
+                self.question_answer_text_area.config(state=tk.DISABLED)                            
+
+                self.student_answer_text_area.delete("1.0", tk.END)
+                self.student_answer_text_area.insert(tk.END, student_answer_text)
+                self.student_answer_text_area.config(state=tk.DISABLED) 
+
+                # set the points given to 0 if the student answer is empty/none
+                if not self.student_answer_text_area.get("1.0", tk.END).strip():
+                    self.points_given_entry.delete(0, tk.END)
+                    self.points_given_entry.insert(tk.END, "0")
+                
+                # load the question points
+                self.question_points_var.set(str(descriptive_question_data[0][3]))                          
+                # ... then the handler give some points to this question and clicks mark next...
+            else:
+                # there is no descriptive questions so the marking process is finished and only need to be submitted
+                # update exam marking message
+                self.marking_message_var.set(f"Exam mark stats are ready to be submitted...")
+                #enable submit exam mark button
+                self.submit_exam_mark_button.config(state=tk.NORMAL)
+        
+    def mark_next(self):
+        exam_id = self.exam_id_combo.get()
+        student_user_name = self.unmarked_exam_students_combo.get()
+
+        # validate fields
+        if not (exam_id and student_user_name and self.points_given_entry.get()):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT passing_score
+                    FROM Exam  
+                    WHERE exam_id = ?""", (exam_id, ))
+        passing_score = int(cursor.fetchone()[0])
+
+        cursor.execute("""SELECT Q.question_id, Q.text, Q.type, Q.points
+                    FROM Question Q
+                    JOIN Exam_Question EQ ON EQ.question_id = Q.question_id 
+                    JOIN Exam E ON E.exam_id = EQ.exam_id    
+                    WHERE Q.type = 'Descriptive/Practical' AND E.exam_id = ?""", (exam_id, ))
+        descriptive_question_data = cursor.fetchall()
+
+        connection.close()
+        
+        student_answer = self.student_answer_text_area.get("1.0", tk.END).strip()
+        
+        # apply the previous marked question to exam mark stats
+        if student_answer:
+            # the student answered the question
+            self.total_marked_questions_var.set(str(int(self.total_marked_questions_var.get()) + 1))
+            self.score_var.set(str(int(self.score_var.get()) + int(self.points_given_entry.get())))
+            
+            if int(self.points_given_entry.get()) >= 0.5 * int(self.question_points_var.get()):
+                # the student earned >= 50% of the question points so include it in correct answers
+                self.correct_answers_var.set(str(int(self.correct_answers_var.get()) + 1))
+            else:
+                # the student earned < 50% of the question points so include it in wrong answers
+                self.wrong_answers_var.set(str(int(self.wrong_answers_var.get()) + 1))
+        else:
+            # the answer is none (the student did't answered this question)
+            self.total_marked_questions_var.set(str(int(self.total_marked_questions_var.get()) + 1))
+            self.unanswered_questions_var.set(str(int(self.unanswered_questions_var.get()) + 1))
+        
+        # is_passed
+        self.is_passed_var.set("Passed" if int(self.score_var.get()) >= passing_score else "Failed")
+
+        # iterate current_descriptive_question
+        self.current_descriptive_question += 1
+
+        # check if there is any other descriptive question
+        if self.current_descriptive_question <= len(descriptive_question_data) - 1:
+            # there still exists some more descriptive questions to mark
+            # update exam marking message
+            self.marking_message_var.set(f"Manual marking descriptive questions [{self.current_descriptive_question + 1}/{len(descriptive_question_data) + 1}]...")
+            # load the next question to mark
+
+            # enable the mark_next button
+            self.mark_next_button.config(state=tk.NORMAL)
+
+            # Fetch data by querying the database
+            path = '..\data\Exam_App.db'
+            scriptdir = os.path.dirname(__file__)
+            db_path = os.path.join(scriptdir, path)
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+            connection = sqlite3.connect(db_path)
+            cursor = connection.cursor()
+
+            cursor.execute("""SELECT answer_text
+                        FROM Answer   
+                        WHERE exam_id = ? AND user_name = ? AND question_id = ?""", (exam_id, student_user_name, descriptive_question_data[self.current_descriptive_question][0]))
+            student_answer_text = cursor.fetchone()
+
+            cursor.execute("""SELECT text
+                        FROM Option   
+                        WHERE question_id = ? AND is_correct_answer = 1""", (descriptive_question_data[self.current_descriptive_question][0], ))
+            question_answer_text = cursor.fetchone()
+
+            connection.close()
+            # enable descriptive/practical question & answer related fields
+            self.question_text_area.config(state=tk.NORMAL)
+            self.question_answer_text_area.config(state=tk.NORMAL)
+            self.student_answer_text_area.config(state=tk.NORMAL)
+            self.points_given_entry.config(state=tk.NORMAL)
+            self.points_given_entry.delete(0, tk.END)
+
+            # then load the question and its correct answer and the student answer
+            self.question_text_area.delete("1.0", tk.END)
+            self.question_text_area.insert(tk.END, descriptive_question_data[self.current_descriptive_question][1])
+            self.question_text_area.config(state=tk.DISABLED)
+                                            
+            self.question_answer_text_area.delete("1.0", tk.END)
+            self.question_answer_text_area.insert(tk.END, question_answer_text)
+            self.question_answer_text_area.config(state=tk.DISABLED)                            
+
+            self.student_answer_text_area.delete("1.0", tk.END)
+            self.student_answer_text_area.insert(tk.END, student_answer_text)
+            self.student_answer_text_area.config(state=tk.DISABLED) 
+
+            # set the points given to 0 if the student answer is empty/none
+            if not self.student_answer_text_area.get("1.0", tk.END).strip():
+                self.points_given_entry.delete(0, tk.END)
+                self.points_given_entry.insert(tk.END, "0")
+            
+            # load the question points
+            self.question_points_var.set(str(descriptive_question_data[self.current_descriptive_question][3]))                          
+            # ... then the handler give some points to this question and clicks mark next...
+        else:
+            # all of the descriptive questions were marked and we're ready to submit exam stats
+            # update exam marking message
+            self.marking_message_var.set(f"Exam mark stats are ready to be submitted...")
+            #enable submit exam mark button
+            self.submit_exam_mark_button.config(state=tk.NORMAL)
+            #disable mark_next button
+            self.mark_next_button.config(state=tk.DISABLED)
+
+    def submit_exam_mark(self):
+        exam_id = self.exam_id_combo.get()
+        student_user_name = self.unmarked_exam_students_combo.get()
+        score = int(self.score_var.get()) if self.score_var.get() else None
+        total_questions = int(self.total_exam_questions_var.get()) if self.total_exam_questions_var.get() else None
+        correct_answers = int(self.correct_answers_var.get()) if self.correct_answers_var.get() else None
+        wrong_answers = int(self.wrong_answers_var.get()) if self.wrong_answers_var.get() else None
+        unanswered_questions = int(self.unanswered_questions_var.get()) if self.unanswered_questions_var.get() else None
+        is_passed = 1 if self.is_passed_var.get().strip() == "Passed" else 0
+        is_marked = 1
+
+        # validate fields
+        if not (exam_id != None and student_user_name != None and score != None and total_questions != None 
+                and correct_answers != None and wrong_answers != None and unanswered_questions != None and is_passed != None):
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+        
+        # Call insert_feedback function from db1.py
+        exam_mark_submit_msg = update_user_exam(exam_id, student_user_name, score, total_questions, correct_answers, \
+                                                wrong_answers, unanswered_questions, is_passed, is_marked)
+        messagebox.showinfo("Exam Mark Submit", exam_mark_submit_msg)
+
+        # reset exam mark stats, question and answer fields
+        self.reset_exam_mark()
+
+        # update students combolist values (remove this student)
+        self.update_unmarked_students()
+
+    def reset_exam_mark(self):
+        # reset exam mark stats values
+        self.total_exam_questions_var.set("")
+        self.total_marked_questions_var.set("")
+        self.score_var.set("")
+        self.correct_answers_var.set("")
+        self.wrong_answers_var.set("")
+        self.unanswered_questions_var.set("")
+        self.is_passed_var.set("")
+
+        # disable/enable widgets and clear them
+        self.start_mark_exam_button.config(state=tk.NORMAL)
+        self.mark_next_button.config(state=tk.DISABLED)
+        self.submit_exam_mark_button.config(state=tk.DISABLED)
+
+        self.question_text_area.config(state=tk.NORMAL)
+        self.question_answer_text_area.config(state=tk.NORMAL)
+        self.student_answer_text_area.config(state=tk.NORMAL)
+        self.points_given_entry.config(state=tk.NORMAL)
+        self.points_given_entry.delete(0, tk.END)
+        self.points_given_entry.config(state=tk.DISABLED)
+
+        self.question_text_area.delete("1.0", tk.END)
+        self.question_answer_text_area.delete("1.0", tk.END)
+        self.student_answer_text_area.delete("1.0", tk.END)
+        self.question_text_area.config(state=tk.DISABLED)
+        self.question_answer_text_area.config(state=tk.DISABLED)
+        self.student_answer_text_area.config(state=tk.DISABLED)
+        self.question_points_var.set("") 
+        
+    def update_unmarked_students(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        cursor.execute("""SELECT DISTINCT UE.user_name
+                            FROM User_Exam UE
+                            JOIN Exam E ON E.exam_id = UE.exam_id
+                            WHERE UE.is_marked = 0 AND E.handler_user_name = ? AND
+                                DATETIME('now', 'localtime') > DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes') 
+                            """, (self.username, ))
+        handler_finished_umarked_exam_students = [x[0] for x in cursor.fetchall()]
+
+        connection.close()
+
+        # update combolist values
+        self.unmarked_exam_students_combo['values'] = handler_finished_umarked_exam_students
+        self.unmarked_exam_students_combo.set(handler_finished_umarked_exam_students[0])
+
+        # if all of the students aexams are marked(no students left) message handler
+        if not handler_finished_umarked_exam_students:
+            messagebox.showinfo("Exam Mark Finish", "Exam marked completely and successfully. Nice job!")
+
+    def create_exam_handlers_help_widgets(self, exam_handlers_help_tab):
+        # Add User Manuals and Documentation
+        user_manual_label = tk.Label(exam_handlers_help_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
+        user_manual_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+
+        user_manual_info = tk.Label(exam_handlers_help_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
+        user_manual_info.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Frequently Asked Questions (FAQs)
+        faq_label = tk.Label(exam_handlers_help_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
+        faq_label.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+
+        faq_info = tk.Label(exam_handlers_help_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
+        faq_info.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Contact Information and Support Channels
+        contact_info_label = tk.Label(exam_handlers_help_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
+        contact_info_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+        contact_info = tk.Label(exam_handlers_help_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
+        contact_info.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Video Tutorials and Demos
+        video_tutorials_label = tk.Label(exam_handlers_help_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
+        video_tutorials_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+        video_tutorials_info = tk.Label(exam_handlers_help_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
+        video_tutorials_info.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Release Notes and Updates
+        release_notes_label = tk.Label(exam_handlers_help_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
+        release_notes_label.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+
+        release_notes_info = tk.Label(exam_handlers_help_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
+        release_notes_info.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Security Guidelines and Best Practices
+        security_guidelines_label = tk.Label(exam_handlers_help_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
+        security_guidelines_label.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
+        security_info = tk.Label(exam_handlers_help_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
+        security_info.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Glossary of Terms
+        glossary_label = tk.Label(exam_handlers_help_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
+        glossary_label.grid(row=12, column=0, sticky="w", padx=10, pady=5)
+
+        glossary_info = tk.Label(exam_handlers_help_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
+        glossary_info.grid(row=13, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Community Forums and User Groups
+        community_forums_label = tk.Label(exam_handlers_help_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
+        community_forums_label.grid(row=14, column=0, sticky="w", padx=10, pady=5)
+
+        community_info = tk.Label(exam_handlers_help_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
+        community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
+
+    def add_exam_supervisor_tabs(self):
+        # Add tabs for different functionalities
+        self.exam_supervisor_feedbacks_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_supervisor_feedbacks_tab, text='Feedbacks')
+        self.create_exam_supervisor_feedbacks_widgets(self.exam_supervisor_feedbacks_tab)
+        # Bind the load_supervisor_exams_feedbacks method to the event of opening the tab
+        self.exam_supervisor_feedbacks_tab.bind("<Visibility>", self.supervisor_exams_feedbacks_on_tab_opened)
+
+        self.exam_supervisor_help_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.exam_supervisor_help_tab, text='Help')
+        self.create_exam_supervisor_help_widgets(self.exam_supervisor_help_tab)
+
+    def create_exam_supervisor_feedbacks_widgets(self, exam_supervisor_feedbacks_tab):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+        # exam supervisors that have a finished exam
+        cursor.execute("""SELECT DISTINCT supervisor_user_name
+                        FROM Exam
+                        WHERE DATETIME('now', 'localtime') > DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')""")
+        finished_exam_supervisors = [x[0] for x in cursor.fetchall()]
+
+        connection.close()
+
+        if self.username not in finished_exam_supervisors:
+            self.no_finished_exam_supervisors_label = tk.Label(exam_supervisor_feedbacks_tab, text="You have no finished exams", font=("Helvetica", 18, "bold"))
+            self.no_finished_exam_supervisors_label.grid(row=0, column=0, sticky="w", padx=5, pady=10)
+        
+        else:
+            # exam supervisor has a finnished
+            # Fetch data by querying the database
+            path = '..\data\Exam_App.db'
+            scriptdir = os.path.dirname(__file__)
+            db_path = os.path.join(scriptdir, path)
+            os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+            connection = sqlite3.connect(db_path)
+            cursor = connection.cursor()
+
+            cursor.execute("""SELECT exam_id
+                        FROM Exam
+                        WHERE DATETIME('now', 'localtime') > DATETIME(REPLACE(exam_date, '/', '-') || ' ' || start_time, '+' || duration || ' minutes')
+                             AND supervisor_user_name = ?""", (self.username, ))
+            supervisor_finished_exam_ids = [x[0] for x in cursor.fetchall()]
+
+            connection.close()
+
+            # Create an upper frame for feedback info
+            self.upper_feedback_frame = tk.Frame(exam_supervisor_feedbacks_tab)
+            self.upper_feedback_frame.grid(row=0, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+            # Exam ID
+            self.exam_id_label = tk.Label(self.upper_feedback_frame, text="Exam ID:")
+            self.exam_id_label.grid(row=0, column=0, padx=2, pady=2, sticky=tk.W)
+            self.exam_id_combo = ttk.Combobox(self.upper_feedback_frame, width=5, values=supervisor_finished_exam_ids)
+            self.exam_id_combo.grid(row=0, column=1, padx=2, pady=2)
+            self.exam_id_combo.set(supervisor_finished_exam_ids[-1])
+
+            # User name
+            self.user_name_label = tk.Label(self.upper_feedback_frame, text="User Name:")
+            self.user_name_label.grid(row=0, column=2, padx=(20,0), pady=2, sticky=tk.W)
+            self.user_name_entry = tk.Entry(self.upper_feedback_frame, width=10)
+            self.user_name_entry.grid(row=0, column=3, padx=2, pady=2)
+            self.user_name_entry.config(state=tk.DISABLED)
+
+            # feedback type
+            self.feedback_type_label = tk.Label(self.upper_feedback_frame, text="Feedback Type:")
+            self.feedback_type_label.grid(row=0, column=4, padx=(20,0), pady=2, sticky=tk.W)
+            self.feedback_type_combo = ttk.Combobox(self.upper_feedback_frame, values=('Suggestion for improvement', 'Comment on clarity, and difficulty levels'), width=35)
+            self.feedback_type_combo.grid(row=0, column=5, padx=2, pady=2)
+            self.feedback_type_combo.config(state=tk.DISABLED)
+
+            # Question ID
+            self.question_id_label = tk.Label(self.upper_feedback_frame, text="Question ID:")
+            self.question_id_label.grid(row=0, column=6, padx=(20,0), pady=2, sticky=tk.W)
+            self.question_id_entry = tk.Entry(self.upper_feedback_frame, width=5)
+            self.question_id_entry.grid(row=0, column=7, padx=2, pady=2)
+            self.question_id_entry.config(state=tk.DISABLED)
+
+            # rating
+            self.feedback_rating_label = tk.Label(self.upper_feedback_frame, text="Rating:")
+            self.feedback_rating_label.grid(row=0, column=8, padx=(20,0), pady=2, sticky=tk.W)
+            self.feedback_rating_combo = ttk.Combobox(self.upper_feedback_frame, values=list(range(1,11)), width=10)
+            self.feedback_rating_combo.grid(row=0, column=9, padx=2, pady=2)
+            self.feedback_rating_combo.config(state=tk.DISABLED)
+
+            # Add radio buttons for feedback visibility
+            self.feedback_visibility_var = tk.StringVar()
+            self.feedback_visibility_var.set("Visible")  # Default selection
+
+            self.visible_radio = tk.Radiobutton(self.upper_feedback_frame, text="Visible", variable=self.feedback_visibility_var, value="Visible")
+            self.visible_radio.grid(row=0, column=10, padx=(20,0), pady=2)
+            self.visible_radio.config(state=tk.DISABLED)
+
+            self.invisible_radio = tk.Radiobutton(self.upper_feedback_frame, text="Invisible", variable=self.feedback_visibility_var, value="Invisible")
+            self.invisible_radio.grid(row=0, column=11, padx=2, pady=2)
+            self.visible_radio.config(state=tk.DISABLED)
+
+            # Update feedback button
+            self.read_feedback_button = tk.Button(self.upper_feedback_frame, text="Read Feedback", cursor="hand2", command=self.read_feedback)
+            self.read_feedback_button.grid(row=0, column=12, padx=(20,0), pady=2)
+
+            # Create a lower frame for feedback info
+            self.lower_feedback_frame = tk.Frame(exam_supervisor_feedbacks_tab)
+            self.lower_feedback_frame.grid(row=1, column=0, padx=5, pady=2, sticky=tk.NSEW)
+
+            # feedback text area
+            self.feedback_text_area = tk.Text(self.lower_feedback_frame, width=200, height=20)
+            self.feedback_text_area.grid(row=0, column=0, padx=2, pady=2)
+            self.feedback_text_area.config(state=tk.DISABLED)
+
+            # supervisor exams feedbacks table frame
+            self.supervisor_exams_feedbacks_table_frame = tk.Label(exam_supervisor_feedbacks_tab)
+            self.supervisor_exams_feedbacks_table_frame.grid(row=2, column=0, padx=2, pady=2, sticky="nsew")
+
+            # Create the table containing the supervisor exams feedbacks
+            columns = ("exam_id", "user_name", "feedback_type", "text", "question_id", "rating", "status", "is_visible")
+            self.supervisor_exams_feedbacks_table = ttk.Treeview(self.supervisor_exams_feedbacks_table_frame, column=columns, show='headings', selectmode="browse", height=20)
+            self.supervisor_exams_feedbacks_table.heading("#1", text="exam_id",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#1", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.heading("#2", text="user_name",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#2", stretch=tk.NO, width = 110, minwidth=100, anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.heading("#3", text="feedback_type",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#3", stretch=tk.NO, width = 200, minwidth=100, anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.heading("#4", text="text",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#4", stretch=tk.NO, width = 400, minwidth=200, anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.heading("#5", text="question_id",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#5", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.heading("#6", text="rating",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#6", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.heading("#7", text="status",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#7", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.heading("#8", text="is_visible",anchor=tk.W)
+            self.supervisor_exams_feedbacks_table.column("#8", stretch=tk.NO, width = 80, minwidth=50, anchor=tk.W)
+            
+            self.supervisor_exams_feedbacks_table.grid(row=0, column=0, padx=5, pady=2, sticky="nsew")
+
+            self.supervisor_exams_feedbacks_table_y_scrollbar = ttk.Scrollbar(self.supervisor_exams_feedbacks_table_frame, orient="vertical", command=self.supervisor_exams_feedbacks_table.yview)
+            self.supervisor_exams_feedbacks_table_y_scrollbar.grid(row=0, column=1, sticky="ns")
+            
+            self.supervisor_exams_feedbacks_table.configure(yscrollcommand=self.supervisor_exams_feedbacks_table_y_scrollbar.set)
+
+            # Bind the function to the Treeview's selection event
+            self.supervisor_exams_feedbacks_table.bind('<<TreeviewSelect>>', self.supervisor_exams_feedbacks_on_treeview_select)
+
+            s = ttk.Style(self.supervisor_exams_feedbacks_table)
+            s.theme_use("winnative")
+            s.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+            # load the supervisor exams feedbacks table data
+            self.load_supervisor_exams_feedbacks()
+
+    def read_feedback(self):
+        exam_id = self.exam_id_combo.get()
+        user_name = self.user_name_entry.get()
+
+        # Validate fields
+        if not exam_id:
+            messagebox.showwarning("Incomplete Information", "Please fill all required fields.")
+            return
+
+        # Call read_feedback function from db1.py
+        feedback_read_msg = read_feedbacks(exam_id, user_name)
+        messagebox.showinfo("Feedback Read", feedback_read_msg)
+        
+        # Reset/clear fields
+        self.reset_supervisor_exams_feedback()
+        # reload the upervisor exams feedbacks table data
+        self.load_supervisor_exams_feedbacks()
+
+    def load_supervisor_exams_feedbacks(self):
+        # Fetch data by querying the database
+        path = '..\data\Exam_App.db'
+        scriptdir = os.path.dirname(__file__)
+        db_path = os.path.join(scriptdir, path)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+
+        # retrieve all of the feedbacks on the finished exams that this username was in
+        # (only visible feedbacks from other users but all the feedbacks from this user)
+        cursor.execute("""SELECT F.exam_id, F.user_name, F.feedback_type, F.text, F.question_id, F.rating, F.status, F.is_visible
+                        FROM Feedback F
+                        JOIN Exam E ON E.exam_id = F.exam_id
+                        WHERE E.supervisor_user_name = ? AND
+                            DATETIME('now', 'localtime') > DATETIME(REPLACE(E.exam_date, '/', '-') || ' ' || E.start_time, '+' || E.duration || ' minutes')""", (self.username, ))
+        data = cursor.fetchall()
+
+        connection.close()
+
+        # Clear treeview (feedbacks_table) data
+        self.supervisor_exams_feedbacks_table.delete(*self.supervisor_exams_feedbacks_table.get_children())
+        # Insert data rows
+        for row in data:
+            self.supervisor_exams_feedbacks_table.insert("", "end", values=row)
+    
+    def supervisor_exams_feedbacks_on_tab_opened(self, event):
+        #load the supervisor exam feedbacks
+        self.load_supervisor_exams_feedbacks()
+    
+    def reset_supervisor_exams_feedback(self):
+        # activate fields to set their values
+        self.exam_id_combo.config(state=tk.NORMAL)
+        self.user_name_entry.config(state=tk.NORMAL)
+        self.feedback_type_combo.config(state=tk.NORMAL)
+        self.question_id_entry.config(state=tk.NORMAL)
+        self.feedback_rating_combo.config(state=tk.NORMAL)
+        self.visible_radio.config(state=tk.NORMAL)
+        self.visible_radio.config(state=tk.NORMAL)
+        self.feedback_text_area.config(state=tk.NORMAL)
+        self.read_feedback_button.config(state=tk.NORMAL)
+
+        # Clear user name field
+        self.user_name_entry.delete(0, tk.END)
+        # Clear Question ID field
+        self.question_id_entry.delete(0, tk.END)
+        # Reset feedback visibility
+        self.feedback_visibility_var.set("Visible")
+        # Clear feedback Text Area
+        self.feedback_text_area.delete("1.0", tk.END)
+    
+    def supervisor_exams_feedbacks_on_treeview_select(self, event):
+        # Reset fields
+        self.reset_supervisor_exams_feedback()
+        
+        # Get the selected item
+        selected_item = self.supervisor_exams_feedbacks_table.selection()
+        
+        if selected_item:
+            # Get the values of the selected item
+            values = self.supervisor_exams_feedbacks_table.item(selected_item, 'values')
+
+            # Replace None values with empty strings
+            values = ["" if value is None else value for value in values]
+
+            # activate fields to set their values
+            self.exam_id_combo.config(state=tk.NORMAL)
+            self.user_name_entry.config(state=tk.NORMAL)
+            self.feedback_type_combo.config(state=tk.NORMAL)
+            self.question_id_entry.config(state=tk.NORMAL)
+            self.feedback_rating_combo.config(state=tk.NORMAL)
+            self.visible_radio.config(state=tk.NORMAL)
+            self.invisible_radio.config(state=tk.NORMAL)
+            self.feedback_text_area.config(state=tk.NORMAL)
+
+            # Set the values of the feedback-related fields
+            self.exam_id_combo.set(values[0])
+            self.user_name_entry.delete(0, tk.END)
+            self.user_name_entry.insert(tk.END, values[1])
+            self.feedback_type_combo.set(values[2])
+            self.feedback_text_area.delete("1.0", tk.END)
+            self.feedback_text_area.insert(tk.END, values[3])
+            self.question_id_entry.delete(0, tk.END)
+            self.question_id_entry.insert(tk.END, values[4])
+            self.feedback_rating_combo.set(int(values[5]))
+            self.feedback_visibility_var.set("Visible" if int(values[7]) == 1 else "Invisible")
+            
+            # disable fields
+            self.exam_id_combo.config(state=tk.DISABLED)
+            self.user_name_entry.config(state=tk.DISABLED)
+            self.feedback_type_combo.config(state=tk.DISABLED)
+            self.question_id_entry.config(state=tk.DISABLED)
+            self.feedback_rating_combo.config(state=tk.DISABLED)
+            self.visible_radio.config(state=tk.DISABLED)
+            self.invisible_radio.config(state=tk.DISABLED)
+            self.feedback_text_area.config(state=tk.DISABLED)
+
+    def create_exam_supervisor_help_widgets(self, exam_supervisor_help_tab):
+        # Add User Manuals and Documentation
+        user_manual_label = tk.Label(exam_supervisor_help_tab, text="User Manuals and Documentation", font=("Helvetica", 12, "bold"))
+        user_manual_label.grid(row=0, column=0, sticky="w", padx=10, pady=5)
+
+        user_manual_info = tk.Label(exam_supervisor_help_tab, text="Access user manuals and system documentation for detailed instructions.", font=("Helvetica", 12))
+        user_manual_info.grid(row=1, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Frequently Asked Questions (FAQs)
+        faq_label = tk.Label(exam_supervisor_help_tab, text="Frequently Asked Questions (FAQs)", font=("Helvetica", 12, "bold"))
+        faq_label.grid(row=2, column=0, sticky="w", padx=10, pady=5)
+
+        faq_info = tk.Label(exam_supervisor_help_tab, text="Find answers to common questions about system usage, troubleshooting, and more.", font=("Helvetica", 12))
+        faq_info.grid(row=3, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Contact Information and Support Channels
+        contact_info_label = tk.Label(exam_supervisor_help_tab, text="Contact Information and Support Channels", font=("Helvetica", 12, "bold"))
+        contact_info_label.grid(row=4, column=0, sticky="w", padx=10, pady=5)
+
+        contact_info = tk.Label(exam_supervisor_help_tab, text="Reach out to our support team via email, phone, or live chat for assistance.", font=("Helvetica", 12))
+        contact_info.grid(row=5, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Video Tutorials and Demos
+        video_tutorials_label = tk.Label(exam_supervisor_help_tab, text="Video Tutorials and Demos", font=("Helvetica", 12, "bold"))
+        video_tutorials_label.grid(row=6, column=0, sticky="w", padx=10, pady=5)
+
+        video_tutorials_info = tk.Label(exam_supervisor_help_tab, text="Watch video tutorials and demos to learn how to use key features.", font=("Helvetica", 12))
+        video_tutorials_info.grid(row=7, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Release Notes and Updates
+        release_notes_label = tk.Label(exam_supervisor_help_tab, text="Release Notes and Updates", font=("Helvetica", 12, "bold"))
+        release_notes_label.grid(row=8, column=0, sticky="w", padx=10, pady=5)
+
+        release_notes_info = tk.Label(exam_supervisor_help_tab, text="Stay updated on the latest system releases, updates, and improvements.", font=("Helvetica", 12))
+        release_notes_info.grid(row=9, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Security Guidelines and Best Practices
+        security_guidelines_label = tk.Label(exam_supervisor_help_tab, text="Security Guidelines and Best Practices", font=("Helvetica", 12, "bold"))
+        security_guidelines_label.grid(row=10, column=0, sticky="w", padx=10, pady=5)
+
+        security_info = tk.Label(exam_supervisor_help_tab, text="Learn about security best practices and guidelines to protect your account.", font=("Helvetica", 12))
+        security_info.grid(row=11, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Glossary of Terms
+        glossary_label = tk.Label(exam_supervisor_help_tab, text="Glossary of Terms", font=("Helvetica", 12, "bold"))
+        glossary_label.grid(row=12, column=0, sticky="w", padx=10, pady=5)
+
+        glossary_info = tk.Label(exam_supervisor_help_tab, text="Explore the glossary for definitions of common terms and concepts.", font=("Helvetica", 12))
+        glossary_info.grid(row=13, column=0, sticky="w", padx=10, pady=5)
+
+        # Add Community Forums and User Groups
+        community_forums_label = tk.Label(exam_supervisor_help_tab, text="Community Forums and User Groups", font=("Helvetica", 12, "bold"))
+        community_forums_label.grid(row=14, column=0, sticky="w", padx=10, pady=5)
+
+        community_info = tk.Label(exam_supervisor_help_tab, text="Engage with the community, ask questions, and share insights on user forums.", font=("Helvetica", 12))
+        community_info.grid(row=15, column=0, sticky="w", padx=10, pady=5)
+
+
+
+
+
+
+
+
+
 
 # Main loop
 if __name__ == "__main__":

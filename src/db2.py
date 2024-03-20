@@ -101,6 +101,32 @@ import os
 # Insert an exam creator user
 # insert_user("babak247", "*64Bwmw-8#ooP", "Babak", "Samadi", "babaksmdi@gmail.com")
 # insert_user_role("babak247","Exam_Creator")
+
+# Insert 5 student users to take exam
+# insert_user("benh123", "KJ0098**&be", "Behnam", "Rasouli", "behrasuli123@gmail.com")
+# insert_user_role("benh123","Student")
+
+# insert_user("baghshah504", "23mm+35MM=*?", "Bagher", "Shahidi", "baghshah504@gmail.com")
+# insert_user_role("baghshah504","Student")
+
+# insert_user("kariim67", "KkKbulo@911", "Karim", "Kamali", "kariim67@gmail.com")
+# insert_user_role("kariim67","Student")
+
+# insert_user("tavkli85", "TrapQueen*85", "Zahra", "Tavakoli", "tavzahra@gmail.com")
+# insert_user_role("tavkli85","Student")
+
+# insert_user("rezorj11", "ROJ*money0011", "Reza", "Orouji", "rezorj11@gmail.com")
+# insert_user_role("rezorj11","Student")
+
+# insert_user("ramzli02", "Joon$00mXxs", "Ramzali", "Khajavi", "remzkj02@gmail.com")
+# insert_user_role("ramzli02","Student")
+
+# insert_user("saham221", "Doni*3211fZ", "Behzad", "Sahami", "bezisahm@gmail.com")
+# insert_user_role("saham221","Exam_Handler")
+
+# insert_user("jasem77", "Jij23100**", "Jasem", "Karar", "j.karar@gmail.com")
+# insert_user_role("jasem77","Exam_Supervisor")
+
 #------------------------------------II-4-Inserting role permissions-------------------------------------#
 # insert_role_permission("Administrator","Administrate")
 # insert_role_permission("Question_Creator","Create_Question")
@@ -3898,7 +3924,7 @@ def do_exam(exam_id):
                 else:
                     correct_answers -= 1
                     break
-            insert_answer(exam_id, s, q, random_option, None, None)
+            insert_answer(exam_id, s, q, random_option, None)
     
     print("Exam done successfully.")
 
@@ -4095,7 +4121,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "anthony08", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -4117,11 +4143,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "anthony08", "Q262", None, None, None)
+# insert_answer("Ex2", "anthony08", "Q262", None, None)
 
-# insert_answer("Ex2", "anthony08", "Q269", None, None, None)
+# insert_answer("Ex2", "anthony08", "Q269", None, None)
 
 # insert_answer("Ex2", "anthony08", "Q274", None, """
 # def is_undulating(x):
@@ -4138,7 +4164,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True if str(x)[-1] == ab[0] else False
 # """, None)
 
-# insert_answer("Ex2", "anthony08", "Q275", None, None, None)
+# insert_answer("Ex2", "anthony08", "Q275", None, None)
 
 # insert_answer("Ex2", "anthony08", "Q278", None, """
 # from collections import Counter
@@ -4154,7 +4180,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "anthony08", "Q282", None, """
 # import calendar
@@ -4166,7 +4192,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
 # insert_answer("Ex2", "anthony08", "Q287", None, """
 # from csv import reader, writer
@@ -4179,7 +4205,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(60, 6, 0, 3, 1, "Ex2", "anthony08")
@@ -4200,7 +4226,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "ashley09", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -4222,9 +4248,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "ashley09", "Q262", None, None, None)
+# insert_answer("Ex2", "ashley09", "Q262", None, None)
 
 # insert_answer("Ex2", "ashley09", "Q269", None, '''
 # from math import pi,sqrt
@@ -4285,7 +4311,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     def __str__(self):
 #         return f"""A triangle named {self.name} with {self.color} color 
 #                      with a = {self.a} and b = {self.b} and c = {self.c}"""
-# ''', None)
+# ''')
 
 # insert_answer("Ex2", "ashley09", "Q274", None, """
 # def is_undulating(x):
@@ -4300,9 +4326,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "ashley09", "Q275", None, None, None)
+# insert_answer("Ex2", "ashley09", "Q275", None, None)
 
 # insert_answer("Ex2", "ashley09", "Q278", None, """
 # from collections import Counter
@@ -4318,7 +4344,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "ashley09", "Q282", None, """
 # import calendar
@@ -4330,7 +4356,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
 # insert_answer("Ex2", "ashley09", "Q287", None, """
 # from csv import reader, writer
@@ -4343,7 +4369,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(75, 7, 0, 2, 1, "Ex2", "ashley09")
@@ -4364,7 +4390,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "colerobert", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -4386,11 +4412,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "colerobert", "Q262", None, None, None)
+# insert_answer("Ex2", "colerobert", "Q262", None, None)
 
-# insert_answer("Ex2", "colerobert", "Q269", None, None, None)
+# insert_answer("Ex2", "colerobert", "Q269", None, None)
 
 # insert_answer("Ex2", "colerobert", "Q274", None, """
 # def is_undulating(x):
@@ -4405,9 +4431,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "colerobert", "Q275", None, None, None)
+# insert_answer("Ex2", "colerobert", "Q275", None, None)
 
 # insert_answer("Ex2", "colerobert", "Q278", None, """
 # from collections import Counter
@@ -4423,7 +4449,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "colerobert", "Q282", None, """
 # import calendar
@@ -4435,9 +4461,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
-# insert_answer("Ex2", "colerobert", "Q287", None, None, None)
+# insert_answer("Ex2", "colerobert", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(50, 5, 0, 4, 0, "Ex2", "colerobert")
@@ -4458,7 +4484,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "davidherman", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -4480,11 +4506,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "davidherman", "Q262", None, None, None)
+# insert_answer("Ex2", "davidherman", "Q262", None, None)
 
-# insert_answer("Ex2", "davidherman", "Q269", None, None, None)
+# insert_answer("Ex2", "davidherman", "Q269", None, None)
 
 # insert_answer("Ex2", "davidherman", "Q274", None, """
 # def is_undulating(x):
@@ -4499,9 +4525,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "davidherman", "Q275", None, None, None)
+# insert_answer("Ex2", "davidherman", "Q275", None, None)
 
 # insert_answer("Ex2", "davidherman", "Q278", None, """
 # from collections import Counter
@@ -4517,11 +4543,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "davidherman", "Q282", None, None, None)
+# insert_answer("Ex2", "davidherman", "Q282", None, None)
 
-# insert_answer("Ex2", "davidherman", "Q287", None, None, None)
+# insert_answer("Ex2", "davidherman", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(40, 4, 0, 5, 0, "Ex2", "davidherman")
@@ -4542,7 +4568,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "hicksnicole", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -4564,9 +4590,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "hicksnicole", "Q262", None, None, None)
+# insert_answer("Ex2", "hicksnicole", "Q262", None, None)
 
 # insert_answer("Ex2", "hicksnicole", "Q269", None, '''
 # from math import pi,sqrt
@@ -4627,7 +4653,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     def __str__(self):
 #         return f"""A triangle named {self.name} with {self.color} color 
 #                      with a = {self.a} and b = {self.b} and c = {self.c}"""
-# ''', None)
+# ''')
 
 # insert_answer("Ex2", "hicksnicole", "Q274", None, """
 # def is_undulating(x):
@@ -4642,9 +4668,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "hicksnicole", "Q275", None, None, None)
+# insert_answer("Ex2", "hicksnicole", "Q275", None, None)
 
 # insert_answer("Ex2", "hicksnicole", "Q278", None, """
 # from collections import Counter
@@ -4660,7 +4686,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "hicksnicole", "Q282", None, """
 # import calendar
@@ -4672,7 +4698,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
 # insert_answer("Ex2", "hicksnicole", "Q287", None, """
 # from csv import reader, writer
@@ -4685,7 +4711,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(80, 7, 0, 2, 1, "Ex2", "hicksnicole")
@@ -4706,7 +4732,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "houstonjacob", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -4728,7 +4754,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
 # insert_answer("Ex2", "houstonjacob", "Q262", None, """
 # import re
@@ -4743,7 +4769,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #                     and not mid_dot_left_match and not mid_dot_right_match:
 #         return True
 #     return False
-# """, None)
+# """)
 
 # insert_answer("Ex2", "houstonjacob", "Q269", None, '''
 # from math import pi,sqrt
@@ -4804,7 +4830,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     def __str__(self):
 #         return f"""A triangle named {self.name} with {self.color} color 
 #                      with a = {self.a} and b = {self.b} and c = {self.c}"""
-# ''', None)
+# ''')
 
 # insert_answer("Ex2", "houstonjacob", "Q274", None, """
 # def is_undulating(x):
@@ -4819,9 +4845,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "houstonjacob", "Q275", None, None, None)
+# insert_answer("Ex2", "houstonjacob", "Q275", None, None)
 
 # insert_answer("Ex2", "houstonjacob", "Q278", None, """
 # from collections import Counter
@@ -4837,7 +4863,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "houstonjacob", "Q282", None, """
 # import calendar
@@ -4849,7 +4875,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
 # insert_answer("Ex2", "houstonjacob", "Q287", None, """
 # from csv import reader, writer
@@ -4862,7 +4888,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(95, 8, 0, 1, 1, "Ex2", "houstonjacob")
@@ -4883,7 +4909,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "jason16", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -4905,9 +4931,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "jason16", "Q262", None, None, None)
+# insert_answer("Ex2", "jason16", "Q262", None, None)
 
 # insert_answer("Ex2", "jason16", "Q269", None, '''
 # from math import pi,sqrt
@@ -4968,7 +4994,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     def __str__(self):
 #         return f"""A triangle named {self.name} with {self.color} color 
 #                      with a = {self.a} and b = {self.b} and c = {self.c}"""
-# ''', None)
+# ''')
 
 # insert_answer("Ex2", "jason16", "Q274", None, """
 # def is_undulating(x):
@@ -4983,7 +5009,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
 # insert_answer("Ex2", "jason16", "Q275", None, """
 # def subf(n, memo={}):
@@ -5001,7 +5027,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # while subf(i) <= n:
 #     print(subf(i), end = " ")
 #     i += 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "jason16", "Q278", None, """
 # from collections import Counter
@@ -5017,7 +5043,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "jason16", "Q282", None, """
 # import calendar
@@ -5029,7 +5055,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
 # insert_answer("Ex2", "jason16", "Q287", None, """
 # from csv import reader, writer
@@ -5042,7 +5068,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(95, 8, 0, 1, 1, "Ex2", "jason16")
@@ -5065,7 +5091,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "meganhooper", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -5087,11 +5113,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "meganhooper", "Q262", None, None, None)
+# insert_answer("Ex2", "meganhooper", "Q262", None, None)
 
-# insert_answer("Ex2", "meganhooper", "Q269", None, None, None)
+# insert_answer("Ex2", "meganhooper", "Q269", None, None)
 
 # insert_answer("Ex2", "meganhooper", "Q274", None, """
 # def is_undulating(x):
@@ -5106,9 +5132,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "meganhooper", "Q275", None, None, None)
+# insert_answer("Ex2", "meganhooper", "Q275", None, None)
 
 # insert_answer("Ex2", "meganhooper", "Q278", None, """
 # from collections import Counter
@@ -5124,11 +5150,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "meganhooper", "Q282", None, None, None)
+# insert_answer("Ex2", "meganhooper", "Q282", None, None)
 
-# insert_answer("Ex2", "meganhooper", "Q287", None, None, None)
+# insert_answer("Ex2", "meganhooper", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(40, 4, 0, 5, 0, "Ex2", "meganhooper")
@@ -5149,7 +5175,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "melindaross", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -5171,11 +5197,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "melindaross", "Q262", None, None, None)
+# insert_answer("Ex2", "melindaross", "Q262", None, None)
 
-# insert_answer("Ex2", "melindaross", "Q269", None, None, None)
+# insert_answer("Ex2", "melindaross", "Q269", None, None)
 
 # insert_answer("Ex2", "melindaross", "Q274", None, """
 # def is_undulating(x):
@@ -5190,9 +5216,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "melindaross", "Q275", None, None, None)
+# insert_answer("Ex2", "melindaross", "Q275", None, None)
 
 # insert_answer("Ex2", "melindaross", "Q278", None, """
 # from collections import Counter
@@ -5208,7 +5234,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "melindaross", "Q282", None, """
 # import calendar
@@ -5220,7 +5246,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
 # insert_answer("Ex2", "melindaross", "Q287", None, """
 # from csv import reader, writer
@@ -5233,7 +5259,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(60, 6, 0, 3, 1, "Ex2", "melindaross")
@@ -5254,13 +5280,13 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "milesamanda", "Q257", None, None, None)
+# insert_answer("Ex2", "milesamanda", "Q257", None, None)
 
-# insert_answer("Ex2", "milesamanda", "Q262", None, None, None)
+# insert_answer("Ex2", "milesamanda", "Q262", None, None)
 
-# insert_answer("Ex2", "milesamanda", "Q269", None, None, None)
+# insert_answer("Ex2", "milesamanda", "Q269", None, None)
 
 # insert_answer("Ex2", "milesamanda", "Q274", None, """
 # def is_undulating(x):
@@ -5275,9 +5301,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "milesamanda", "Q275", None, None, None)
+# insert_answer("Ex2", "milesamanda", "Q275", None, None)
 
 # insert_answer("Ex2", "milesamanda", "Q278", None, """
 # from collections import Counter
@@ -5293,7 +5319,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "milesamanda", "Q282", None, """
 # import calendar
@@ -5305,9 +5331,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
-# insert_answer("Ex2", "milesamanda", "Q287", None, None, None)
+# insert_answer("Ex2", "milesamanda", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(40, 4, 0, 5, 0, "Ex2", "milesamanda")
@@ -5328,13 +5354,13 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "mvelasquez", "Q257", None, None, None)
+# insert_answer("Ex2", "mvelasquez", "Q257", None, None)
 
-# insert_answer("Ex2", "mvelasquez", "Q262", None, None, None)
+# insert_answer("Ex2", "mvelasquez", "Q262", None, None)
 
-# insert_answer("Ex2", "mvelasquez", "Q269", None, None, None)
+# insert_answer("Ex2", "mvelasquez", "Q269", None, None)
 
 # insert_answer("Ex2", "mvelasquez", "Q274", None, """
 # def is_undulating(x):
@@ -5349,9 +5375,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "mvelasquez", "Q275", None, None, None)
+# insert_answer("Ex2", "mvelasquez", "Q275", None, None)
 
 # insert_answer("Ex2", "mvelasquez", "Q278", None, """
 # from collections import Counter
@@ -5369,9 +5395,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     return counter.most_common(1)[0][1] == 1
 # """, None)
 
-# insert_answer("Ex2", "mvelasquez", "Q282", None, None, None)
+# insert_answer("Ex2", "mvelasquez", "Q282", None, None)
 
-# insert_answer("Ex2", "mvelasquez", "Q287", None, None, None)
+# insert_answer("Ex2", "mvelasquez", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(30, 3, 0, 6, 0, "Ex2", "mvelasquez")
@@ -5392,13 +5418,13 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "nealjohn", "Q257", None, None, None)
+# insert_answer("Ex2", "nealjohn", "Q257", None, None)
 
-# insert_answer("Ex2", "nealjohn", "Q262", None, None, None)
+# insert_answer("Ex2", "nealjohn", "Q262", None, None)
 
-# insert_answer("Ex2", "nealjohn", "Q269", None, None, None)
+# insert_answer("Ex2", "nealjohn", "Q269", None, None)
 
 # insert_answer("Ex2", "nealjohn", "Q274", None, """
 # def is_undulating(x):
@@ -5413,9 +5439,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "nealjohn", "Q275", None, None, None)
+# insert_answer("Ex2", "nealjohn", "Q275", None, None)
 
 # insert_answer("Ex2", "nealjohn", "Q278", None, """
 # from collections import Counter
@@ -5431,23 +5457,23 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "nealjohn", "Q282", None, None, None)
+# insert_answer("Ex2", "nealjohn", "Q282", None, None)
 
-# insert_answer("Ex2", "nealjohn", "Q287", None, None, None)
+# insert_answer("Ex2", "nealjohn", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(30, 3, 0, 6, 0, "Ex2", "nealjohn")
 
 # # perrywilliams
-# insert_answer("Ex2", "perrywilliams", "Q253", None, None, None)
+# insert_answer("Ex2", "perrywilliams", "Q253", None, None)
 
-# insert_answer("Ex2", "perrywilliams", "Q257", None, None, None)
+# insert_answer("Ex2", "perrywilliams", "Q257", None, None)
 
-# insert_answer("Ex2", "perrywilliams", "Q262", None, None, None)
+# insert_answer("Ex2", "perrywilliams", "Q262", None, None)
 
-# insert_answer("Ex2", "perrywilliams", "Q269", None, None, None)
+# insert_answer("Ex2", "perrywilliams", "Q269", None, None)
 
 # insert_answer("Ex2", "perrywilliams", "Q274", None, """
 # def is_undulating(x):
@@ -5462,9 +5488,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "perrywilliams", "Q275", None, None, None)
+# insert_answer("Ex2", "perrywilliams", "Q275", None, None)
 
 # insert_answer("Ex2", "perrywilliams", "Q278", None, """
 # from collections import Counter
@@ -5480,11 +5506,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "perrywilliams", "Q282", None, None, None)
+# insert_answer("Ex2", "perrywilliams", "Q282", None, None)
 
-# insert_answer("Ex2", "perrywilliams", "Q287", None, None, None)
+# insert_answer("Ex2", "perrywilliams", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(20, 2, 0, 7, 0, "Ex2", "perrywilliams")
@@ -5505,7 +5531,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "rcompton", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -5527,9 +5553,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "rcompton", "Q262", None, None, None)
+# insert_answer("Ex2", "rcompton", "Q262", None, None)
 
 # insert_answer("Ex2", "rcompton", "Q269", None, '''
 # from math import pi,sqrt
@@ -5590,7 +5616,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     def __str__(self):
 #         return f"""A triangle named {self.name} with {self.color} color 
 #                      with a = {self.a} and b = {self.b} and c = {self.c}"""
-# ''', None)
+# ''')
 
 # insert_answer("Ex2", "rcompton", "Q274", None, """
 # def is_undulating(x):
@@ -5605,9 +5631,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "rcompton", "Q275", None, None, None)
+# insert_answer("Ex2", "rcompton", "Q275", None, None)
 
 # insert_answer("Ex2", "rcompton", "Q278", None, """
 # from collections import Counter
@@ -5623,7 +5649,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "rcompton", "Q282", None, """
 # import calendar
@@ -5635,7 +5661,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     print(cal.formatyear(year, 2, 1, 1, 3))
 
 # print_calendar(2018)
-# """, None)
+# """)
 
 # insert_answer("Ex2", "rcompton", "Q287", None, """
 # from csv import reader, writer
@@ -5648,7 +5674,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(80, 7, 0, 2, 1, "Ex2", "rcompton")
@@ -5669,7 +5695,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "smithkelly", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -5691,9 +5717,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "smithkelly", "Q262", None, None, None)
+# insert_answer("Ex2", "smithkelly", "Q262", None, None)
 
 # insert_answer("Ex2", "smithkelly", "Q269", None, '''
 # from math import pi,sqrt
@@ -5754,7 +5780,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     def __str__(self):
 #         return f"""A triangle named {self.name} with {self.color} color 
 #                      with a = {self.a} and b = {self.b} and c = {self.c}"""
-# ''', None)
+# ''')
 
 # insert_answer("Ex2", "smithkelly", "Q274", None, """
 # def is_undulating(x):
@@ -5769,9 +5795,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "smithkelly", "Q275", None, None, None)
+# insert_answer("Ex2", "smithkelly", "Q275", None, None)
 
 # insert_answer("Ex2", "smithkelly", "Q278", None, """
 # from collections import Counter
@@ -5787,9 +5813,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "smithkelly", "Q282", None, None, None)
+# insert_answer("Ex2", "smithkelly", "Q282", None, None)
 
 # insert_answer("Ex2", "smithkelly", "Q287", None, """
 # from csv import reader, writer
@@ -5802,7 +5828,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # with open("mydata1.csv", "w", newline="") as f:
 #     w = writer(f)
 #     w.writerows([header] + data)
-# """, None)
+# """)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(70, 6, 0, 3, 1, "Ex2", "smithkelly")
@@ -5823,7 +5849,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 # # then based on the coprime definition, gcd(a,b) must be 1 to a,b be coprime
 # def are_coprime(a, b):
 #     return gcd(a,b) == 1
-# """, None)
+# """)
 
 # insert_answer("Ex2", "thomasanderson", "Q257", None, """
 # r1 = int(input("Enter outer rectangle rows (r1): "))
@@ -5845,9 +5871,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         print(f"{s1} " * c1)
 # else:
 #     print("Impossible!")
-# """, None)
+# """)
 
-# insert_answer("Ex2", "thomasanderson", "Q262", None, None, None)
+# insert_answer("Ex2", "thomasanderson", "Q262", None, None)
 
 # insert_answer("Ex2", "thomasanderson", "Q269", None, '''
 # from math import pi,sqrt
@@ -5908,7 +5934,7 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     def __str__(self):
 #         return f"""A triangle named {self.name} with {self.color} color 
 #                      with a = {self.a} and b = {self.b} and c = {self.c}"""
-# ''', None)
+# ''')
 
 # insert_answer("Ex2", "thomasanderson", "Q274", None, """
 # def is_undulating(x):
@@ -5923,9 +5949,9 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #         return True
 #     else:
 #         return True if str(x)[-1] == ab[0] else False
-# """, None)
+# """)
 
-# insert_answer("Ex2", "thomasanderson", "Q275", None, None, None)
+# insert_answer("Ex2", "thomasanderson", "Q275", None, None)
 
 # insert_answer("Ex2", "thomasanderson", "Q278", None, """
 # from collections import Counter
@@ -5941,11 +5967,11 @@ def update_user_exam_prac(score, correct_answers, wrong_answers, unanswered_ques
 #     counter = Counter(s)
 #     # most common must have 1 count
 #     return counter.most_common(1)[0][1] == 1
-# """, None)
+# """)
 
-# insert_answer("Ex2", "thomasanderson", "Q282", None, None, None)
+# insert_answer("Ex2", "thomasanderson", "Q282", None, None)
 
-# insert_answer("Ex2", "thomasanderson", "Q287", None, None, None)
+# insert_answer("Ex2", "thomasanderson", "Q287", None, None)
 
 # # exam handler updated user_exam table:
 # update_user_exam_prac(60, 5, 0, 4, 1, "Ex2", "thomasanderson")
